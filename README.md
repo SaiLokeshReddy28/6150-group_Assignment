@@ -15,7 +15,7 @@ I am responsible for building:
 - Form validation functionality
 - Responsive design for both pages
 
-## Project Structure
+- ## Project Structure
 finsight-app/
 ├── index.html              (Landing page)
 ├── login.html              (Login page)
