@@ -677,3 +677,176 @@ body {
         font-size: 14px;
     }
 }
+
+/* ============================================
+   HOW IT WORKS SECTION STYLES
+   ============================================ */
+
+.how-it-works-section {
+    background: white;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Step Card */
+.step-card {
+    padding: 30px 20px;
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 2;
+}
+
+.step-card:hover {
+    transform: translateY(-5px);
+}
+
+/* Step Number Badge */
+.step-number-container {
+    position: relative;
+}
+
+.step-badge {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--gradient-primary);
+    color: white;
+    font-size: 28px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    border: 4px solid white;
+    position: relative;
+    z-index: 2;
+}
+
+/* Step Icon */
+.step-icon {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-color);
+    font-size: 40px;
+    transition: all 0.3s ease;
+}
+
+.step-card:hover .step-icon {
+    background: var(--gradient-primary);
+    color: white;
+    transform: scale(1.1);
+}
+
+/* Step Title */
+.step-title {
+    color: var(--dark-color);
+    font-weight: 700;
+    font-size: 22px;
+}
+
+/* Decorative Arrows Container */
+.steps-arrows {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    transform: translateY(-50%);
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Arrow Positioning */
+.steps-arrows .arrow-1 {
+    position: absolute;
+    left: 28%;
+    font-size: 40px;
+    color: var(--primary-color);
+    opacity: 0.2;
+    animation: arrowMove 2s ease-in-out infinite;
+}
+
+.steps-arrows .arrow-2 {
+    position: absolute;
+    left: 61%;
+    font-size: 40px;
+    color: var(--primary-color);
+    opacity: 0.2;
+    animation: arrowMove 2s ease-in-out infinite;
+    animation-delay: 0.3s;
+}
+
+@keyframes arrowMove {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    50% {
+        transform: translateX(10px);
+    }
+}
+
+/* Section Header */
+.how-it-works-section .display-5 {
+    color: var(--dark-color);
+}
+
+.how-it-works-section .lead {
+    color: #7F8C8D;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* CTA Button in How It Works */
+.how-it-works-section .btn-primary {
+    font-size: 18px;
+    font-weight: 600;
+    padding: 14px 40px;
+    border-radius: 30px;
+}
+
+/* Responsive Design */
+@media (max-width: 991px) {
+    .step-card {
+        margin-bottom: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .step-badge {
+        width: 50px;
+        height: 50px;
+        font-size: 24px;
+    }
+    
+    .step-icon {
+        width: 80px;
+        height: 80px;
+        font-size: 32px;
+    }
+    
+    .step-title {
+        font-size: 20px;
+    }
+    
+    .step-card {
+        margin-bottom: 40px;
+    }
+    
+    /* Add mobile arrow pointing down between steps */
+    .step-card:not(:last-child)::after {
+        content: '\f063';
+        font-family: 'Font Awesome 5 Free';
+        font-weight: 900;
+        display: block;
+        text-align: center;
+        font-size: 24px;
+        color: var(--primary-color);
+        opacity: 0.3;
+        margin-top: 20px;
+    }
+}
