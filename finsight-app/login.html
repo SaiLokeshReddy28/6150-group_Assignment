@@ -80,34 +80,188 @@
                             <div class="tab-content" id="authTabContent">
                                 
                                 <!-- ==================== LOGIN TAB ==================== -->
-                                <div class="tab-pane fade show active" id="login-content" role="tabpanel" 
-                                     aria-labelledby="login-tab">
-                                    
-                                    <form id="loginForm" class="auth-form">
-                                        
-                                        <!-- Login form content will be added in next commit -->
-                                        <div class="text-center text-muted py-5">
-                                            <p>Login form will be built in next commit</p>
-                                        </div>
-                                        
-                                    </form>
-                                    
-                                </div>
+                               <!-- ==================== LOGIN TAB ==================== -->
+<div class="tab-pane fade show active" id="login-content" role="tabpanel" 
+     aria-labelledby="login-tab">
+    
+    <form id="loginForm" class="auth-form">
+        
+        <!-- Email Input Group -->
+        <div class="mb-3">
+            <label for="loginEmail" class="form-label">Email Address</label>
+            <div class="input-group">
+                <span class="input-group-text">
+                    <i class="fas fa-envelope"></i>
+                </span>
+                <input type="email" class="form-control" id="loginEmail" 
+                       placeholder="Enter your email" required>
+            </div>
+            <div class="invalid-feedback" id="loginEmailError"></div>
+        </div>
+        
+        <!-- Password Input Group -->
+        <div class="mb-3">
+            <label for="loginPassword" class="form-label">Password</label>
+            <div class="input-group">
+                <span class="input-group-text">
+                    <i class="fas fa-lock"></i>
+                </span>
+                <input type="password" class="form-control" id="loginPassword" 
+                       placeholder="Enter your password" required>
+                <button class="btn btn-outline-secondary password-toggle" type="button" 
+                        data-target="loginPassword">
+                    <i class="fas fa-eye"></i>
+                </button>
+            </div>
+            <div class="invalid-feedback" id="loginPasswordError"></div>
+        </div>
+        
+        <!-- Remember Me & Forgot Password Row -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="rememberMe">
+                <label class="form-check-label" for="rememberMe">
+                    Remember me
+                </label>
+            </div>
+            <a href="#" class="forgot-password-link" data-bs-toggle="modal" 
+               data-bs-target="#forgotPasswordModal">
+                Forgot Password?
+            </a>
+        </div>
+        
+        <!-- Login Button -->
+        <button type="submit" class="btn btn-primary w-100 btn-lg mb-3">
+            <i class="fas fa-sign-in-alt me-2"></i> Sign In
+        </button>
+        
+        <!-- Divider -->
+        <div class="auth-divider">
+            <span>or continue with</span>
+        </div>
+        
+        <!-- Social Login Buttons -->
+        <div class="d-flex gap-2 mb-3">
+            <button type="button" class="btn btn-outline-secondary w-100">
+                <i class="fab fa-google me-2"></i> Google
+            </button>
+            <button type="button" class="btn btn-outline-secondary w-100">
+                <i class="fab fa-facebook-f me-2"></i> Facebook
+            </button>
+        </div>
+        
+    </form>
+    
+</div>
                                 
                                 <!-- ==================== SIGN UP TAB ==================== -->
-                                <div class="tab-pane fade" id="signup-content" role="tabpanel" 
-                                     aria-labelledby="signup-tab">
-                                    
-                                    <form id="signupForm" class="auth-form">
-                                        
-                                        <!-- Sign up form content will be added in next commit -->
-                                        <div class="text-center text-muted py-5">
-                                            <p>Sign up form will be built in next commit</p>
-                                        </div>
-                                        
-                                    </form>
-                                    
-                                </div>
+                              <!-- ==================== SIGN UP TAB ==================== -->
+<div class="tab-pane fade" id="signup-content" role="tabpanel" 
+     aria-labelledby="signup-tab">
+    
+    <form id="signupForm" class="auth-form">
+        
+        <!-- Full Name Input Group -->
+        <div class="mb-3">
+            <label for="signupName" class="form-label">Full Name</label>
+            <div class="input-group">
+                <span class="input-group-text">
+                    <i class="fas fa-user"></i>
+                </span>
+                <input type="text" class="form-control" id="signupName" 
+                       placeholder="Enter your full name" required>
+            </div>
+            <div class="invalid-feedback" id="signupNameError"></div>
+        </div>
+        
+        <!-- Email Input Group -->
+        <div class="mb-3">
+            <label for="signupEmail" class="form-label">Email Address</label>
+            <div class="input-group">
+                <span class="input-group-text">
+                    <i class="fas fa-envelope"></i>
+                </span>
+                <input type="email" class="form-control" id="signupEmail" 
+                       placeholder="Enter your email" required>
+            </div>
+            <div class="invalid-feedback" id="signupEmailError"></div>
+        </div>
+        
+        <!-- Password Input Group -->
+        <div class="mb-3">
+            <label for="signupPassword" class="form-label">Password</label>
+            <div class="input-group">
+                <span class="input-group-text">
+                    <i class="fas fa-lock"></i>
+                </span>
+                <input type="password" class="form-control" id="signupPassword" 
+                       placeholder="Create a password" required>
+                <button class="btn btn-outline-secondary password-toggle" type="button" 
+                        data-target="signupPassword">
+                    <i class="fas fa-eye"></i>
+                </button>
+            </div>
+            <div class="invalid-feedback" id="signupPasswordError"></div>
+            
+            <!-- Password Strength Indicator (will be functional later) -->
+            <div class="password-strength mt-2">
+                <div class="progress" style="height: 5px;">
+                    <div class="progress-bar" role="progressbar" id="passwordStrengthBar" 
+                         style="width: 0%"></div>
+                </div>
+                <small class="text-muted" id="passwordStrengthText">Password strength</small>
+            </div>
+        </div>
+        
+        <!-- Confirm Password Input Group -->
+        <div class="mb-3">
+            <label for="signupConfirmPassword" class="form-label">Confirm Password</label>
+            <div class="input-group">
+                <span class="input-group-text">
+                    <i class="fas fa-lock"></i>
+                </span>
+                <input type="password" class="form-control" id="signupConfirmPassword" 
+                       placeholder="Confirm your password" required>
+                <button class="btn btn-outline-secondary password-toggle" type="button" 
+                        data-target="signupConfirmPassword">
+                    <i class="fas fa-eye"></i>
+                </button>
+            </div>
+            <div class="invalid-feedback" id="signupConfirmPasswordError"></div>
+        </div>
+        
+        <!-- Terms & Conditions Checkbox -->
+        <div class="form-check mb-4">
+            <input class="form-check-input" type="checkbox" id="acceptTerms" required>
+            <label class="form-check-label" for="acceptTerms">
+                I agree to the <a href="#" class="text-primary">Terms & Conditions</a> 
+                and <a href="#" class="text-primary">Privacy Policy</a>
+            </label>
+        </div>
+        
+        <!-- Sign Up Button -->
+        <button type="submit" class="btn btn-primary w-100 btn-lg mb-3">
+            <i class="fas fa-user-plus me-2"></i> Create Account
+        </button>
+        
+        <!-- Divider -->
+        <div class="auth-divider">
+            <span>or sign up with</span>
+        </div>
+        
+        <!-- Social Sign Up Buttons -->
+        <div class="d-flex gap-2 mb-3">
+            <button type="button" class="btn btn-outline-secondary w-100">
+                <i class="fab fa-google me-2"></i> Google
+            </button>
+            <button type="button" class="btn btn-outline-secondary w-100">
+                <i class="fab fa-facebook-f me-2"></i> Facebook
+            </button>
+        </div>
+        
+    </form>
+    
+</div>
                                 
                             </div>
                             
@@ -127,6 +281,58 @@
             </div>
         </div>
     </section>
+
+    <!-- Bootstrap JS Bundle (includes Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JavaScript (will be added later) -->
+    <!-- <script src="js/auth-validation.js"></script> -->
+     
+<!-- ============================================
+         FORGOT PASSWORD MODAL
+         ============================================ -->
+    <div class="modal fade" id="forgotPasswordModal" tabindex="-1" 
+         aria-labelledby="forgotPasswordModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title" id="forgotPasswordModalLabel">
+                        <i class="fas fa-key me-2 text-primary"></i> Reset Password
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" 
+                            aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted mb-4">
+                        Enter your email address and we'll send you a link to reset your password.
+                    </p>
+                    
+                    <form id="forgotPasswordForm">
+                        <div class="mb-3">
+                            <label for="resetEmail" class="form-label">Email Address</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-envelope"></i>
+                                </span>
+                                <input type="email" class="form-control" id="resetEmail" 
+                                       placeholder="Enter your email" required>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-paper-plane me-2"></i> Send Reset Link
+                        </button>
+                    </form>
+                    
+                    <!-- Success Message (hidden by default) -->
+                    <div class="alert alert-success mt-3 d-none" id="resetSuccessMessage">
+                        <i class="fas fa-check-circle me-2"></i>
+                        Password reset link sent! Check your email.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Bootstrap JS Bundle (includes Popper) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

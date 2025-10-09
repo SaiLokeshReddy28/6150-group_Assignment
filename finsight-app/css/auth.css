@@ -1521,3 +1521,237 @@ body {
         padding: 40px 15px;
     }
 }
+
+/* ============================================
+   AUTHENTICATION FORM STYLES
+   ============================================ */
+
+/* Form Labels */
+.auth-form .form-label {
+    color: var(--dark-color);
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+/* Input Groups */
+.auth-form .input-group-text {
+    background: #F8F9FA;
+    border: 1px solid #E0E0E0;
+    color: var(--primary-color);
+}
+
+.auth-form .form-control {
+    border: 1px solid #E0E0E0;
+    padding: 12px 15px;
+    font-size: 15px;
+    transition: all 0.3s ease;
+}
+
+.auth-form .form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.15);
+}
+
+/* Password Toggle Button */
+.password-toggle {
+    border: 1px solid #E0E0E0;
+    border-left: none;
+    background: #F8F9FA;
+    color: #7F8C8D;
+    transition: all 0.3s ease;
+}
+
+.password-toggle:hover {
+    background: #E9ECEF;
+    color: var(--primary-color);
+}
+
+.password-toggle:focus {
+    box-shadow: none;
+}
+
+/* Checkboxes */
+.form-check-input {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #E0E0E0;
+    cursor: pointer;
+}
+
+.form-check-input:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.form-check-label {
+    font-size: 14px;
+    color: #555;
+    cursor: pointer;
+    margin-left: 5px;
+}
+
+/* Forgot Password Link */
+.forgot-password-link {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.forgot-password-link:hover {
+    color: #357ABD;
+    text-decoration: underline;
+}
+
+/* Auth Buttons */
+.auth-form .btn-primary {
+    background: var(--gradient-secondary);
+    border: none;
+    padding: 12px 24px;
+    font-weight: 600;
+    font-size: 16px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.auth-form .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(74, 144, 226, 0.4);
+}
+
+/* Social Buttons */
+.auth-form .btn-outline-secondary {
+    border: 2px solid #E0E0E0;
+    color: #555;
+    font-weight: 600;
+    padding: 10px 20px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.auth-form .btn-outline-secondary:hover {
+    background: #F8F9FA;
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+/* Auth Divider */
+.auth-divider {
+    position: relative;
+    text-align: center;
+    margin: 20px 0;
+}
+
+.auth-divider::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: #E0E0E0;
+}
+
+.auth-divider span {
+    background: white;
+    padding: 0 15px;
+    position: relative;
+    color: #7F8C8D;
+    font-size: 14px;
+}
+
+/* Password Strength Indicator */
+.password-strength {
+    margin-top: 10px;
+}
+
+.password-strength .progress {
+    height: 5px;
+    background: #E9ECEF;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.password-strength .progress-bar {
+    transition: all 0.3s ease;
+    background: #E74C3C; /* Red by default (weak) */
+}
+
+.password-strength .progress-bar.strength-medium {
+    background: #F39C12; /* Orange */
+}
+
+.password-strength .progress-bar.strength-strong {
+    background: #27AE60; /* Green */
+}
+
+#passwordStrengthText {
+    display: block;
+    margin-top: 5px;
+    font-size: 12px;
+}
+
+/* Invalid Feedback */
+.invalid-feedback {
+    display: none;
+    color: #E74C3C;
+    font-size: 13px;
+    margin-top: 5px;
+}
+
+.form-control.is-invalid ~ .invalid-feedback {
+    display: block;
+}
+
+.form-control.is-invalid {
+    border-color: #E74C3C;
+}
+
+/* ============================================
+   MODAL STYLES
+   ============================================ */
+
+.modal-content {
+    border-radius: 15px;
+    border: none;
+}
+
+.modal-header {
+    padding: 20px 25px;
+}
+
+.modal-title {
+    font-weight: 700;
+    color: var(--dark-color);
+}
+
+.modal-body {
+    padding: 25px;
+}
+
+/* ============================================
+   RESPONSIVE FORMS
+   ============================================ */
+
+@media (max-width: 768px) {
+    .auth-form .form-control {
+        font-size: 14px;
+        padding: 10px 12px;
+    }
+    
+    .auth-form .btn-primary {
+        padding: 10px 20px;
+        font-size: 15px;
+    }
+    
+    .auth-form .btn-outline-secondary {
+        font-size: 13px;
+        padding: 8px 15px;
+    }
+    
+    .form-check-label {
+        font-size: 13px;
+    }
+}
