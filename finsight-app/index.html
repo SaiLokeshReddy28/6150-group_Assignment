@@ -1,22 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Finsight - AI-powered personal finance manager">
     <meta name="author" content="Finsight Team - Person 1">
     <title>Finsight - Smart Personal Finance Manager</title>
-    
+
     <!-- Bootstrap CSS CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
+
     <!-- Font Awesome Icons CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <!-- Custom CSS Files -->
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/auth.css">
 </head>
+
 <body>
 
     <!-- ============================================
@@ -29,13 +31,13 @@
                 <i class="fas fa-wallet"></i>
                 Finsight
             </a>
-            
+
             <!-- Mobile Toggle Button - Bootstrap Collapse Component -->
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
-                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            
+
             <!-- Navigation Links -->
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto align-items-center">
@@ -52,16 +54,16 @@
                         <a class="nav-link" href="#pricing">Pricing</a>
                     </li>
                     <li class="nav-item ms-lg-3">
-                        <!-- Bootstrap Button Component -->
+                        <!-- Login Button -->
                         <a href="login.html" class="btn btn-outline-primary">
                             <i class="fas fa-sign-in-alt"></i> Login
                         </a>
                     </li>
                     <li class="nav-item ms-2">
-                        <!-- Bootstrap Button Component -->
-                        <button class="btn btn-primary">
+                        <!-- Get Started Button - THIS ONE! -->
+                        <a href="login.html?tab=signup" class="btn btn-primary">
                             Get Started
-                        </button>
+                        </a>
                     </li>
                 </ul>
             </div>
@@ -82,28 +84,28 @@
                         <span class="badge bg-primary mb-3">
                             <i class="fas fa-sparkles"></i> AI-Powered Financial Intelligence
                         </span>
-                        
+
                         <!-- Bootstrap Typography -->
                         <h1 class="display-3 fw-bold mb-4">
                             Take Control of Your Financial Future
                         </h1>
                         <p class="lead mb-4">
-                            Smart budgeting made simple. Track expenses, analyze spending patterns, 
+                            Smart budgeting made simple. Track expenses, analyze spending patterns,
                             and get personalized insights powered by AI to achieve your financial goals.
                         </p>
-                        
+
                         <!-- Hero Buttons - Bootstrap Button Components -->
                         <div class="d-flex gap-3 flex-wrap">
-                            <button class="btn btn-primary btn-lg px-4">
+                            <a href="login.html?tab=signup" class="btn btn-primary btn-lg px-4">
                                 Start Free Trial <i class="fas fa-arrow-right ms-2"></i>
-                            </button>
+                            </a>
                             <button class="btn btn-outline-primary btn-lg px-4">
                                 <i class="fas fa-play-circle me-2"></i> Watch Demo
                             </button>
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Right Column - Hero Image Placeholder -->
                 <div class="col-lg-6">
                     <div class="text-center p-5 bg-light rounded">
@@ -118,543 +120,549 @@
     <!-- ============================================
          STATS SECTION - Will be built in next commit
          ============================================ -->
-  
-     <section class="stats-section py-5" id="stats">
-    <div class="container">
-        <!-- Main Stats Card -->
-        <div class="card stats-card border-0 shadow-lg">
-            <div class="card-body py-5 px-4">
-                <div class="row g-4">
-                    
-                    <!-- Stat 1: Active Users -->
-                    <div class="col-md-4">
-                        <div class="stat-item text-center">
-                            <div class="stat-icon mb-3">
-                                <i class="fas fa-users"></i>
+
+    <section class="stats-section py-5" id="stats">
+        <div class="container">
+            <!-- Main Stats Card -->
+            <div class="card stats-card border-0 shadow-lg">
+                <div class="card-body py-5 px-4">
+                    <div class="row g-4">
+
+                        <!-- Stat 1: Active Users -->
+                        <div class="col-md-4">
+                            <div class="stat-item text-center">
+                                <div class="stat-icon mb-3">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <div class="stat-number display-3 fw-bold mb-2">50K+</div>
+                                <div class="stat-label text-muted h6 mb-2">Active Users</div>
+                                <div class="stat-description text-muted small">
+                                    Managing their finances daily
+                                </div>
                             </div>
-                            <div class="stat-number display-3 fw-bold mb-2">50K+</div>
-                            <div class="stat-label text-muted h6 mb-2">Active Users</div>
-                            <div class="stat-description text-muted small">
-                                Managing their finances daily
+                        </div>
+
+                        <!-- Stat 2: Money Saved -->
+                        <div class="col-md-4">
+                            <div class="stat-item text-center">
+                                <div class="stat-icon mb-3">
+                                    <i class="fas fa-piggy-bank"></i>
+                                </div>
+                                <div class="stat-number display-3 fw-bold mb-2">$2M+</div>
+                                <div class="stat-label text-muted h6 mb-2">Money Saved</div>
+                                <div class="stat-description text-muted small">
+                                    Through smart budgeting insights
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Stat 3: User Rating -->
+                        <div class="col-md-4">
+                            <div class="stat-item text-center">
+                                <div class="stat-icon mb-3">
+                                    <i class="fas fa-star"></i>
+                                </div>
+                                <div class="stat-number display-3 fw-bold mb-2">4.9★</div>
+                                <div class="stat-label text-muted h6 mb-2">User Rating</div>
+                                <div class="stat-description text-muted small">
+                                    Based on 10,000+ reviews
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Trust Badges Row -->
+                    <div class="row mt-4 pt-4 border-top">
+                        <div class="col-12 text-center">
+                            <p class="text-muted small mb-2">Trusted by companies worldwide</p>
+                            <div class="d-flex justify-content-center align-items-center gap-4 flex-wrap">
+                                <span class="badge bg-light text-dark px-3 py-2">
+                                    <i class="fas fa-shield-alt me-2"></i>Bank-Level Security
+                                </span>
+                                <span class="badge bg-light text-dark px-3 py-2">
+                                    <i class="fas fa-lock me-2"></i>256-bit Encryption
+                                </span>
+                                <span class="badge bg-light text-dark px-3 py-2">
+                                    <i class="fas fa-check-circle me-2"></i>GDPR Compliant
+                                </span>
                             </div>
                         </div>
                     </div>
-                    
-                    <!-- Stat 2: Money Saved -->
-                    <div class="col-md-4">
-                        <div class="stat-item text-center">
-                            <div class="stat-icon mb-3">
-                                <i class="fas fa-piggy-bank"></i>
-                            </div>
-                            <div class="stat-number display-3 fw-bold mb-2">$2M+</div>
-                            <div class="stat-label text-muted h6 mb-2">Money Saved</div>
-                            <div class="stat-description text-muted small">
-                                Through smart budgeting insights
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Stat 3: User Rating -->
-                    <div class="col-md-4">
-                        <div class="stat-item text-center">
-                            <div class="stat-icon mb-3">
-                                <i class="fas fa-star"></i>
-                            </div>
-                            <div class="stat-number display-3 fw-bold mb-2">4.9★</div>
-                            <div class="stat-label text-muted h6 mb-2">User Rating</div>
-                            <div class="stat-description text-muted small">
-                                Based on 10,000+ reviews
-                            </div>
-                        </div>
-                    </div>
-                    
+
                 </div>
-                
-                <!-- Trust Badges Row -->
-                <div class="row mt-4 pt-4 border-top">
-                    <div class="col-12 text-center">
-                        <p class="text-muted small mb-2">Trusted by companies worldwide</p>
-                        <div class="d-flex justify-content-center align-items-center gap-4 flex-wrap">
-                            <span class="badge bg-light text-dark px-3 py-2">
-                                <i class="fas fa-shield-alt me-2"></i>Bank-Level Security
-                            </span>
-                            <span class="badge bg-light text-dark px-3 py-2">
-                                <i class="fas fa-lock me-2"></i>256-bit Encryption
-                            </span>
-                            <span class="badge bg-light text-dark px-3 py-2">
-                                <i class="fas fa-check-circle me-2"></i>GDPR Compliant
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                
             </div>
         </div>
-    </div>
-</section>
+    </section>
+
 
     <!-- ============================================
-         FEATURES SECTION - Will be built
-         ============================================ -->
-   <!-- ============================================
      FEATURES SECTION
      ============================================ -->
-<section class="features-section py-5 bg-light" id="features">
-    <div class="container">
-        <!-- Section Header -->
-        <div class="text-center mb-5">
-            <h2 class="display-5 fw-bold mb-3">Powerful Features</h2>
-            <p class="lead text-muted">Everything you need to manage your finances effectively</p>
+    <section class="features-section py-5 bg-light" id="features">
+        <div class="container">
+            <!-- Section Header -->
+            <div class="text-center mb-5">
+                <h2 class="display-5 fw-bold mb-3">Powerful Features</h2>
+                <p class="lead text-muted">Everything you need to manage your finances effectively</p>
+            </div>
+
+            <!-- Features Grid -->
+            <div class="row g-4">
+
+                <!-- Feature 1: Smart Analytics -->
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="card feature-card h-100 border-0 shadow-lg">
+                        <div class="card-body text-center p-4">
+                            <div class="feature-icon mb-3">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <h4 class="feature-title mb-3">Smart Analytics</h4>
+                            <p class="text-muted">Track spending patterns with AI-powered insights and detailed
+                                analytics dashboard</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feature 2: Budget Planning -->
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="card feature-card h-100 border-0 shadow-lg">
+                        <div class="card-body text-center p-4">
+                            <div class="feature-icon mb-3">
+                                <i class="fas fa-wallet"></i>
+                            </div>
+                            <h4 class="feature-title mb-3">Budget Planning</h4>
+                            <p class="text-muted">Set monthly budgets for different categories and monitor your progress
+                                in real-time</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feature 3: AI Insights -->
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="card feature-card h-100 border-0 shadow-lg">
+                        <div class="card-body text-center p-4">
+                            <div class="feature-icon mb-3">
+                                <i class="fas fa-brain"></i>
+                            </div>
+                            <h4 class="feature-title mb-3">AI Insights</h4>
+                            <p class="text-muted">Get personalized financial recommendations powered by artificial
+                                intelligence</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feature 4: Visual Reports -->
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="card feature-card h-100 border-0 shadow-lg">
+                        <div class="card-body text-center p-4">
+                            <div class="feature-icon mb-3">
+                                <i class="fas fa-chart-pie"></i>
+                            </div>
+                            <h4 class="feature-title mb-3">Visual Reports</h4>
+                            <p class="text-muted">Interactive charts and graphs to visualize your financial data
+                                beautifully</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feature 5: Bank-Level Security -->
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="card feature-card h-100 border-0 shadow-lg">
+                        <div class="card-body text-center p-4">
+                            <div class="feature-icon mb-3">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <h4 class="feature-title mb-3">Bank-Level Security</h4>
+                            <p class="text-muted">Your financial data is protected with 256-bit encryption and secure
+                                protocols</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feature 6: Mobile Friendly -->
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="card feature-card h-100 border-0 shadow-lg">
+                        <div class="card-body text-center p-4">
+                            <div class="feature-icon mb-3">
+                                <i class="fas fa-mobile-alt"></i>
+                            </div>
+                            <h4 class="feature-title mb-3">Mobile Friendly</h4>
+                            <p class="text-muted">Access your finances anywhere, anytime from any device with full
+                                responsiveness</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
         </div>
-        
-        <!-- Features Grid -->
-        <div class="row g-4">
-            
-            <!-- Feature 1: Smart Analytics -->
-            <div class="col-12 col-md-6 col-lg-4">
-                <div class="card feature-card h-100 border-0 shadow-lg">
-                    <div class="card-body text-center p-4">
-                        <div class="feature-icon mb-3">
-                            <i class="fas fa-chart-line"></i>
-                        </div>
-                        <h4 class="feature-title mb-3">Smart Analytics</h4>
-                        <p class="text-muted">Track spending patterns with AI-powered insights and detailed analytics dashboard</p>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Feature 2: Budget Planning -->
-            <div class="col-12 col-md-6 col-lg-4">
-                <div class="card feature-card h-100 border-0 shadow-lg">
-                    <div class="card-body text-center p-4">
-                        <div class="feature-icon mb-3">
-                            <i class="fas fa-wallet"></i>
-                        </div>
-                        <h4 class="feature-title mb-3">Budget Planning</h4>
-                        <p class="text-muted">Set monthly budgets for different categories and monitor your progress in real-time</p>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Feature 3: AI Insights -->
-            <div class="col-12 col-md-6 col-lg-4">
-                <div class="card feature-card h-100 border-0 shadow-lg">
-                    <div class="card-body text-center p-4">
-                        <div class="feature-icon mb-3">
-                            <i class="fas fa-brain"></i>
-                        </div>
-                        <h4 class="feature-title mb-3">AI Insights</h4>
-                        <p class="text-muted">Get personalized financial recommendations powered by artificial intelligence</p>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Feature 4: Visual Reports -->
-            <div class="col-12 col-md-6 col-lg-4">
-                <div class="card feature-card h-100 border-0 shadow-lg">
-                    <div class="card-body text-center p-4">
-                        <div class="feature-icon mb-3">
-                            <i class="fas fa-chart-pie"></i>
-                        </div>
-                        <h4 class="feature-title mb-3">Visual Reports</h4>
-                        <p class="text-muted">Interactive charts and graphs to visualize your financial data beautifully</p>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Feature 5: Bank-Level Security -->
-            <div class="col-12 col-md-6 col-lg-4">
-                <div class="card feature-card h-100 border-0 shadow-lg">
-                    <div class="card-body text-center p-4">
-                        <div class="feature-icon mb-3">
-                            <i class="fas fa-shield-alt"></i>
-                        </div>
-                        <h4 class="feature-title mb-3">Bank-Level Security</h4>
-                        <p class="text-muted">Your financial data is protected with 256-bit encryption and secure protocols</p>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Feature 6: Mobile Friendly -->
-            <div class="col-12 col-md-6 col-lg-4">
-                <div class="card feature-card h-100 border-0 shadow-lg">
-                    <div class="card-body text-center p-4">
-                        <div class="feature-icon mb-3">
-                            <i class="fas fa-mobile-alt"></i>
-                        </div>
-                        <h4 class="feature-title mb-3">Mobile Friendly</h4>
-                        <p class="text-muted">Access your finances anywhere, anytime from any device with full responsiveness</p>
-                    </div>
-                </div>
-            </div>
-            
-        </div>
-    </div>
-</section>
+    </section>
+
 
     <!-- ============================================
-         HOW IT WORKS SECTION - Will be built
-         ============================================ -->
-   <!-- ============================================
      HOW IT WORKS SECTION
      ============================================ -->
+    <section class="how-it-works-section py-5" id="how-it-works">
+        <div class="container">
+            <!-- Section Header -->
+            <div class="text-center mb-5">
+                <h2 class="display-5 fw-bold mb-3">How It Works</h2>
+                <p class="lead text-muted">Get started with Finsight in three simple steps</p>
+            </div>
+
+            <!-- Steps Grid -->
+            <div class="row g-4">
+
+                <!-- Step 1: Sign Up -->
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="step-card text-center">
+                        <div class="step-number-container mb-4">
+                            <span class="badge step-badge">1</span>
+                        </div>
+                        <div class="step-icon mb-3">
+                            <i class="fas fa-user-plus"></i>
+                        </div>
+                        <h4 class="step-title mb-3">Create Your Account</h4>
+                        <p class="text-muted">Sign up in seconds with your email. No credit card required for the free
+                            trial.</p>
+                    </div>
+                </div>
+
+                <!-- Step 2: Connect -->
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="step-card text-center">
+                        <div class="step-number-container mb-4">
+                            <span class="badge step-badge">2</span>
+                        </div>
+                        <div class="step-icon mb-3">
+                            <i class="fas fa-link"></i>
+                        </div>
+                        <h4 class="step-title mb-3">Add Your Expenses</h4>
+                        <p class="text-muted">Manually add transactions or import data to start tracking your spending.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Step 3: Get Insights -->
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="step-card text-center">
+                        <div class="step-number-container mb-4">
+                            <span class="badge step-badge">3</span>
+                        </div>
+                        <div class="step-icon mb-3">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                        <h4 class="step-title mb-3">Get AI Insights</h4>
+                        <p class="text-muted">Receive personalized recommendations and watch your financial goals become
+                            reality.</p>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Decorative Arrows (Positioned Absolutely) -->
+            <div class="steps-arrows d-none d-lg-block">
+                <i class="fas fa-arrow-right arrow-1"></i>
+                <i class="fas fa-arrow-right arrow-2"></i>
+            </div>
+
+
+
+        </div>
+    </section>
     <!-- ============================================
-     HOW IT WORKS SECTION
-     ============================================ -->
-<section class="how-it-works-section py-5" id="how-it-works">
-    <div class="container">
-        <!-- Section Header -->
-        <div class="text-center mb-5">
-            <h2 class="display-5 fw-bold mb-3">How It Works</h2>
-            <p class="lead text-muted">Get started with Finsight in three simple steps</p>
-        </div>
-        
-        <!-- Steps Grid -->
-        <div class="row g-4">
-            
-            <!-- Step 1: Sign Up -->
-            <div class="col-12 col-md-6 col-lg-4">
-                <div class="step-card text-center">
-                    <div class="step-number-container mb-4">
-                        <span class="badge step-badge">1</span>
-                    </div>
-                    <div class="step-icon mb-3">
-                        <i class="fas fa-user-plus"></i>
-                    </div>
-                    <h4 class="step-title mb-3">Create Your Account</h4>
-                    <p class="text-muted">Sign up in seconds with your email. No credit card required for the free trial.</p>
-                </div>
-            </div>
-            
-            <!-- Step 2: Connect -->
-            <div class="col-12 col-md-6 col-lg-4">
-                <div class="step-card text-center">
-                    <div class="step-number-container mb-4">
-                        <span class="badge step-badge">2</span>
-                    </div>
-                    <div class="step-icon mb-3">
-                        <i class="fas fa-link"></i>
-                    </div>
-                    <h4 class="step-title mb-3">Add Your Expenses</h4>
-                    <p class="text-muted">Manually add transactions or import data to start tracking your spending.</p>
-                </div>
-            </div>
-            
-            <!-- Step 3: Get Insights -->
-            <div class="col-12 col-md-6 col-lg-4">
-                <div class="step-card text-center">
-                    <div class="step-number-container mb-4">
-                        <span class="badge step-badge">3</span>
-                    </div>
-                    <div class="step-icon mb-3">
-                        <i class="fas fa-lightbulb"></i>
-                    </div>
-                    <h4 class="step-title mb-3">Get AI Insights</h4>
-                    <p class="text-muted">Receive personalized recommendations and watch your financial goals become reality.</p>
-                </div>
-            </div>
-            
-        </div>
-        
-        <!-- Decorative Arrows (Positioned Absolutely) -->
-        <div class="steps-arrows d-none d-lg-block">
-            <i class="fas fa-arrow-right arrow-1"></i>
-            <i class="fas fa-arrow-right arrow-2"></i>
-        </div>
-        
-    
-        
-    </div>
-</section>
-   <!-- ============================================
      TESTIMONIALS SECTION
      ============================================ -->
-<section class="testimonials-section py-5 bg-light" id="testimonials">
-    <div class="container">
-        <!-- Section Header -->
-        <div class="text-center mb-5">
-            <h2 class="display-5 fw-bold mb-3">What Our Users Say</h2>
-            <p class="lead text-muted">Join thousands of satisfied users managing their finances smarter</p>
-        </div>
-        
-        <!-- Testimonials Grid -->
-        <div class="row g-4">
-            
-            <!-- Testimonial 1 -->
-            <div class="col-12 col-md-6 col-lg-4">
-                <div class="card testimonial-card h-100 border-0 shadow-lg">
-                    <div class="card-body p-4">
-                        <!-- Quote Icon -->
-                        <div class="quote-icon mb-3">
-                            <i class="fas fa-quote-left"></i>
-                        </div>
-                        
-                        <!-- Star Rating -->
-                        <div class="rating mb-3">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                        </div>
-                        
-                        <!-- Testimonial Text -->
-                        <p class="testimonial-text mb-4">
-                            "Finsight has completely transformed how I manage my money. The AI insights helped me save over $500 in just two months!"
-                        </p>
-                        
-                        <!-- User Info -->
-                        <div class="user-info d-flex align-items-center">
-                            <div class="user-avatar me-3">
-                                <i class="fas fa-user"></i>
-                            </div>
-                            <div>
-                                <h6 class="user-name mb-0">Sarah Johnson</h6>
-                                <p class="user-role text-muted mb-0">Marketing Manager</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    <section class="testimonials-section py-5 bg-light" id="testimonials">
+        <div class="container">
+            <!-- Section Header -->
+            <div class="text-center mb-5">
+                <h2 class="display-5 fw-bold mb-3">What Our Users Say</h2>
+                <p class="lead text-muted">Join thousands of satisfied users managing their finances smarter</p>
             </div>
-            
-            <!-- Testimonial 2 -->
-            <div class="col-12 col-md-6 col-lg-4">
-                <div class="card testimonial-card h-100 border-0 shadow-lg">
-                    <div class="card-body p-4">
-                        <!-- Quote Icon -->
-                        <div class="quote-icon mb-3">
-                            <i class="fas fa-quote-left"></i>
-                        </div>
-                        
-                        <!-- Star Rating -->
-                        <div class="rating mb-3">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                        </div>
-                        
-                        <!-- Testimonial Text -->
-                        <p class="testimonial-text mb-4">
-                            "The budget tracking feature is amazing! I finally understand where my money goes each month. Highly recommend!"
-                        </p>
-                        
-                        <!-- User Info -->
-                        <div class="user-info d-flex align-items-center">
-                            <div class="user-avatar me-3">
-                                <i class="fas fa-user"></i>
-                            </div>
-                            <div>
-                                <h6 class="user-name mb-0">Michael Chen</h6>
-                                <p class="user-role text-muted mb-0">Software Engineer</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Testimonial 3 -->
-            <div class="col-12 col-md-6 col-lg-4">
-                <div class="card testimonial-card h-100 border-0 shadow-lg">
-                    <div class="card-body p-4">
-                        <!-- Quote Icon -->
-                        <div class="quote-icon mb-3">
-                            <i class="fas fa-quote-left"></i>
-                        </div>
-                        
-                        <!-- Star Rating -->
-                        <div class="rating mb-3">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                        </div>
-                        
-                        <!-- Testimonial Text -->
-                        <p class="testimonial-text mb-4">
-                            "Best financial app I've ever used. Simple, beautiful, and incredibly powerful. It's like having a financial advisor in your pocket!"
-                        </p>
-                        
-                        <!-- User Info -->
-                        <div class="user-info d-flex align-items-center">
-                            <div class="user-avatar me-3">
-                                <i class="fas fa-user"></i>
-                            </div>
-                            <div>
-                                <h6 class="user-name mb-0">Emily Rodriguez</h6>
-                                <p class="user-role text-muted mb-0">Small Business Owner</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-        </div>
-    </div>
-</section>
 
-  <!-- ============================================
+            <!-- Testimonials Grid -->
+            <div class="row g-4">
+
+                <!-- Testimonial 1 -->
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="card testimonial-card h-100 border-0 shadow-lg">
+                        <div class="card-body p-4">
+                            <!-- Quote Icon -->
+                            <div class="quote-icon mb-3">
+                                <i class="fas fa-quote-left"></i>
+                            </div>
+
+                            <!-- Star Rating -->
+                            <div class="rating mb-3">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+
+                            <!-- Testimonial Text -->
+                            <p class="testimonial-text mb-4">
+                                "Finsight has completely transformed how I manage my money. The AI insights helped me
+                                save over $500 in just two months!"
+                            </p>
+
+                            <!-- User Info -->
+                            <div class="user-info d-flex align-items-center">
+                                <div class="user-avatar me-3">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div>
+                                    <h6 class="user-name mb-0">Sarah Johnson</h6>
+                                    <p class="user-role text-muted mb-0">Marketing Manager</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonial 2 -->
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="card testimonial-card h-100 border-0 shadow-lg">
+                        <div class="card-body p-4">
+                            <!-- Quote Icon -->
+                            <div class="quote-icon mb-3">
+                                <i class="fas fa-quote-left"></i>
+                            </div>
+
+                            <!-- Star Rating -->
+                            <div class="rating mb-3">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+
+                            <!-- Testimonial Text -->
+                            <p class="testimonial-text mb-4">
+                                "The budget tracking feature is amazing! I finally understand where my money goes each
+                                month. Highly recommend!"
+                            </p>
+
+                            <!-- User Info -->
+                            <div class="user-info d-flex align-items-center">
+                                <div class="user-avatar me-3">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div>
+                                    <h6 class="user-name mb-0">Michael Chen</h6>
+                                    <p class="user-role text-muted mb-0">Software Engineer</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonial 3 -->
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="card testimonial-card h-100 border-0 shadow-lg">
+                        <div class="card-body p-4">
+                            <!-- Quote Icon -->
+                            <div class="quote-icon mb-3">
+                                <i class="fas fa-quote-left"></i>
+                            </div>
+
+                            <!-- Star Rating -->
+                            <div class="rating mb-3">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+
+                            <!-- Testimonial Text -->
+                            <p class="testimonial-text mb-4">
+                                "Best financial app I've ever used. Simple, beautiful, and incredibly powerful. It's
+                                like having a financial advisor in your pocket!"
+                            </p>
+
+                            <!-- User Info -->
+                            <div class="user-info d-flex align-items-center">
+                                <div class="user-avatar me-3">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div>
+                                    <h6 class="user-name mb-0">Emily Rodriguez</h6>
+                                    <p class="user-role text-muted mb-0">Small Business Owner</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
      CTA SECTION
      ============================================ -->
-<section class="cta-section py-5" id="cta">
-    <div class="container">
-        <div class="cta-content text-center py-5 px-4">
-            <!-- Badge -->
-            <span class="badge cta-badge mb-3">
-                <i class="fas fa-rocket"></i> Start Your Journey Today
-            </span>
-            
-            <!-- Heading -->
-            <h2 class="display-4 fw-bold text-white mb-4">
-                Ready to Take Control of Your Finances?
-            </h2>
-            
-            <!-- Subheading -->
-            <p class="lead text-white mb-5 opacity-90">
-                Join 50,000+ users who are already achieving their financial goals with Finsight.
-                Start your free 30-day trial today—no credit card required.
-            </p>
-            
-            <!-- CTA Buttons -->
-            <div class="d-flex gap-3 justify-content-center flex-wrap">
-                <button class="btn btn-light btn-lg px-5">
-                    <i class="fas fa-rocket me-2"></i> Start Free Trial
-                </button>
-                <button class="btn btn-outline-light btn-lg px-5">
-                    <i class="fas fa-phone-alt me-2"></i> Contact Sales
-                </button>
-            </div>
-            
-            <!-- Trust Indicators -->
-            <div class="cta-trust-badges mt-5">
-                <p class="text-white mb-3 opacity-75">Trusted by leading companies</p>
-                <div class="d-flex justify-content-center align-items-center gap-4 flex-wrap">
-                    <span class="trust-badge">
-                        <i class="fas fa-check-circle me-2"></i>Free 30-day trial
-                    </span>
-                    <span class="trust-badge">
-                        <i class="fas fa-credit-card me-2"></i>No credit card needed
-                    </span>
-                    <span class="trust-badge">
-                        <i class="fas fa-times-circle me-2"></i>Cancel anytime
-                    </span>
+    <section class="cta-section py-5" id="cta">
+        <div class="container">
+            <div class="cta-content text-center py-5 px-4">
+                <!-- Badge -->
+                <span class="badge cta-badge mb-3">
+                    <i class="fas fa-rocket"></i> Start Your Journey Today
+                </span>
+
+                <!-- Heading -->
+                <h2 class="display-4 fw-bold text-white mb-4">
+                    Ready to Take Control of Your Finances?
+                </h2>
+
+                <!-- Subheading -->
+                <p class="lead text-white mb-5 opacity-90">
+                    Join 50,000+ users who are already achieving their financial goals with Finsight.
+                    Start your free 30-day trial today—no credit card required.
+                </p>
+
+                <!-- CTA Buttons -->
+                <div class="d-flex gap-3 justify-content-center flex-wrap">
+                    <a href="login.html?tab=signup" class="btn btn-light btn-lg px-5">
+                        <i class="fas fa-rocket me-2"></i> Start Free Trial
+                    </a>
+                    <button class="btn btn-outline-light btn-lg px-5">
+                        <i class="fas fa-phone-alt me-2"></i> Contact Sales
+                    </button>
+                </div>
+
+                <!-- Trust Indicators -->
+                <div class="cta-trust-badges mt-5">
+                    <p class="text-white mb-3 opacity-75">Trusted by leading companies</p>
+                    <div class="d-flex justify-content-center align-items-center gap-4 flex-wrap">
+                        <span class="trust-badge">
+                            <i class="fas fa-check-circle me-2"></i>Free 30-day trial
+                        </span>
+                        <span class="trust-badge">
+                            <i class="fas fa-credit-card me-2"></i>No credit card needed
+                        </span>
+                        <span class="trust-badge">
+                            <i class="fas fa-times-circle me-2"></i>Cancel anytime
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</section>
-  <!-- ============================================
+    </section>
+    <!-- ============================================
      FOOTER
      ============================================ -->
-<footer class="footer bg-dark text-white pt-5 pb-3">
-    <div class="container">
-        <!-- Footer Main Content -->
-        <div class="row g-4 mb-4">
-            
-            <!-- Column 1: About -->
-            <div class="col-12 col-sm-6 col-lg-3">
-                <div class="footer-column">
-                    <h5 class="footer-heading mb-3">
-                        <i class="fas fa-wallet me-2"></i>Finsight
-                    </h5>
-                    <p class="footer-text mb-3">
-                        Smart budgeting made simple. Take control of your financial future with AI-powered insights.
-                    </p>
-                    <!-- Social Media Icons -->
-                    <div class="social-links">
-                        <a href="#" class="social-icon" aria-label="Facebook">
-                            <i class="fab fa-facebook-f"></i>
-                        </a>
-                        <a href="#" class="social-icon" aria-label="Twitter">
-                            <i class="fab fa-twitter"></i>
-                        </a>
-                        <a href="#" class="social-icon" aria-label="LinkedIn">
-                            <i class="fab fa-linkedin-in"></i>
-                        </a>
-                        <a href="#" class="social-icon" aria-label="Instagram">
-                            <i class="fab fa-instagram"></i>
-                        </a>
+    <footer class="footer bg-dark text-white pt-5 pb-3">
+        <div class="container">
+            <!-- Footer Main Content -->
+            <div class="row g-4 mb-4">
+
+                <!-- Column 1: About -->
+                <div class="col-12 col-sm-6 col-lg-3">
+                    <div class="footer-column">
+                        <h5 class="footer-heading mb-3">
+                            <i class="fas fa-wallet me-2"></i>Finsight
+                        </h5>
+                        <p class="footer-text mb-3">
+                            Smart budgeting made simple. Take control of your financial future with AI-powered insights.
+                        </p>
+                        <!-- Social Media Icons -->
+                        <div class="social-links">
+                            <a href="#" class="social-icon" aria-label="Facebook">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                            <a href="#" class="social-icon" aria-label="Twitter">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                            <a href="#" class="social-icon" aria-label="LinkedIn">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
+                            <a href="#" class="social-icon" aria-label="Instagram">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Column 2: Product -->
+                <div class="col-12 col-sm-6 col-lg-3">
+                    <div class="footer-column">
+                        <h5 class="footer-heading mb-3">Product</h5>
+                        <ul class="footer-links list-unstyled">
+                            <li><a href="#features">Features</a></li>
+                            <li><a href="#pricing">Pricing</a></li>
+                            <li><a href="#how-it-works">How It Works</a></li>
+                            <li><a href="#testimonials">Testimonials</a></li>
+                            <li><a href="#">Mobile App</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Column 3: Company -->
+                <div class="col-12 col-sm-6 col-lg-3">
+                    <div class="footer-column">
+                        <h5 class="footer-heading mb-3">Company</h5>
+                        <ul class="footer-links list-unstyled">
+                            <li><a href="#">About Us</a></li>
+                            <li><a href="#">Careers</a></li>
+                            <li><a href="#">Blog</a></li>
+                            <li><a href="#">Press Kit</a></li>
+                            <li><a href="#">Partners</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Column 4: Support -->
+                <div class="col-12 col-sm-6 col-lg-3">
+                    <div class="footer-column">
+                        <h5 class="footer-heading mb-3">Support</h5>
+                        <ul class="footer-links list-unstyled">
+                            <li><a href="#">Help Center</a></li>
+                            <li><a href="#">Contact Us</a></li>
+                            <li><a href="#">Privacy Policy</a></li>
+                            <li><a href="#">Terms of Service</a></li>
+                            <li><a href="#">Security</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Footer Bottom -->
+            <div class="footer-bottom pt-4 mt-4 border-top border-secondary">
+                <div class="row align-items-center">
+                    <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                        <p class="mb-0 footer-copyright">
+                            &copy; 2025 Finsight. All rights reserved.
+                        </p>
+                    </div>
+                    <div class="col-md-6 text-center text-md-end">
+                        <div class="footer-badges">
+                            <span class="footer-badge me-2">
+                                <i class="fas fa-shield-alt me-1"></i>Secure
+                            </span>
+                            <span class="footer-badge me-2">
+                                <i class="fas fa-lock me-1"></i>Encrypted
+                            </span>
+                            <span class="footer-badge">
+                                <i class="fas fa-check-circle me-1"></i>GDPR
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>
-            
-            <!-- Column 2: Product -->
-            <div class="col-12 col-sm-6 col-lg-3">
-                <div class="footer-column">
-                    <h5 class="footer-heading mb-3">Product</h5>
-                    <ul class="footer-links list-unstyled">
-                        <li><a href="#features">Features</a></li>
-                        <li><a href="#pricing">Pricing</a></li>
-                        <li><a href="#how-it-works">How It Works</a></li>
-                        <li><a href="#testimonials">Testimonials</a></li>
-                        <li><a href="#">Mobile App</a></li>
-                    </ul>
-                </div>
-            </div>
-            
-            <!-- Column 3: Company -->
-            <div class="col-12 col-sm-6 col-lg-3">
-                <div class="footer-column">
-                    <h5 class="footer-heading mb-3">Company</h5>
-                    <ul class="footer-links list-unstyled">
-                        <li><a href="#">About Us</a></li>
-                        <li><a href="#">Careers</a></li>
-                        <li><a href="#">Blog</a></li>
-                        <li><a href="#">Press Kit</a></li>
-                        <li><a href="#">Partners</a></li>
-                    </ul>
-                </div>
-            </div>
-            
-            <!-- Column 4: Support -->
-            <div class="col-12 col-sm-6 col-lg-3">
-                <div class="footer-column">
-                    <h5 class="footer-heading mb-3">Support</h5>
-                    <ul class="footer-links list-unstyled">
-                        <li><a href="#">Help Center</a></li>
-                        <li><a href="#">Contact Us</a></li>
-                        <li><a href="#">Privacy Policy</a></li>
-                        <li><a href="#">Terms of Service</a></li>
-                        <li><a href="#">Security</a></li>
-                    </ul>
-                </div>
-            </div>
-            
         </div>
-        
-        <!-- Footer Bottom -->
-        <div class="footer-bottom pt-4 mt-4 border-top border-secondary">
-            <div class="row align-items-center">
-                <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
-                    <p class="mb-0 footer-copyright">
-                        &copy; 2025 Finsight. All rights reserved.
-                    </p>
-                </div>
-                <div class="col-md-6 text-center text-md-end">
-                    <div class="footer-badges">
-                        <span class="footer-badge me-2">
-                            <i class="fas fa-shield-alt me-1"></i>Secure
-                        </span>
-                        <span class="footer-badge me-2">
-                            <i class="fas fa-lock me-1"></i>Encrypted
-                        </span>
-                        <span class="footer-badge">
-                            <i class="fas fa-check-circle me-1"></i>GDPR
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</footer>
+    </footer>
 
     <!-- Bootstrap JS Bundle (includes Popper) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
+
     <!-- Custom JavaScript -->
     <script src="js/navigation.js"></script>
 
 </body>
+
 </html>
