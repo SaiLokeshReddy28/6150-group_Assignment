@@ -590,3 +590,90 @@ body {
         padding: 6px 12px !important;
     }
 }
+
+/* ============================================
+   FEATURES SECTION STYLES
+   ============================================ */
+
+.features-section {
+    background: #F8F9FA !important;
+}
+
+/* Feature Card */
+.feature-card {
+    border-radius: 20px !important;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.feature-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Feature Icon Container */
+.feature-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto;
+    background: var(--gradient-primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 32px;
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+    transition: all 0.3s ease;
+}
+
+.feature-card:hover .feature-icon {
+    transform: scale(1.1);
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.5);
+}
+
+/* Feature Title */
+.feature-title {
+    color: var(--dark-color);
+    font-weight: 700;
+    font-size: 20px;
+}
+
+/* Feature Card Text */
+.feature-card p {
+    font-size: 15px;
+    line-height: 1.6;
+    color: #7F8C8D;
+}
+
+/* Section Header Styling */
+.features-section .display-5 {
+    color: var(--dark-color);
+}
+
+.features-section .lead {
+    color: #7F8C8D;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Responsive Design for Features */
+@media (max-width: 768px) {
+    .feature-card {
+        margin-bottom: 20px;
+    }
+    
+    .feature-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 24px;
+    }
+    
+    .feature-title {
+        font-size: 18px;
+    }
+    
+    .feature-card p {
+        font-size: 14px;
+    }
+}
