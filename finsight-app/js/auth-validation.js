@@ -783,20 +783,38 @@ document.addEventListener("DOMContentLoaded", function() {
 
     /**
      * Universal handler for all placeholder buttons and links.
+     * This is where we add the social login redirection logic.
      * @param {Event} e - The click event.
      * @param {string} type - The type of interaction (e.g., 'Google Login', 'Privacy Policy').
      */
     function handlePlaceholderClick(e, type) {
-        // Prevent default form submission or navigation for social buttons/links
         e.preventDefault();
 
-        // Log action to console
-        console.log(`Placeholder Action: Clicked "${type}". Actual API/Navigation logic needed here.`);
+        // Social Login Redirection Logic
+        if (type.includes('Google')) {
+            // Redirect to Google's sign-in page (using a safe external link)
+            window.open('https://accounts.google.com/signin', '_blank');
+            console.log(`Placeholder Action: Redirecting to Google Sign-In.`);
+            return; // Stop further processing
+        } else if (type.includes('Facebook')) {
+            // Redirect to Facebook's login page (using a safe external link)
+            window.open('https://www.facebook.com/login/', '_blank');
+            console.log(`Placeholder Action: Redirecting to Facebook Login.`);
+            return; // Stop further processing
+        }
 
-        // Optional: Provide a small visual feedback (scrolling to top to simulate page refresh/action)
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        // Policy Links and other non-redirecting actions
+        console.log(`Placeholder Action: Clicked "${type}". Actual content or modal needed.`);
 
-        // In a real application, you would implement Firebase/OAuth login or redirect here.
+        // Visual feedback for non-redirecting buttons/links (optional, for aesthetics)
+        const target = e.currentTarget;
+        if (target.tagName === 'BUTTON') {
+            setButtonLoading(target);
+            setTimeout(() => removeButtonLoading(target), 1000);
+        } else {
+            // For links, simply scroll up to simulate a page action
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
     }
 
     // --- Login Tab Handlers ---
@@ -823,6 +841,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     const termsLink = document.getElementById('termsLink');
     if (termsLink) {
+        // Note: Policy links are simply logging the action for now, they don't redirect externally
         termsLink.addEventListener('click', (e) => handlePlaceholderClick(e, 'Terms & Conditions Link'));
     }
 
@@ -850,6 +869,6 @@ document.addEventListener("DOMContentLoaded", function() {
     console.log("📝 Form handlers ready");
     console.log("✉️  Email validation active");
     console.log("🔒 Password strength validation active");
-    console.log("🔗 Placeholder social/policy handlers active"); // Updated log
+    console.log("🔗 Placeholder social/policy handlers active");
     console.log("⏳ Full form validation will be added in Commit 17");
 });
