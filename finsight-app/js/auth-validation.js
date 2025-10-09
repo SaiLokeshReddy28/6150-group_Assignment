@@ -1,7 +1,7 @@
 /**
  * Finsight - Authentication Validation
  * Handles form validation for login page
- * Author:Keerthi Chandrakanth
+ * Author: Keerthi Chandrakanth
  */
 document.addEventListener("DOMContentLoaded", function () {
   console.log("✅ Authentication JavaScript loaded successfully!");
@@ -34,6 +34,428 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // ==========================================
+  // EMAIL VALIDATION FUNCTION
+  // ==========================================
+
+  /**
+   * Validates email format using regex
+   * @param {string} email - Email address to validate
+   * @returns {boolean} - True if valid, false if invalid
+   */
+  function isValidEmail(email) {
+    // Email regex pattern
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+
+  /**
+   * Shows error message and styling for invalid input
+   * @param {HTMLElement} input - Input field element
+   * @param {string} message - Error message to display
+   */
+  function showError(input, message) {
+    input.classList.remove("is-valid");
+    input.classList.add("is-invalid");
+
+    // Find the error message element
+    const errorElement = input
+      .closest(".mb-3")
+      .querySelector(".invalid-feedback");
+    if (errorElement) {
+      errorElement.textContent = message;
+      errorElement.style.display = "block";
+    }
+  }
+
+  /**
+   * Shows success styling for valid input
+   * @param {HTMLElement} input - Input field element
+   */
+  function showSuccess(input) {
+    input.classList.remove("is-invalid");
+    input.classList.add("is-valid");
+
+    // Hide error message
+    const errorElement = input
+      .closest(".mb-3")
+      .querySelector(".invalid-feedback");
+    if (errorElement) {
+      errorElement.style.display = "none";
+    }
+  }
+
+  /**
+   * Clears all validation styling from input
+   * @param {HTMLElement} input - Input field element
+   */
+  function clearValidation(input) {
+    input.classList.remove("is-valid", "is-invalid");
+    const errorElement = input
+      .closest(".mb-3")
+      .querySelector(".invalid-feedback");
+    if (errorElement) {
+      errorElement.style.display = "none";
+    }
+  }
+
+  // ==========================================
+  // LOGIN EMAIL VALIDATION
+  // ==========================================
+
+  const loginEmail = document.getElementById("loginEmail");
+
+  if (loginEmail) {
+    // Validate on blur (when user leaves the field)
+    loginEmail.addEventListener("blur", function () {
+      const email = this.value.trim();
+
+      if (email === "") {
+        showError(this, "Email address is required");
+      } else if (!isValidEmail(email)) {
+        showError(
+          this,
+          "Please enter a valid email address (e.g., user@example.com)"
+        );
+      } else {
+        showSuccess(this);
+      }
+    });
+
+    // Clear validation on input (while typing)
+    loginEmail.addEventListener("input", function () {
+      if (
+        this.classList.contains("is-invalid") ||
+        this.classList.contains("is-valid")
+      ) {
+        const email = this.value.trim();
+
+        if (email === "") {
+          clearValidation(this);
+        } else if (isValidEmail(email)) {
+          showSuccess(this);
+        }
+      }
+    });
+  }
+
+  // ==========================================
+  // SIGN UP EMAIL VALIDATION
+  // ==========================================
+
+  const signupEmail = document.getElementById("signupEmail");
+
+  if (signupEmail) {
+    // Validate on blur (when user leaves the field)
+    signupEmail.addEventListener("blur", function () {
+      const email = this.value.trim();
+
+      if (email === "") {
+        showError(this, "Email address is required");
+      } else if (!isValidEmail(email)) {
+        showError(
+          this,
+          "Please enter a valid email address (e.g., user@example.com)"
+        );
+      } else {
+        showSuccess(this);
+      }
+    });
+
+    // Clear validation on input (while typing)
+    signupEmail.addEventListener("input", function () {
+      if (
+        this.classList.contains("is-invalid") ||
+        this.classList.contains("is-valid")
+      ) {
+        const email = this.value.trim();
+
+        if (email === "") {
+          clearValidation(this);
+        } else if (isValidEmail(email)) {
+          showSuccess(this);
+        }
+      }
+    });
+  }
+
+  // ==========================================
+  // FORGOT PASSWORD EMAIL VALIDATION
+  // ==========================================
+
+  const resetEmail = document.getElementById("resetEmail");
+
+  if (resetEmail) {
+    // Validate on blur
+    resetEmail.addEventListener("blur", function () {
+      const email = this.value.trim();
+
+      if (email === "") {
+        showError(this, "Email address is required");
+      } else if (!isValidEmail(email)) {
+        showError(this, "Please enter a valid email address");
+      } else {
+        showSuccess(this);
+      }
+    });
+
+    // Real-time validation on input
+    resetEmail.addEventListener("input", function () {
+      if (
+        this.classList.contains("is-invalid") ||
+        this.classList.contains("is-valid")
+      ) {
+        const email = this.value.trim();
+
+        if (email === "") {
+          clearValidation(this);
+        } else if (isValidEmail(email)) {
+          showSuccess(this);
+        }
+      }
+    });
+  }
+
+  // ==========================================
+  // PASSWORD STRENGTH VALIDATION
+  // ==========================================
+
+  /**
+   * Validates password strength based on requirements
+   * @param {string} password - Password to validate
+   * @returns {object} - Object with strength score and feedback
+   */
+  function checkPasswordStrength(password) {
+    let strength = 0;
+    const feedback = {
+      score: 0,
+      text: "",
+      color: "",
+      width: 0,
+      requirements: {
+        length: false,
+        uppercase: false,
+        lowercase: false,
+        number: false,
+      },
+    };
+
+    // Check minimum length (8 characters)
+    if (password.length >= 8) {
+      strength += 25;
+      feedback.requirements.length = true;
+    }
+
+    // Check for uppercase letter
+    if (/[A-Z]/.test(password)) {
+      strength += 25;
+      feedback.requirements.uppercase = true;
+    }
+
+    // Check for lowercase letter
+    if (/[a-z]/.test(password)) {
+      strength += 25;
+      feedback.requirements.lowercase = true;
+    }
+
+    // Check for number
+    if (/[0-9]/.test(password)) {
+      strength += 25;
+      feedback.requirements.number = true;
+    }
+
+    // Set feedback based on strength
+    if (strength === 0) {
+      feedback.text = "Password strength";
+      feedback.color = "";
+      feedback.width = 0;
+    } else if (strength <= 25) {
+      feedback.text = "Weak password";
+      feedback.color = "bg-danger";
+      feedback.width = 25;
+    } else if (strength <= 50) {
+      feedback.text = "Fair password";
+      feedback.color = "bg-warning";
+      feedback.width = 50;
+    } else if (strength <= 75) {
+      feedback.text = "Good password";
+      feedback.color = "bg-info";
+      feedback.width = 75;
+    } else {
+      feedback.text = "Strong password";
+      feedback.color = "bg-success";
+      feedback.width = 100;
+    }
+
+    feedback.score = strength;
+    return feedback;
+  }
+
+  /**
+   * Updates the password strength indicator UI
+   * @param {string} password - Current password value
+   */
+  function updatePasswordStrength(password) {
+    const strengthBar = document.getElementById("passwordStrengthBar");
+    const strengthText = document.getElementById("passwordStrengthText");
+
+    if (!strengthBar || !strengthText) return;
+
+    const result = checkPasswordStrength(password);
+
+    // Update progress bar
+    strengthBar.style.width = result.width + "%";
+    strengthBar.className = "progress-bar " + result.color;
+
+    // Update text
+    strengthText.textContent = result.text;
+
+    // Update text color based on strength
+    if (result.width === 0) {
+      strengthText.className = "text-muted";
+    } else if (result.width <= 50) {
+      strengthText.className = "text-danger";
+    } else if (result.width <= 75) {
+      strengthText.className = "text-warning";
+    } else {
+      strengthText.className = "text-success";
+    }
+  }
+
+  /**
+   * Validates password against all requirements
+   * @param {HTMLElement} input - Password input field
+   * @returns {boolean} - True if valid, false if invalid
+   */
+  function validatePassword(input) {
+    const password = input.value;
+    const result = checkPasswordStrength(password);
+
+    if (password === "") {
+      showError(input, "Password is required");
+      return false;
+    }
+
+    if (password.length < 8) {
+      showError(input, "Password must be at least 8 characters long");
+      return false;
+    }
+
+    if (!result.requirements.uppercase) {
+      showError(input, "Password must contain at least one uppercase letter");
+      return false;
+    }
+
+    if (!result.requirements.lowercase) {
+      showError(input, "Password must contain at least one lowercase letter");
+      return false;
+    }
+
+    if (!result.requirements.number) {
+      showError(input, "Password must contain at least one number");
+      return false;
+    }
+
+    // All requirements met
+    showSuccess(input);
+    return true;
+  }
+
+  // ==========================================
+  // SIGN UP PASSWORD STRENGTH INDICATOR
+  // ==========================================
+
+  const signupPassword = document.getElementById("signupPassword");
+
+  if (signupPassword) {
+    // Update strength indicator in real-time as user types
+    signupPassword.addEventListener("input", function () {
+      updatePasswordStrength(this.value);
+    });
+
+    // Validate on blur (when user leaves the field)
+    signupPassword.addEventListener("blur", function () {
+      if (this.value.trim() !== "") {
+        validatePassword(this);
+      }
+    });
+
+    // Clear validation when field is empty
+    signupPassword.addEventListener("focus", function () {
+      if (this.value === "") {
+        clearValidation(this);
+        updatePasswordStrength("");
+      }
+    });
+  }
+
+  // ==========================================
+  // LOGIN PASSWORD VALIDATION (Basic)
+  // ==========================================
+
+  const loginPassword = document.getElementById("loginPassword");
+
+  if (loginPassword) {
+    // Just check if password is not empty
+    loginPassword.addEventListener("blur", function () {
+      const password = this.value.trim();
+
+      if (password === "") {
+        showError(this, "Password is required");
+      } else {
+        showSuccess(this);
+      }
+    });
+
+    loginPassword.addEventListener("input", function () {
+      if (this.classList.contains("is-invalid") && this.value.trim() !== "") {
+        showSuccess(this);
+      }
+    });
+  }
+
+  // ==========================================
+  // CONFIRM PASSWORD VALIDATION
+  // ==========================================
+
+  const signupConfirmPassword = document.getElementById(
+    "signupConfirmPassword"
+  );
+
+  if (signupConfirmPassword && signupPassword) {
+    signupConfirmPassword.addEventListener("blur", function () {
+      const password = signupPassword.value;
+      const confirmPassword = this.value;
+
+      if (confirmPassword === "") {
+        showError(this, "Please confirm your password");
+      } else if (password !== confirmPassword) {
+        showError(this, "Passwords do not match");
+      } else {
+        showSuccess(this);
+      }
+    });
+
+    // Real-time validation
+    signupConfirmPassword.addEventListener("input", function () {
+      if (
+        this.classList.contains("is-invalid") ||
+        this.classList.contains("is-valid")
+      ) {
+        const password = signupPassword.value;
+        const confirmPassword = this.value;
+
+        if (confirmPassword === "") {
+          clearValidation(this);
+        } else if (password === confirmPassword) {
+          showSuccess(this);
+        } else {
+          showError(this, "Passwords do not match");
+        }
+      }
+    });
+  }
+
+  // ==========================================
   // FORM SUBMISSION HANDLERS (Temporary)
   // ==========================================
 
@@ -43,9 +465,8 @@ document.addEventListener("DOMContentLoaded", function () {
     loginForm.addEventListener("submit", function (e) {
       e.preventDefault();
       console.log(
-        "Login form submitted (validation will be added in next commits)"
+        "Login form submitted (full validation will be added in Commit 17)"
       );
-      // Validation will be added in Commit 15, 16, 17
     });
   }
 
@@ -55,9 +476,8 @@ document.addEventListener("DOMContentLoaded", function () {
     signupForm.addEventListener("submit", function (e) {
       e.preventDefault();
       console.log(
-        "Sign up form submitted (validation will be added in next commits)"
+        "Sign up form submitted (full validation will be added in Commit 17)"
       );
-      // Validation will be added in Commit 15, 16, 17
     });
   }
 
@@ -85,167 +505,12 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // ==========================================
-    // EMAIL VALIDATION FUNCTION
-    // ==========================================
-    
-    /**
-     * Validates email format using regex
-     * @param {string} email - Email address to validate
-     * @returns {boolean} - True if valid, false if invalid
-     */
-    function isValidEmail(email) {
-        // Email regex pattern
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return emailRegex.test(email);
-    }
-    
-    /**
-     * Shows error message and styling for invalid input
-     * @param {HTMLElement} input - Input field element
-     * @param {string} message - Error message to display
-     */
-    function showError(input, message) {
-        input.classList.remove('is-valid');
-        input.classList.add('is-invalid');
-        
-        // Find the error message element
-        const errorElement = input.closest('.mb-3').querySelector('.invalid-feedback');
-        if (errorElement) {
-            errorElement.textContent = message;
-            errorElement.style.display = 'block';
-        }
-    }
-    
-    /**
-     * Shows success styling for valid input
-     * @param {HTMLElement} input - Input field element
-     */
-    function showSuccess(input) {
-        input.classList.remove('is-invalid');
-        input.classList.add('is-valid');
-        
-        // Hide error message
-        const errorElement = input.closest('.mb-3').querySelector('.invalid-feedback');
-        if (errorElement) {
-            errorElement.style.display = 'none';
-        }
-    }
-    
-    /**
-     * Clears all validation styling from input
-     * @param {HTMLElement} input - Input field element
-     */
-    function clearValidation(input) {
-        input.classList.remove('is-valid', 'is-invalid');
-        const errorElement = input.closest('.mb-3').querySelector('.invalid-feedback');
-        if (errorElement) {
-            errorElement.style.display = 'none';
-        }
-    }
-    
-    
-    // ==========================================
-    // LOGIN EMAIL VALIDATION
-    // ==========================================
-    
-    const loginEmail = document.getElementById('loginEmail');
-    
-    if (loginEmail) {
-        // Validate on blur (when user leaves the field)
-        loginEmail.addEventListener('blur', function() {
-            const email = this.value.trim();
-            
-            if (email === '') {
-                showError(this, 'Email address is required');
-            } else if (!isValidEmail(email)) {
-                showError(this, 'Please enter a valid email address (e.g., user@example.com)');
-            } else {
-                showSuccess(this);
-            }
-        });
-        
-        // Clear validation on input (while typing)
-        loginEmail.addEventListener('input', function() {
-            if (this.classList.contains('is-invalid') || this.classList.contains('is-valid')) {
-                const email = this.value.trim();
-                
-                if (email === '') {
-                    clearValidation(this);
-                } else if (isValidEmail(email)) {
-                    showSuccess(this);
-                }
-            }
-        });
-    }
-    
-    
-    // ==========================================
-    // SIGN UP EMAIL VALIDATION
-    // ==========================================
-    
-    const signupEmail = document.getElementById('signupEmail');
-    
-    if (signupEmail) {
-        // Validate on blur (when user leaves the field)
-        signupEmail.addEventListener('blur', function() {
-            const email = this.value.trim();
-            
-            if (email === '') {
-                showError(this, 'Email address is required');
-            } else if (!isValidEmail(email)) {
-                showError(this, 'Please enter a valid email address (e.g., user@example.com)');
-            } else {
-                showSuccess(this);
-            }
-        });
-        
-        // Clear validation on input (while typing)
-        signupEmail.addEventListener('input', function() {
-            if (this.classList.contains('is-invalid') || this.classList.contains('is-valid')) {
-                const email = this.value.trim();
-                
-                if (email === '') {
-                    clearValidation(this);
-                } else if (isValidEmail(email)) {
-                    showSuccess(this);
-                }
-            }
-        });
-    }
-    
-    
-    // ==========================================
-    // FORGOT PASSWORD EMAIL VALIDATION
-    // ==========================================
-    
-    const resetEmail = document.getElementById('resetEmail');
-    
-    if (resetEmail) {
-        // Validate on blur
-        resetEmail.addEventListener('blur', function() {
-            const email = this.value.trim();
-            
-            if (email === '') {
-                showError(this, 'Email address is required');
-            } else if (!isValidEmail(email)) {
-                showError(this, 'Please enter a valid email address');
-            } else {
-                showSuccess(this);
-            }
-        });
-        
-        // Real-time validation on input
-        resetEmail.addEventListener('input', function() {
-            if (this.classList.contains('is-invalid') || this.classList.contains('is-valid')) {
-                const email = this.value.trim();
-                
-                if (email === '') {
-                    clearValidation(this);
-                } else if (isValidEmail(email)) {
-                    showSuccess(this);
-                }
-            }
-        });
-    }
+  // CONSOLE LOG SUMMARY
+  // ==========================================
 
+  console.log("📍 Password toggle initialized");
+  console.log("📝 Form handlers ready");
+  console.log("✉️  Email validation active");
+  console.log("🔒 Password strength validation active");
+  console.log("⏳ Full form validation will be added in Commit 17");
 });
