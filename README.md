@@ -23,7 +23,6 @@ I am responsible for building:
 - **Role:** - Login & SignUp pages
 
 ## My Responsibilities
-**My Responsibilities**
 I am responsible for building:
 1. Login Page with email/password authentication
 2. Signup Page with comprehensive form validation
