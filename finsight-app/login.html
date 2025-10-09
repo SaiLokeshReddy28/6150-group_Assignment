@@ -1,372 +1,430 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Finsight - Login to your account">
-    <meta name="author" content="Finsight Team">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Finsight - Login to your account" />
+    <meta name="author" content="Finsight Team - Person 1" />
     <title>Login - Finsight</title>
+
     <!-- Bootstrap CSS CDN -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
     <!-- Font Awesome Icons CDN -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
     <!-- Custom CSS Files -->
-    <link rel="stylesheet" href="css/main.css">
-    <link rel="stylesheet" href="css/auth.css">
-</head>
-<body class="login-page">
+    <link rel="stylesheet" href="css/main.css" />
+    <link rel="stylesheet" href="css/auth.css" />
+  </head>
+  <body class="login-page">
     <!-- ============================================
          SIMPLE NAVBAR - Back to Home
          Bootstrap Navbar Component
          ============================================ -->
     <nav class="navbar navbar-light bg-white shadow-sm">
-        <div class="container">
-            <!-- Brand/Logo -->
-            <a class="navbar-brand" href="index.html">
-                <i class="fas fa-wallet"></i>
-                Finsight
-            </a>
-            <!-- Back to Home Link - Bootstrap Button -->
-            <a href="index.html" class="btn btn-outline-primary btn-sm">
-                <i class="fas fa-arrow-left me-2"></i> Back to Home
-            </a>
-        </div>
+      <div class="container">
+        <!-- Brand/Logo -->
+        <a class="navbar-brand" href="index.html">
+          <i class="fas fa-wallet"></i>
+          Finsight
+        </a>
+
+        <!-- Back to Home Link -->
+        <a href="index.html" class="btn btn-outline-primary btn-sm">
+          <i class="fas fa-arrow-left me-2"></i> Back to Home
+        </a>
+      </div>
     </nav>
 
     <!-- ============================================
          AUTHENTICATION SECTION
          ============================================ -->
-    <section class="auth-section d-flex align-items-center justify-content-center">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-12 col-md-10 col-lg-8 col-xl-6">
-                    
-                    <!-- Auth Card - Bootstrap Card Component -->
-                    <div class="card auth-card border-0 shadow-lg">
-                        <div class="card-body p-5">
-                            
-                            <!-- Logo/Icon at Top -->
-                            <div class="text-center mb-4">
-                                <div class="auth-logo mb-3">
-                                    <i class="fas fa-wallet"></i>
-                                </div>
-                                <h3 class="fw-bold mb-2">Welcome to Finsight</h3>
-                                <p class="text-muted">Manage your finances smartly</p>
-                            </div>
-                            
-                            <!-- Bootstrap Nav Tabs Component -->
-                            <ul class="nav nav-tabs nav-fill auth-tabs mb-4" id="authTabs" role="tablist">
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link active" id="login-tab" data-bs-toggle="tab"
-                                        data-bs-target="#login-content" type="button" role="tab"
-                                        aria-controls="login-content" aria-selected="true">
-                                        <i class="fas fa-sign-in-alt me-2"></i> Login
-                                    </button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="signup-tab" data-bs-toggle="tab"
-                                        data-bs-target="#signup-content" type="button" role="tab"
-                                        aria-controls="signup-content" aria-selected="false">
-                                        <i class="fas fa-user-plus me-2"></i> Sign Up
-                                    </button>
-                                </li>
-                            </ul>
-                            
-                            <!-- Tab Content -->
-                            <div class="tab-content" id="authTabContent">
-                                
-                                <!-- ==================== LOGIN TAB ==================== -->
-                                <div class="tab-pane fade show active" id="login-content" role="tabpanel"
-                                    aria-labelledby="login-tab">
-                                    
-                                    <!-- Bootstrap Alert Component - Success Message (Hidden by default) -->
-                                    <div class="alert alert-success alert-dismissible fade show d-none"
-                                        id="loginSuccessAlert" role="alert">
-                                        <i class="fas fa-check-circle me-2"></i>
-                                        <strong>Success!</strong> Login successful. Redirecting...
-                                        <button type="button" class="btn-close" data-bs-dismiss="alert"
-                                            aria-label="Close"></button>
-                                    </div>
-                                    
-                                    <!-- Bootstrap Alert Component - Error Message (Hidden by default) -->
-                                    <div class="alert alert-danger alert-dismissible fade show d-none"
-                                        id="loginErrorAlert" role="alert">
-                                        <i class="fas fa-exclamation-circle me-2"></i>
-                                        <strong>Error!</strong> <span id="loginErrorMessage">Please check your inputs.</span>
-                                        <button type="button" class="btn-close" data-bs-dismiss="alert"
-                                            aria-label="Close"></button>
-                                    </div>
-                                    
-                                    <form id="loginForm" class="auth-form needs-validation" novalidate>
-                                        
-                                        <!-- Email Field - Bootstrap Input Group & Form Control -->
-                                        <div class="mb-3">
-                                            <label for="loginEmail" class="form-label">Email Address</label>
-                                            <div class="input-group">
-                                                <span class="input-group-text">
-                                                    <i class="fas fa-envelope"></i>
-                                                </span>
-                                                <input type="email" class="form-control" id="loginEmail"
-                                                    placeholder="Enter your email" required>
-                                                <div class="invalid-feedback">
-                                                    Please enter a valid email address.
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                        <!-- Password Field - Bootstrap Input Group & Form Control -->
-                                        <div class="mb-3">
-                                            <label for="loginPassword" class="form-label">Password</label>
-                                            <div class="input-group">
-                                                <span class="input-group-text">
-                                                    <i class="fas fa-lock"></i>
-                                                </span>
-                                                <input type="password" class="form-control" id="loginPassword"
-                                                    placeholder="Enter your password" required minlength="6">
-                                                <button class="btn btn-outline-secondary" type="button"
-                                                    id="toggleLoginPassword">
-                                                    <i class="fas fa-eye"></i>
-                                                </button>
-                                                <div class="invalid-feedback">
-                                                    Password must be at least 6 characters.
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                        <!-- Remember Me & Forgot Password Row -->
-                                        <div class="d-flex justify-content-between align-items-center mb-3">
-                                            <!-- Bootstrap Form Check Component (Checkbox) -->
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" id="rememberMe">
-                                                <label class="form-check-label" for="rememberMe">
-                                                    Remember me
-                                                </label>
-                                            </div>
-                                            <!-- Forgot Password Link - Bootstrap Link -->
-                                            <a href="#" class="text-primary text-decoration-none" data-bs-toggle="modal"
-                                                data-bs-target="#forgotPasswordModal">
-                                                Forgot Password?
-                                            </a>
-                                        </div>
-                                        
-                                        <!-- Terms Agreement for Login - Bootstrap Form Check -->
-                                        <div class="mb-4">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" id="agreeLoginTerms"
-                                                    required>
-                                                <label class="form-check-label" for="agreeLoginTerms">
-                                                    I agree to the <a href="#" class="text-primary">Terms of Service</a>
-                                                    and <a href="#" class="text-primary">Privacy Policy</a>
-                                                </label>
-                                                <div class="invalid-feedback">
-                                                    You must agree to continue.
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                        <!-- Submit Button - Bootstrap Button with Spinner (Initially Disabled) -->
-                                        <button type="submit" class="btn btn-primary w-100 py-2 mb-3"
-                                            id="loginSubmitBtn" disabled>
-                                            <span class="btn-text">
-                                                <i class="fas fa-sign-in-alt me-2"></i> Login
-                                            </span>
-                                            <!-- Bootstrap Spinner Component (Hidden by default) -->
-                                            <span class="spinner-border spinner-border-sm d-none" role="status"
-                                                aria-hidden="true"></span>
-                                            <span class="loading-text d-none">Logging in...</span>
-                                        </button>
-                                        
-                                        <!-- Divider -->
-                                        <div class="text-center text-muted my-3">
-                                            <span class="px-2">or continue with</span>
-                                        </div>
-                                        
-                                        <!-- Social Login Buttons - Bootstrap Button Group -->
-                                        <div class="d-grid gap-2">
-                                            <button type="button" class="btn btn-outline-dark">
-                                                <i class="fab fa-google me-2"></i> Sign in with Google
-                                            </button>
-                                        </div>
-                                        
-                                    </form>
-                                    
-                                </div>
-                                
-                                <!-- ==================== SIGN UP TAB ==================== -->
-                                <div class="tab-pane fade" id="signup-content" role="tabpanel"
-                                    aria-labelledby="signup-tab">
-                                    
-                                    <!-- Bootstrap Alert Component - Success Message -->
-                                    <div class="alert alert-success alert-dismissible fade show d-none"
-                                        id="signupSuccessAlert" role="alert">
-                                        <i class="fas fa-check-circle me-2"></i>
-                                        <strong>Success!</strong> Account created successfully!
-                                        <button type="button" class="btn-close" data-bs-dismiss="alert"
-                                            aria-label="Close"></button>
-                                    </div>
-                                    
-                                    <!-- Bootstrap Alert Component - Error Message -->
-                                    <div class="alert alert-danger alert-dismissible fade show d-none"
-                                        id="signupErrorAlert" role="alert">
-                                        <i class="fas fa-exclamation-circle me-2"></i>
-                                        <strong>Error!</strong> <span id="signupErrorMessage">Please check your inputs.</span>
-                                        <button type="button" class="btn-close" data-bs-dismiss="alert"
-                                            aria-label="Close"></button>
-                                    </div>
-                                    
-                                    <form id="signupForm" class="auth-form needs-validation" novalidate>
-                                        
-                                        <!-- Full Name Field - Bootstrap Form Control -->
-                                        <div class="mb-3">
-                                            <label for="signupName" class="form-label">Full Name</label>
-                                            <div class="input-group">
-                                                <span class="input-group-text">
-                                                    <i class="fas fa-user"></i>
-                                                </span>
-                                                <input type="text" class="form-control" id="signupName"
-                                                    placeholder="Enter your full name" required minlength="3">
-                                                <div class="invalid-feedback">
-                                                    Name must be at least 3 characters.
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                        <!-- Email Field -->
-                                        <div class="mb-3">
-                                            <label for="signupEmail" class="form-label">Email Address</label>
-                                            <div class="input-group">
-                                                <span class="input-group-text">
-                                                    <i class="fas fa-envelope"></i>
-                                                </span>
-                                                <input type="email" class="form-control" id="signupEmail"
-                                                    placeholder="Enter your email" required>
-                                                <div class="invalid-feedback">
-                                                    Please enter a valid email address.
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                        <!-- Password Field with Strength Indicator -->
-                                        <div class="mb-3">
-                                            <label for="signupPassword" class="form-label">Password</label>
-                                            <div class="input-group">
-                                                <span class="input-group-text">
-                                                    <i class="fas fa-lock"></i>
-                                                </span>
-                                                <input type="password" class="form-control" id="signupPassword"
-                                                    placeholder="Create a password" required minlength="8">
-                                                <button class="btn btn-outline-secondary" type="button"
-                                                    id="toggleSignupPassword">
-                                                    <i class="fas fa-eye"></i>
-                                                </button>
-                                                <div class="invalid-feedback" id="passwordRequirementsError">
-                                                    Password must be at least 8 characters and include uppercase, lowercase, number, and special character.
-                                                </div>
-                                            </div>
-                                            <!-- Bootstrap Progress Bar Component - Password Strength -->
-                                            <div class="progress mt-2" style="height: 5px;">
-                                                <div class="progress-bar" id="passwordStrength" role="progressbar"
-                                                    style="width: 0%" aria-valuenow="0" aria-valuemin="0"
-                                                    aria-valuemax="100">
-                                                </div>
-                                            </div>
-                                            <small class="text-muted" id="passwordStrengthText"></small>
-                                            
-                                            <!-- Password Requirements Checklist -->
-                                            <div class="mt-2">
-                                                <small class="text-muted d-block mb-1">Password must contain:</small>
-                                                <small class="d-block" id="req-length">
-                                                    <i class="fas fa-circle text-muted" style="font-size: 8px;"></i> At least 8 characters
-                                                </small>
-                                                <small class="d-block" id="req-uppercase">
-                                                    <i class="fas fa-circle text-muted" style="font-size: 8px;"></i> One uppercase letter (A-Z)
-                                                </small>
-                                                <small class="d-block" id="req-lowercase">
-                                                    <i class="fas fa-circle text-muted" style="font-size: 8px;"></i> One lowercase letter (a-z)
-                                                </small>
-                                                <small class="d-block" id="req-number">
-                                                    <i class="fas fa-circle text-muted" style="font-size: 8px;"></i> One number (0-9)
-                                                </small>
-                                                <small class="d-block" id="req-special">
-                                                    <i class="fas fa-circle text-muted" style="font-size: 8px;"></i> One special character (!@#$%^&*)
-                                                </small>
-                                            </div>
-                                        </div>
-                                        
-                                        <!-- Confirm Password Field -->
-                                        <div class="mb-3">
-                                            <label for="signupConfirmPassword" class="form-label">Confirm Password</label>
-                                            <div class="input-group">
-                                                <span class="input-group-text">
-                                                    <i class="fas fa-lock"></i>
-                                                </span>
-                                                <input type="password" class="form-control" id="signupConfirmPassword"
-                                                    placeholder="Confirm your password" required>
-                                                <div class="invalid-feedback">
-                                                    Passwords do not match.
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                        <!-- Terms & Conditions - Bootstrap Form Check (Checkbox) -->
-                                        <div class="mb-4">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" id="agreeTerms"
-                                                    required>
-                                                <label class="form-check-label" for="agreeTerms">
-                                                    I agree to the <a href="#" class="text-primary">Terms of Service</a>
-                                                    and <a href="#" class="text-primary">Privacy Policy</a>
-                                                </label>
-                                                <div class="invalid-feedback">
-                                                    You must agree to the terms and conditions.
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                        <!-- Submit Button with Spinner (Initially Disabled) -->
-                                        <button type="submit" class="btn btn-primary w-100 py-2 mb-3"
-                                            id="signupSubmitBtn" disabled>
-                                            <span class="btn-text">
-                                                <i class="fas fa-user-plus me-2"></i> Create Account
-                                            </span>
-                                            <span class="spinner-border spinner-border-sm d-none" role="status"
-                                                aria-hidden="true"></span>
-                                            <span class="loading-text d-none">Creating account...</span>
-                                        </button>
-                                        
-                                        <!-- Divider -->
-                                        <div class="text-center text-muted my-3">
-                                            <span class="px-2">or sign up with</span>
-                                        </div>
-                                        
-                                        <!-- Social Signup Buttons -->
-                                        <div class="d-grid gap-2">
-                                            <button type="button" class="btn btn-outline-dark">
-                                                <i class="fab fa-google me-2"></i> Sign up with Google
-                                            </button>
-                                        </div>
-                                        
-                                    </form>
-                                    
-                                </div>
-                                
-                            </div>
-                            
-                        </div>
-                    </div>
-                    
-                    <!-- Additional Links Below Card -->
-                    <div class="text-center mt-4">
-                        <p class="text-white">
-                            <a href="#" class="text-white text-decoration-none">Privacy Policy</a>
-                            <span class="mx-2">•</span>
-                            <a href="#" class="text-white text-decoration-none">Terms of Service</a>
-                        </p>
-                    </div>
-                    
+    <section
+      class="auth-section d-flex align-items-center justify-content-center"
+    >
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-12 col-md-10 col-lg-8 col-xl-6">
+            <!-- Auth Card -->
+            <div class="card auth-card border-0 shadow-lg">
+              <div class="card-body p-5">
+                <!-- Logo/Icon at Top -->
+                <div class="text-center mb-4">
+                  <div class="auth-logo mb-3">
+                    <i class="fas fa-wallet"></i>
+                  </div>
+                  <h3 class="fw-bold mb-2">Welcome to Finsight</h3>
+                  <p class="text-muted">Manage your finances smartly</p>
                 </div>
+
+                <!-- Bootstrap Nav Tabs -->
+                <ul
+                  class="nav nav-tabs nav-fill auth-tabs mb-4"
+                  id="authTabs"
+                  role="tablist"
+                >
+                  <li class="nav-item" role="presentation">
+                    <button
+                      class="nav-link active"
+                      id="login-tab"
+                      data-bs-toggle="tab"
+                      data-bs-target="#login-content"
+                      type="button"
+                      role="tab"
+                      aria-controls="login-content"
+                      aria-selected="true"
+                    >
+                      <i class="fas fa-sign-in-alt me-2"></i> Login
+                    </button>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                    <button
+                      class="nav-link"
+                      id="signup-tab"
+                      data-bs-toggle="tab"
+                      data-bs-target="#signup-content"
+                      type="button"
+                      role="tab"
+                      aria-controls="signup-content"
+                      aria-selected="false"
+                    >
+                      <i class="fas fa-user-plus me-2"></i> Sign Up
+                    </button>
+                  </li>
+                </ul>
+
+                <!-- Tab Content -->
+                <div class="tab-content" id="authTabContent">
+                  <!-- ==================== LOGIN TAB ==================== -->
+                  <!-- ==================== LOGIN TAB ==================== -->
+                  <div
+                    class="tab-pane fade show active"
+                    id="login-content"
+                    role="tabpanel"
+                    aria-labelledby="login-tab"
+                  >
+                    <form id="loginForm" class="auth-form">
+                       <div class="alert alert-danger d-none" role="alert" id="loginAlert">
+        <i class="fas fa-exclamation-circle me-2"></i>
+        <span id="loginAlertMessage"></span>
+    </div>
+                      <!-- Email Input Group -->
+                      <div class="mb-3">
+                        <label for="loginEmail" class="form-label"
+                          >Email Address</label
+                        >
+                        <div class="input-group">
+                          <span class="input-group-text">
+                            <i class="fas fa-envelope"></i>
+                          </span>
+                          <input
+                            type="email"
+                            class="form-control"
+                            id="loginEmail"
+                            placeholder="Enter your email"
+                            required
+                          />
+                        </div>
+                        <div
+                          class="invalid-feedback"
+                          id="loginEmailError"
+                        ></div>
+                      </div>
+
+                      <!-- Password Input Group -->
+                      <div class="mb-3">
+                        <label for="loginPassword" class="form-label"
+                          >Password</label
+                        >
+                        <div class="input-group">
+                          <span class="input-group-text">
+                            <i class="fas fa-lock"></i>
+                          </span>
+                          <input
+                            type="password"
+                            class="form-control"
+                            id="loginPassword"
+                            placeholder="Enter your password"
+                            required
+                          />
+                          <button
+                            class="btn btn-outline-secondary password-toggle"
+                            type="button"
+                            data-target="loginPassword"
+                          >
+                            <i class="fas fa-eye"></i>
+                          </button>
+                        </div>
+                        <div
+                          class="invalid-feedback"
+                          id="loginPasswordError"
+                        ></div>
+                      </div>
+
+                      <!-- Remember Me & Forgot Password Row -->
+                      <div
+                        class="d-flex justify-content-between align-items-center mb-4"
+                      >
+                        <div class="form-check">
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            id="rememberMe"
+                          />
+                          <label class="form-check-label" for="rememberMe">
+                            Remember me
+                          </label>
+                        </div>
+                        <a
+                          href="#"
+                          class="forgot-password-link"
+                          data-bs-toggle="modal"
+                          data-bs-target="#forgotPasswordModal"
+                        >
+                          Forgot Password?
+                        </a>
+                      </div>
+
+                      <!-- Login Button -->
+                      <button
+                        type="submit"
+                        class="btn btn-primary w-100 btn-lg mb-3"
+                      >
+                        <i class="fas fa-sign-in-alt me-2"></i> Sign In
+                      </button>
+
+                      <!-- Divider -->
+                      <div class="auth-divider">
+                        <span>or continue with</span>
+                      </div>
+
+                      <!-- Social Login Buttons -->
+                      <div class="d-flex gap-2 mb-3">
+                        <button
+                          type="button"
+                          class="btn btn-outline-secondary w-100"
+                        >
+                          <i class="fab fa-google me-2"></i> Google
+                        </button>
+                        <button
+                          type="button"
+                          class="btn btn-outline-secondary w-100"
+                        >
+                          <i class="fab fa-facebook-f me-2"></i> Facebook
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+
+                  <!-- ==================== SIGN UP TAB ==================== -->
+                  <div
+                    class="tab-pane fade"
+                    id="signup-content"
+                    role="tabpanel"
+                    aria-labelledby="signup-tab"
+                  >
+                    <form id="signupForm" class="auth-form">
+                        <!-- Sign Up Alert Message -->
+    <div class="alert alert-danger d-none" role="alert" id="signupAlert">
+        <i class="fas fa-exclamation-circle me-2"></i>
+        <span id="signupAlertMessage"></span>
+    </div>
+
+                      <!-- Full Name Input Group -->
+                      <div class="mb-3">
+                        <label for="signupName" class="form-label"
+                          >Full Name</label
+                        >
+                        <div class="input-group">
+                          <span class="input-group-text">
+                            <i class="fas fa-user"></i>
+                          </span>
+                          <input
+                            type="text"
+                            class="form-control"
+                            id="signupName"
+                            placeholder="Enter your full name"
+                            required
+                          />
+                        </div>
+                        <div
+                          class="invalid-feedback"
+                          id="signupNameError"
+                        ></div>
+                      </div>
+
+                      <!-- Email Input Group -->
+                      <div class="mb-3">
+                        <label for="signupEmail" class="form-label"
+                          >Email Address</label
+                        >
+                        <div class="input-group">
+                          <span class="input-group-text">
+                            <i class="fas fa-envelope"></i>
+                          </span>
+                          <input
+                            type="email"
+                            class="form-control"
+                            id="signupEmail"
+                            placeholder="Enter your email"
+                            required
+                          />
+                        </div>
+                        <div
+                          class="invalid-feedback"
+                          id="signupEmailError"
+                        ></div>
+                      </div>
+
+                      <!-- Password Input Group -->
+                      <div class="mb-3">
+                        <label for="signupPassword" class="form-label"
+                          >Password</label
+                        >
+                        <div class="input-group">
+                          <span class="input-group-text">
+                            <i class="fas fa-lock"></i>
+                          </span>
+                          <input
+                            type="password"
+                            class="form-control"
+                            id="signupPassword"
+                            placeholder="Create a password"
+                            required
+                          />
+                          <button
+                            class="btn btn-outline-secondary password-toggle"
+                            type="button"
+                            data-target="signupPassword"
+                          >
+                            <i class="fas fa-eye"></i>
+                          </button>
+                        </div>
+                        <div
+                          class="invalid-feedback"
+                          id="signupPasswordError"
+                        ></div>
+
+                        <!-- Password Strength Indicator (will be functional later) -->
+                        <div class="password-strength mt-2">
+                          <div class="progress" style="height: 5px">
+                            <div
+                              class="progress-bar"
+                              role="progressbar"
+                              id="passwordStrengthBar"
+                              style="width: 0%"
+                            ></div>
+                          </div>
+                          <small class="text-muted" id="passwordStrengthText"
+                            >Password strength</small
+                          >
+                        </div>
+                      </div>
+
+                      <!-- Confirm Password Input Group -->
+                      <div class="mb-3">
+                        <label for="signupConfirmPassword" class="form-label"
+                          >Confirm Password</label
+                        >
+                        <div class="input-group">
+                          <span class="input-group-text">
+                            <i class="fas fa-lock"></i>
+                          </span>
+                          <input
+                            type="password"
+                            class="form-control"
+                            id="signupConfirmPassword"
+                            placeholder="Confirm your password"
+                            required
+                          />
+                          <button
+                            class="btn btn-outline-secondary password-toggle"
+                            type="button"
+                            data-target="signupConfirmPassword"
+                          >
+                            <i class="fas fa-eye"></i>
+                          </button>
+                        </div>
+                        <div
+                          class="invalid-feedback"
+                          id="signupConfirmPasswordError"
+                        ></div>
+                      </div>
+
+                      <!-- Terms & Conditions Checkbox -->
+                      <div class="form-check mb-4">
+                        <input
+                          class="form-check-input"
+                          type="checkbox"
+                          id="acceptTerms"
+                          required
+                        />
+                        <label class="form-check-label" for="acceptTerms">
+                          I agree to the
+                          <a href="#" class="text-primary"
+                            >Terms & Conditions</a
+                          >
+                          and
+                          <a href="#" class="text-primary">Privacy Policy</a>
+                        </label>
+                      </div>
+
+                      <!-- Sign Up Button -->
+                      <button
+                        type="submit"
+                        class="btn btn-primary w-100 btn-lg mb-3"
+                      >
+                        <i class="fas fa-user-plus me-2"></i> Create Account
+                      </button>
+
+                      <!-- Divider -->
+                      <div class="auth-divider">
+                        <span>or sign up with</span>
+                      </div>
+
+                      <!-- Social Sign Up Buttons -->
+                      <div class="d-flex gap-2 mb-3">
+                        <button
+                          type="button"
+                          class="btn btn-outline-secondary w-100"
+                        >
+                          <i class="fab fa-google me-2"></i> Google
+                        </button>
+                        <button
+                          type="button"
+                          class="btn btn-outline-secondary w-100"
+                        >
+                          <i class="fab fa-facebook-f me-2"></i> Facebook
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
             </div>
+
+            <!-- Additional Links Below Card -->
+            <div class="text-center mt-4">
+              <p class="text-white">
+                <a href="#" class="text-white text-decoration-none"
+                  >Privacy Policy</a
+                >
+                <span class="mx-2">•</span>
+                <a href="#" class="text-white text-decoration-none"
+                  >Terms of Service</a
+                >
+              </p>
+            </div>
+          </div>
         </div>
+      </div>
     </section>
 
     <!-- ============================================
@@ -499,9 +557,79 @@
 
     <!-- Bootstrap JS Bundle (includes Popper) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <!-- Custom JavaScript -->
-    <script src="js/auth-validation.js"></script>
 
-</body>
+    <!-- Custom JavaScript (will be added later) -->
+    <!-- <script src="js/auth-validation.js"></script> -->
+
+    <!-- ============================================
+         FORGOT PASSWORD MODAL
+         ============================================ -->
+    <div
+      class="modal fade"
+      id="forgotPasswordModal"
+      tabindex="-1"
+      aria-labelledby="forgotPasswordModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header border-0">
+            <h5 class="modal-title" id="forgotPasswordModalLabel">
+              <i class="fas fa-key me-2 text-primary"></i> Reset Password
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <p class="text-muted mb-4">
+              Enter your email address and we'll send you a link to reset your
+              password.
+            </p>
+
+            <form id="forgotPasswordForm">
+              <div class="mb-3">
+                <label for="resetEmail" class="form-label">Email Address</label>
+                <div class="input-group">
+                  <span class="input-group-text">
+                    <i class="fas fa-envelope"></i>
+                  </span>
+                  <input
+                    type="email"
+                    class="form-control"
+                    id="resetEmail"
+                    placeholder="Enter your email"
+                    required
+                  />
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary w-100">
+                <i class="fas fa-paper-plane me-2"></i> Send Reset Link
+              </button>
+            </form>
+
+            <!-- Success Message (hidden by default) -->
+            <div
+              class="alert alert-success mt-3 d-none"
+              id="resetSuccessMessage"
+            >
+              <i class="fas fa-check-circle me-2"></i>
+              Password reset link sent! Check your email.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle (includes Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Custom JavaScript (will be added later) -->
+   <script src="js/auth-validation.js"></script>
+
+  </body>
 </html>
