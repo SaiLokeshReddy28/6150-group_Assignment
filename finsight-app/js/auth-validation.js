@@ -9,6 +9,30 @@
 document.addEventListener('DOMContentLoaded', function() {
     
     // ==========================================
+    // AUTO-OPEN SIGNUP TAB IF URL PARAMETER EXISTS
+    // ==========================================
+    
+    // Check if URL has ?tab=signup or ?tab=login parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const tabParam = urlParams.get('tab');
+    
+    if (tabParam === 'signup') {
+        // Activate signup tab
+        const signupTab = document.getElementById('signup-tab');
+        if (signupTab) {
+            const signupTabInstance = new bootstrap.Tab(signupTab);
+            signupTabInstance.show();
+        }
+    } else if (tabParam === 'login') {
+        // Activate login tab (already default, but explicit)
+        const loginTab = document.getElementById('login-tab');
+        if (loginTab) {
+            const loginTabInstance = new bootstrap.Tab(loginTab);
+            loginTabInstance.show();
+        }
+    }
+    
+    // ==========================================
     // LOGIN FORM VALIDATION
     // ==========================================
     
