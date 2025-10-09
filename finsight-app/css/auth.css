@@ -850,3 +850,135 @@ body {
         margin-top: 20px;
     }
 }
+
+/* ============================================
+   TESTIMONIALS SECTION STYLES
+   ============================================ */
+
+.testimonials-section {
+    background: #F8F9FA !important;
+}
+
+/* Testimonial Card */
+.testimonial-card {
+    border-radius: 20px !important;
+    transition: all 0.3s ease;
+    background: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.testimonial-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: var(--gradient-primary);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.testimonial-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15) !important;
+}
+
+.testimonial-card:hover::before {
+    transform: scaleX(1);
+}
+
+/* Quote Icon */
+.quote-icon {
+    color: var(--primary-color);
+    opacity: 0.2;
+    font-size: 40px;
+}
+
+/* Star Rating */
+.rating {
+    color: #F39C12;
+    font-size: 18px;
+}
+
+.rating i {
+    margin-right: 2px;
+}
+
+/* Testimonial Text */
+.testimonial-text {
+    font-size: 16px;
+    line-height: 1.7;
+    color: #555;
+    font-style: italic;
+    min-height: 100px;
+}
+
+/* User Avatar */
+.user-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: var(--gradient-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+/* User Name */
+.user-name {
+    color: var(--dark-color);
+    font-weight: 700;
+    font-size: 16px;
+}
+
+/* User Role */
+.user-role {
+    font-size: 14px;
+    color: #7F8C8D !important;
+}
+
+/* Section Header */
+.testimonials-section .display-5 {
+    color: var(--dark-color);
+}
+
+.testimonials-section .lead {
+    color: #7F8C8D;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Responsive Design for Testimonials */
+@media (max-width: 768px) {
+    .testimonial-card {
+        margin-bottom: 20px;
+    }
+    
+    .testimonial-text {
+        font-size: 15px;
+        min-height: auto;
+    }
+    
+    .user-avatar {
+        width: 45px;
+        height: 45px;
+        font-size: 18px;
+    }
+    
+    .user-name {
+        font-size: 15px;
+    }
+    
+    .user-role {
+        font-size: 13px;
+    }
+    
+    .rating {
+        font-size: 16px;
+    }
+}
