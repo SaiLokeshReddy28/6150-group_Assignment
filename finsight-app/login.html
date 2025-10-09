@@ -110,6 +110,10 @@
                     aria-labelledby="login-tab"
                   >
                     <form id="loginForm" class="auth-form">
+                       <div class="alert alert-danger d-none" role="alert" id="loginAlert">
+        <i class="fas fa-exclamation-circle me-2"></i>
+        <span id="loginAlertMessage"></span>
+    </div>
                       <!-- Email Input Group -->
                       <div class="mb-3">
                         <label for="loginEmail" class="form-label"
@@ -226,6 +230,12 @@
                     aria-labelledby="signup-tab"
                   >
                     <form id="signupForm" class="auth-form">
+                        <!-- Sign Up Alert Message -->
+    <div class="alert alert-danger d-none" role="alert" id="signupAlert">
+        <i class="fas fa-exclamation-circle me-2"></i>
+        <span id="signupAlertMessage"></span>
+    </div>
+
                       <!-- Full Name Input Group -->
                       <div class="mb-3">
                         <label for="signupName" class="form-label"

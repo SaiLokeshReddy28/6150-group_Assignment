@@ -99,6 +99,102 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // ==========================================
+  // ALERT HELPER FUNCTIONS
+  // ==========================================
+
+  /**
+   * Shows alert message
+   * @param {string} alertId - ID of alert element
+   * @param {string} message - Message to display
+   * @param {string} type - Alert type (danger, success, warning)
+   */
+  function showAlert(alertId, message, type = "danger") {
+    const alert = document.getElementById(alertId);
+    const alertMessage = document.getElementById(alertId + "Message");
+
+    if (alert && alertMessage) {
+      alert.className = `alert alert-${type}`;
+      alert.classList.remove("d-none");
+      alertMessage.textContent = message;
+
+      // Scroll to alert
+      alert.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }
+
+  /**
+   * Hides alert message
+   * @param {string} alertId - ID of alert element
+   */
+  function hideAlert(alertId) {
+    const alert = document.getElementById(alertId);
+    if (alert) {
+      alert.classList.add("d-none");
+    }
+  }
+
+  /**
+   * Adds loading state to button
+   * @param {HTMLElement} button - Button element
+   */
+  function setButtonLoading(button) {
+    button.disabled = true;
+    button.classList.add("btn-loading");
+    button.dataset.originalText = button.innerHTML;
+    button.innerHTML =
+      '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Loading...';
+  }
+
+  /**
+   * Removes loading state from button
+   * @param {HTMLElement} button - Button element
+   */
+  function removeButtonLoading(button) {
+    button.disabled = false;
+    button.classList.remove("btn-loading");
+    if (button.dataset.originalText) {
+      button.innerHTML = button.dataset.originalText;
+    }
+  }
+
+  // ==========================================
+  // NAME VALIDATION (for Sign Up)
+  // ==========================================
+
+  const signupName = document.getElementById("signupName");
+
+  if (signupName) {
+    signupName.addEventListener("blur", function () {
+      const name = this.value.trim();
+
+      if (name === "") {
+        showError(this, "Full name is required");
+      } else if (name.length < 2) {
+        showError(this, "Name must be at least 2 characters long");
+      } else if (!/^[a-zA-Z\s]+$/.test(name)) {
+        showError(this, "Name can only contain letters and spaces");
+      } else {
+        showSuccess(this);
+      }
+    });
+
+    signupName.addEventListener("input", function () {
+      if (
+        this.classList.contains("is-invalid") ||
+        this.classList.contains("is-valid")
+      ) {
+        const name = this.value.trim();
+
+        if (name === "") {
+          clearValidation(this);
+        } else if (name.length >= 2 && /^[a-zA-Z\s]+$/.test(name)) {
+          showSuccess(this);
+        }
+      }
+    });
+  }
+
+  // ==========================================
   // LOGIN EMAIL VALIDATION
   // ==========================================
 
@@ -458,30 +554,207 @@ document.addEventListener("DOMContentLoaded", function () {
   // ==========================================
   // FORM SUBMISSION HANDLERS (Temporary)
   // ==========================================
-
-  // Login Form
   const loginForm = document.getElementById("loginForm");
   if (loginForm) {
     loginForm.addEventListener("submit", function (e) {
       e.preventDefault();
-      console.log(
-        "Login form submitted (full validation will be added in Commit 17)"
-      );
+
+      // Hide any previous alerts
+      hideAlert("loginAlert");
+
+      // Get form fields
+      const emailInput = document.getElementById("loginEmail");
+      const passwordInput = document.getElementById("loginPassword");
+      const submitButton = this.querySelector('button[type="submit"]');
+
+      let isValid = true;
+
+      // Validate email
+      const email = emailInput.value.trim();
+      if (email === "") {
+        showError(emailInput, "Email address is required");
+        isValid = false;
+      } else if (!isValidEmail(email)) {
+        showError(
+          emailInput,
+          "Please enter a valid email address (e.g., user@example.com)"
+        );
+        isValid = false;
+      } else {
+        showSuccess(emailInput);
+      }
+
+      // Validate password
+      const password = passwordInput.value.trim();
+      if (password === "") {
+        showError(passwordInput, "Password is required");
+        isValid = false;
+      } else {
+        showSuccess(passwordInput);
+      }
+
+      // If validation fails, show alert and stop
+      if (!isValid) {
+        showAlert(
+          "loginAlert",
+          "Please fix the errors above before submitting.",
+          "danger"
+        );
+        return;
+      }
+
+      // All valid - simulate login process
+      setButtonLoading(submitButton);
+
+      // Simulate API call (2 seconds delay)
+      setTimeout(function () {
+        removeButtonLoading(submitButton);
+
+        // Show success message
+        showAlert(
+          "loginAlert",
+          "Login successful! Redirecting to dashboard...",
+          "success"
+        );
+
+        console.log("Login Form Data:", {
+          email: email,
+          password: password,
+          rememberMe: document.getElementById("rememberMe").checked,
+        });
+
+        // In a real app, you would redirect here:
+        // window.location.href = 'dashboard.html';
+      }, 2000);
     });
   }
 
-  // Sign Up Form
+  // Sign Up Form Submission
   const signupForm = document.getElementById("signupForm");
   if (signupForm) {
     signupForm.addEventListener("submit", function (e) {
       e.preventDefault();
-      console.log(
-        "Sign up form submitted (full validation will be added in Commit 17)"
+
+      // Hide any previous alerts
+      hideAlert("signupAlert");
+
+      // Get form fields
+      const nameInput = document.getElementById("signupName");
+      const emailInput = document.getElementById("signupEmail");
+      const passwordInput = document.getElementById("signupPassword");
+      const confirmPasswordInput = document.getElementById(
+        "signupConfirmPassword"
       );
+      const termsCheckbox = document.getElementById("acceptTerms");
+      const submitButton = this.querySelector('button[type="submit"]');
+
+      let isValid = true;
+      let errors = [];
+
+      // Validate name
+      const name = nameInput.value.trim();
+      if (name === "") {
+        showError(nameInput, "Full name is required");
+        errors.push("Full name is required");
+        isValid = false;
+      } else if (name.length < 2) {
+        showError(nameInput, "Name must be at least 2 characters long");
+        errors.push("Name must be at least 2 characters long");
+        isValid = false;
+      } else if (!/^[a-zA-Z\s]+$/.test(name)) {
+        showError(nameInput, "Name can only contain letters and spaces");
+        errors.push("Name can only contain letters and spaces");
+        isValid = false;
+      } else {
+        showSuccess(nameInput);
+      }
+
+      // Validate email
+      const email = emailInput.value.trim();
+      if (email === "") {
+        showError(emailInput, "Email address is required");
+        errors.push("Email address is required");
+        isValid = false;
+      } else if (!isValidEmail(email)) {
+        showError(
+          emailInput,
+          "Please enter a valid email address (e.g., user@example.com)"
+        );
+        errors.push("Please enter a valid email address");
+        isValid = false;
+      } else {
+        showSuccess(emailInput);
+      }
+
+      // Validate password
+      const password = passwordInput.value;
+      const passwordValidation = validatePassword(passwordInput);
+      if (!passwordValidation) {
+        errors.push("Password does not meet requirements");
+        isValid = false;
+      }
+
+      // Validate confirm password
+      const confirmPassword = confirmPasswordInput.value;
+      if (confirmPassword === "") {
+        showError(confirmPasswordInput, "Please confirm your password");
+        errors.push("Please confirm your password");
+        isValid = false;
+      } else if (password !== confirmPassword) {
+        showError(confirmPasswordInput, "Passwords do not match");
+        errors.push("Passwords do not match");
+        isValid = false;
+      } else {
+        showSuccess(confirmPasswordInput);
+      }
+
+      // Validate terms checkbox
+      if (!termsCheckbox.checked) {
+        errors.push("You must accept the Terms & Conditions");
+        termsCheckbox.classList.add("is-invalid");
+        isValid = false;
+      } else {
+        termsCheckbox.classList.remove("is-invalid");
+      }
+
+      // If validation fails, show alert and stop
+      if (!isValid) {
+        showAlert(
+          "signupAlert",
+          "Please fix the errors above before submitting.",
+          "danger"
+        );
+        return;
+      }
+
+      // All valid - simulate signup process
+      setButtonLoading(submitButton);
+
+      // Simulate API call (2 seconds delay)
+      setTimeout(function () {
+        removeButtonLoading(submitButton);
+
+        // Show success message
+        showAlert(
+          "signupAlert",
+          "Account created successfully! Redirecting to dashboard...",
+          "success"
+        );
+
+        console.log("Sign Up Form Data:", {
+          name: name,
+          email: email,
+          password: password,
+          acceptedTerms: termsCheckbox.checked,
+        });
+
+        // In a real app, you would redirect here:
+        // window.location.href = 'dashboard.html';
+      }, 2000);
     });
   }
 
-  // Forgot Password Form
+  // Forgot Password Form (keep as is)
   const forgotPasswordForm = document.getElementById("forgotPasswordForm");
   if (forgotPasswordForm) {
     forgotPasswordForm.addEventListener("submit", function (e) {
@@ -504,6 +777,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  
   // ==========================================
   // CONSOLE LOG SUMMARY
   // ==========================================
