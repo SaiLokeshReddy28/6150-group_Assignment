@@ -1,7 +1,7 @@
 /**
  * Finsight - Authentication Validation
  * Handles form validation for login page
- * Author: Keerthi Chandrakanth
+ * Authors: Keerthi Chandrakanth, Kottapally Manasvini
  */
 document.addEventListener("DOMContentLoaded", function () {
   console.log("✅ Authentication JavaScript loaded successfully!");
