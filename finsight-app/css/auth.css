@@ -467,3 +467,126 @@ body {
 .bg-gradient-secondary {
     background: var(--gradient-secondary) !important;
 }
+
+/* ============================================
+   STATS SECTION STYLES
+   ============================================ */
+
+.stats-section {
+    margin-top: -60px;
+    position: relative;
+    z-index: 10;
+}
+
+/* Main Stats Card */
+.stats-card {
+    border-radius: 20px !important;
+    transition: transform 0.3s ease;
+}
+
+.stats-card:hover {
+    transform: translateY(-5px);
+}
+
+/* Individual Stat Item */
+.stat-item {
+    padding: 20px;
+    transition: all 0.3s ease;
+}
+
+.stat-item:hover {
+    transform: scale(1.05);
+}
+
+/* Stat Icon */
+.stat-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto;
+    background: var(--gradient-primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 32px;
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+/* Stat Number - Gradient Text */
+.stat-number {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 800 !important;
+}
+
+/* Stat Label */
+.stat-label {
+    color: var(--dark-color) !important;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Stat Description */
+.stat-description {
+    font-size: 14px;
+    color: #7F8C8D !important;
+}
+
+/* Trust Badges in Stats Section */
+.stats-section .badge {
+    font-weight: 500;
+    font-size: 13px;
+    border: 1px solid #E0E0E0;
+    transition: all 0.3s ease;
+}
+
+.stats-section .badge:hover {
+    background: var(--primary-color) !important;
+    color: white !important;
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+}
+
+/* Pulse Animation for Icons */
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.5);
+    }
+}
+
+/* Responsive Stats Section */
+@media (max-width: 768px) {
+    .stats-section {
+        margin-top: 0;
+        padding-top: 30px !important;
+    }
+    
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 24px;
+    }
+    
+    .stat-number {
+        font-size: 2.5rem !important;
+    }
+    
+    .stat-item {
+        margin-bottom: 30px;
+    }
+    
+    .stats-section .badge {
+        font-size: 11px;
+        padding: 6px 12px !important;
+    }
+}
