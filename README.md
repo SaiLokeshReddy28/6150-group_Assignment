@@ -11,6 +11,7 @@ To empower young adults with tools and insights needed to take control of their 
 - **Role:** - Authentication & Landing Experience
 - **Branch:** person1-auth-landing
 
+
 ## My Responsibilities
 I am responsible for building:
 - Landing Page (index.html)
