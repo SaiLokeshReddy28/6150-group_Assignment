@@ -1,63 +1,586 @@
-/* Upload Page Styles */
+/**
+ * Finsight - Upload Page Styles
+ * Person 4: Upload Documents Page
+ * Author: Finsight Team - Person 4
+ */
 
+/* ============================================
+   CSS VARIABLES
+   ============================================ */
+:root {
+    --primary-color: #4A90E2;
+    --secondary-color: #50C878;
+    --success-color: #27AE60;
+    --danger-color: #E74C3C;
+    --warning-color: #F39C12;
+    --info-color: #3498DB;
+    --dark-color: #2C3E50;
+    --light-color: #F8F9FA;
+}
+
+/* ============================================
+   UPLOAD CARD
+   ============================================ */
 .upload-card {
     border: none;
     border-radius: 15px;
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
 }
 
+.upload-card:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* ============================================
+   UPLOAD ZONE
+   ============================================ */
 .upload-zone {
     border: 3px dashed #E0E0E0;
     border-radius: 15px;
     padding: 60px 40px;
+    text-align: center;
     transition: all 0.3s ease;
     cursor: pointer;
+    background: var(--light-color);
+    position: relative;
 }
 
 .upload-zone:hover {
-    border-color: #4A90E2;
+    border-color: var(--primary-color);
     background: rgba(74, 144, 226, 0.05);
+    transform: translateY(-3px);
 }
 
 .upload-zone.drag-over {
-    border-color: #50C878;
+    border-color: var(--success-color);
     background: rgba(80, 200, 120, 0.1);
     transform: scale(1.02);
+    box-shadow: 0 10px 30px rgba(80, 200, 120, 0.2);
 }
 
+/* Upload Icon */
 .upload-icon {
-    color: #4A90E2;
+    color: var(--primary-color);
+    animation: float 3s ease-in-out infinite;
 }
 
 .upload-icon i {
     font-size: 80px;
-    opacity: 0.3;
+    opacity: 0.4;
+    transition: all 0.3s ease;
 }
 
+.upload-zone:hover .upload-icon i {
+    opacity: 0.7;
+    transform: scale(1.1);
+}
+
+.upload-zone h4 {
+    color: var(--dark-color);
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.upload-zone p {
+    color: #7F8C8D;
+    margin-bottom: 0;
+}
+
+/* Supported Formats */
 .supported-formats {
     margin-top: 20px;
 }
 
+.supported-formats .badge {
+    padding: 8px 12px;
+    font-size: 12px;
+    font-weight: 500;
+    border: 1px solid #E0E0E0;
+    transition: all 0.3s ease;
+}
+
+.supported-formats .badge:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* ============================================
+   SELECTED FILES CARD
+   ============================================ */
+#selectedFilesCard,
+#uploadProgressCard {
+    animation: fadeIn 0.3s ease;
+}
+
+/* ============================================
+   LIST GROUP ITEMS
+   ============================================ */
+.list-group-item {
+    border-left: none;
+    border-right: none;
+    padding: 15px 20px;
+    transition: all 0.2s ease;
+}
+
+.list-group-item:first-child {
+    border-top: none;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+
+.list-group-item:last-child {
+    border-bottom: none;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.list-group-item:hover {
+    background: var(--light-color);
+}
+
+.list-group-item strong {
+    color: var(--dark-color);
+}
+
+.list-group-item .btn-danger {
+    transition: all 0.2s ease;
+}
+
+.list-group-item .btn-danger:hover {
+    transform: scale(1.1);
+}
+
+/* ============================================
+   PROGRESS BAR
+   ============================================ */
+.progress {
+    border-radius: 10px;
+    background: #E9ECEF;
+    overflow: hidden;
+}
+
+.progress-bar {
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: width 0.3s ease;
+}
+
+/* ============================================
+   CARD HEADER
+   ============================================ */
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    border-bottom: 2px solid var(--light-color);
+    padding: 20px 25px;
+    border-radius: 15px 15px 0 0;
+}
+
+.card-header h5 {
+    margin: 0;
+    font-weight: 600;
+    color: var(--dark-color);
+    font-size: 18px;
+}
+
+.card-header h5 i {
+    color: var(--primary-color);
+}
+
+/* ============================================
+   CARD FOOTER
+   ============================================ */
+.card-footer {
+    background: white;
+    border-top: 2px solid var(--light-color);
+    padding: 15px 25px;
+}
+
+/* ============================================
+   TABLE STYLES
+   ============================================ */
+.table {
+    margin-bottom: 0;
+}
+
 .table th {
-    background: #F8F9FA;
-    color: #2C3E50;
+    background: var(--light-color);
+    color: var(--dark-color);
     font-weight: 600;
     border-bottom: 2px solid #E0E0E0;
+    padding: 15px;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.table td {
+    padding: 15px;
+    vertical-align: middle;
+    color: #555;
+    font-size: 14px;
+}
+
+.table-hover tbody tr {
+    transition: all 0.2s ease;
 }
 
 .table-hover tbody tr:hover {
-    background: #F8F9FA;
+    background: var(--light-color);
     cursor: pointer;
 }
 
+.table .btn-sm {
+    padding: 6px 10px;
+    margin: 0 2px;
+    transition: all 0.2s ease;
+}
+
+.table .btn-sm:hover {
+    transform: translateY(-2px);
+}
+
+.table .btn-primary {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.table .btn-info {
+    background: var(--info-color);
+    border-color: var(--info-color);
+}
+
+.table .btn-danger {
+    background: var(--danger-color);
+    border-color: var(--danger-color);
+}
+
+/* ============================================
+   FILTER BUTTONS
+   ============================================ */
+.btn-group .btn-outline-primary {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    font-size: 13px;
+    padding: 6px 15px;
+    transition: all 0.3s ease;
+}
+
+.btn-group .btn-outline-primary.active {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+}
+
+.btn-group .btn-outline-primary:hover {
+    background: rgba(74, 144, 226, 0.1);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+/* ============================================
+   BADGES
+   ============================================ */
+.badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge.bg-success {
+    background-color: var(--success-color) !important;
+}
+
+.badge.bg-warning {
+    background-color: var(--warning-color) !important;
+}
+
+.badge.bg-danger {
+    background-color: var(--danger-color) !important;
+}
+
+.badge.bg-info {
+    background-color: var(--info-color) !important;
+}
+
+.badge.bg-light {
+    background-color: #E9ECEF !important;
+    color: var(--dark-color);
+}
+
+/* ============================================
+   BUTTONS
+   ============================================ */
+.btn-primary {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background: #357ABD;
+    border-color: #357ABD;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+}
+
+.btn-success {
+    background: var(--success-color);
+    border-color: var(--success-color);
+}
+
+.btn-success:hover {
+    background: #219653;
+    border-color: #219653;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+}
+
+.btn-outline-secondary {
+    border-color: #7F8C8D;
+    color: #7F8C8D;
+}
+
+.btn-outline-secondary:hover {
+    background: #7F8C8D;
+    border-color: #7F8C8D;
+    color: white;
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ============================================
+   ALERTS
+   ============================================ */
+.alert {
+    border-radius: 12px;
+    border: none;
+    animation: slideDown 0.3s ease;
+}
+
+.alert-success {
+    background: rgba(39, 174, 96, 0.1);
+    color: var(--success-color);
+    border-left: 4px solid var(--success-color);
+}
+
+.alert-warning {
+    background: rgba(243, 156, 18, 0.1);
+    color: var(--warning-color);
+    border-left: 4px solid var(--warning-color);
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+/* Large Tablets */
+@media (max-width: 1200px) {
+    .upload-zone {
+        padding: 50px 35px;
+    }
+}
+
+/* Tablets */
+@media (max-width: 992px) {
+    .upload-zone {
+        padding: 50px 30px;
+    }
+    
+    .upload-icon i {
+        font-size: 70px;
+    }
+    
+    .card-header {
+        padding: 15px 20px;
+    }
+}
+
+/* Mobile */
 @media (max-width: 768px) {
     .upload-zone {
         padding: 40px 20px;
     }
+    
     .upload-icon i {
         font-size: 60px;
     }
-    .table-responsive {
+    
+    .upload-zone h4 {
+        font-size: 20px;
+    }
+    
+    .upload-zone p {
         font-size: 14px;
+    }
+    
+    .upload-zone .btn-lg {
+        padding: 10px 24px;
+        font-size: 15px;
+    }
+    
+    .card-header {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+        padding: 15px;
+    }
+    
+    .card-header h5 {
+        font-size: 16px;
+    }
+    
+    .btn-group {
+        width: 100%;
+    }
+    
+    .btn-group .btn {
+        flex: 1;
+        font-size: 12px;
+        padding: 8px 10px;
+    }
+    
+    .table-responsive {
+        font-size: 13px;
+    }
+    
+    .table th,
+    .table td {
+        padding: 10px 8px;
+        font-size: 13px;
+    }
+    
+    .table .btn-sm {
+        padding: 4px 8px;
+        font-size: 12px;
+    }
+    
+    .list-group-item {
+        padding: 12px 15px;
+        font-size: 14px;
+    }
+    
+    .supported-formats .badge {
+        font-size: 11px;
+        padding: 6px 10px;
+        margin: 3px;
+    }
+}
+
+/* Small Mobile */
+@media (max-width: 576px) {
+    .upload-zone {
+        padding: 30px 15px;
+    }
+    
+    .upload-icon i {
+        font-size: 50px;
+    }
+    
+    .upload-zone h4 {
+        font-size: 18px;
+    }
+    
+    .upload-zone p {
+        font-size: 13px;
+    }
+    
+    .upload-zone .btn-lg {
+        padding: 10px 20px;
+        font-size: 14px;
+        width: 100%;
+    }
+    
+    .supported-formats {
+        margin-top: 15px;
+    }
+    
+    .supported-formats .badge {
+        font-size: 10px;
+        padding: 6px 10px;
+    }
+    
+    .card-body {
+        padding: 20px 15px;
+    }
+    
+    .table th,
+    .table td {
+        padding: 8px 5px;
+        font-size: 12px;
+    }
+    
+    .table .btn-sm {
+        padding: 3px 6px;
+        font-size: 11px;
+    }
+    
+    .table .btn-sm i {
+        margin: 0;
+    }
+    
+    /* Hide some table columns on very small screens */
+    .table th:nth-child(3),
+    .table td:nth-child(3) {
+        display: none;
+    }
+}
+
+/* Extra Small Mobile */
+@media (max-width: 400px) {
+    .upload-zone {
+        padding: 25px 10px;
+    }
+    
+    .upload-icon i {
+        font-size: 40px;
+    }
+    
+    .card-header h5 {
+        font-size: 14px;
+    }
+    
+    .btn-group .btn {
+        font-size: 11px;
+        padding: 6px 8px;
     }
 }

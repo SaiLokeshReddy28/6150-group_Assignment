@@ -55,6 +55,7 @@ document.addEventListener("DOMContentLoaded", function () {
         icon.classList.add("fa-eye");
       }
     });
+  });
 
     // ==========================================
     // EMAIL VALIDATION FUNCTION
@@ -575,7 +576,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // ==========================================
-    // FORM SUBMISSION HANDLERS (Temporary)
+    // FORM SUBMISSION HANDLERS
     // ==========================================
     const loginForm = document.getElementById("loginForm");
     if (loginForm) {
@@ -646,8 +647,10 @@ document.addEventListener("DOMContentLoaded", function () {
                     rememberMe: document.getElementById("rememberMe").checked,
                 });
 
-                // In a real app, you would redirect here:
-                // window.location.href = 'dashboard.html';
+                // Redirect to dashboard after brief delay
+                setTimeout(function() {
+                    window.location.href = 'dashboard.html';
+                }, 1000);
             }, 2000);
         });
     }
@@ -760,7 +763,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 // Show success message
                 showAlert(
                     "signupAlert",
-                    "Account created successfully! Redirecting to dashboard...",
+                    "Account created successfully! Redirecting to welcome page...",
                     "success"
                 );
 
@@ -771,8 +774,10 @@ document.addEventListener("DOMContentLoaded", function () {
                     acceptedTerms: termsCheckbox.checked,
                 });
 
-                // In a real app, you would redirect here:
-                // window.location.href = 'dashboard.html';
+                // Redirect to welcome page after brief delay
+                setTimeout(function() {
+                    window.location.href = 'welcome.html';
+                }, 1000);
             }, 2000);
         });
     }
@@ -893,5 +898,5 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log("✉️  Email validation active");
     console.log("🔒 Password strength validation active");
     console.log("🔗 Placeholder social/policy handlers active");
-    console.log("⏳ Full form validation will be added in Commit 17");
+    console.log("✅ Redirects enabled: Login → Dashboard, Signup → Welcome");
 });
