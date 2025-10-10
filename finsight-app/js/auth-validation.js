@@ -3,34 +3,57 @@
  * Handles form validation for login page
  * Authors: Keerthi Chandrakanth, Kottapally Manasvini
  */
-document.addEventListener("DOMContentLoaded", function() {
-    console.log("✅ Authentication JavaScript loaded successfully!");
-
+document.addEventListener("DOMContentLoaded", function () {
+    
     // ==========================================
-    // PASSWORD TOGGLE FUNCTIONALITY
+    // AUTO-OPEN SIGNUP TAB IF URL PARAMETER EXISTS
     // ==========================================
+    
+    // Check if URL has ?tab=signup or ?tab=login parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const tabParam = urlParams.get('tab');
+    
+    if (tabParam === 'signup') {
+        // Activate signup tab
+        const signupTab = document.getElementById('signup-tab');
+        if (signupTab) {
+            const signupTabInstance = new bootstrap.Tab(signupTab);
+            signupTabInstance.show();
+        }
+    } else if (tabParam === 'login') {
+        // Activate login tab (already default, but explicit)
+        const loginTab = document.getElementById('login-tab');
+        if (loginTab) {
+            const loginTabInstance = new bootstrap.Tab(loginTab);
+            loginTabInstance.show();
+        }
+    }
+  console.log("✅ Authentication JavaScript loaded successfully!");
 
-    // Get all password toggle buttons
-    const passwordToggles = document.querySelectorAll(".password-toggle");
+  // ==========================================
+  // PASSWORD TOGGLE FUNCTIONALITY
+  // ==========================================
 
-    passwordToggles.forEach((button) => {
-        button.addEventListener("click", function() {
-            const targetId = this.getAttribute("data-target");
-            const input = document.getElementById(targetId);
-            const icon = this.querySelector("i");
+  // Get all password toggle buttons
+  const passwordToggles = document.querySelectorAll(".password-toggle");
 
-            if (input.type === "password") {
-                // Show password
-                input.type = "text";
-                icon.classList.remove("fa-eye");
-                icon.classList.add("fa-eye-slash");
-            } else {
-                // Hide password
-                input.type = "password";
-                icon.classList.remove("fa-eye-slash");
-                icon.classList.add("fa-eye");
-            }
-        });
+  passwordToggles.forEach((button) => {
+    button.addEventListener("click", function () {
+      const targetId = this.getAttribute("data-target");
+      const input = document.getElementById(targetId);
+      const icon = this.querySelector("i");
+
+      if (input.type === "password") {
+        // Show password
+        input.type = "text";
+        icon.classList.remove("fa-eye");
+        icon.classList.add("fa-eye-slash");
+      } else {
+        // Hide password
+        input.type = "password";
+        icon.classList.remove("fa-eye-slash");
+        icon.classList.add("fa-eye");
+      }
     });
 
     // ==========================================
