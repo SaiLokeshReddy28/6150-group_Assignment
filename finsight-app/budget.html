@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Finsight - Budget Planning">
+    <meta name="author" content="Finsight Team - Person 3">
+    <title>Budget Planning - Finsight</title>
+    
+    <!-- Bootstrap CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome Icons CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS Files -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/budget.css">
+</head>
+<body>
+
+    <!-- Navigation will be added by Person 2 -->
+    <!-- For now, simple header -->
+    <nav class="navbar navbar-light bg-white shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="dashboard.html">
+                <i class="fas fa-arrow-left me-2"></i> Back to Dashboard
+            </a>
+            <span class="navbar-text">
+                <strong>Budget Planning</strong>
+            </span>
+        </div>
+    </nav>
+
+    <div class="container-fluid py-4">
+        <div class="row">
+            
+            <!-- Main Content Area -->
+            <div class="col-12">
+                
+                <!-- Page Header -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h1 class="h3 mb-1">💰 Budget Planning</h1>
+                        <p class="text-muted mb-0">Create and manage your monthly budgets</p>
+                    </div>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createBudgetModal">
+                        <i class="fas fa-plus me-2"></i> Create New Budget
+                    </button>
+                </div>
+
+                <!-- Budget Summary Cards -->
+                <div class="row g-4 mb-4">
+                    <!-- Total Budget Card -->
+                    <div class="col-12 col-md-6 col-lg-3">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <p class="text-muted mb-1 small">Total Monthly Budget</p>
+                                        <h3 class="mb-0 fw-bold">$3,500</h3>
+                                    </div>
+                                    <div class="icon-box bg-primary-subtle text-primary">
+                                        <i class="fas fa-wallet"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Total Spent Card -->
+                    <div class="col-12 col-md-6 col-lg-3">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <p class="text-muted mb-1 small">Total Spent</p>
+                                        <h3 class="mb-0 fw-bold text-danger">$2,845</h3>
+                                    </div>
+                                    <div class="icon-box bg-danger-subtle text-danger">
+                                        <i class="fas fa-credit-card"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Remaining Card -->
+                    <div class="col-12 col-md-6 col-lg-3">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <p class="text-muted mb-1 small">Remaining</p>
+                                        <h3 class="mb-0 fw-bold text-success">$655</h3>
+                                    </div>
+                                    <div class="icon-box bg-success-subtle text-success">
+                                        <i class="fas fa-piggy-bank"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Budget Status Card -->
+                    <div class="col-12 col-md-6 col-lg-3">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <p class="text-muted mb-1 small">Budget Used</p>
+                                        <h3 class="mb-0 fw-bold">81%</h3>
+                                    </div>
+                                    <div class="icon-box bg-warning-subtle text-warning">
+                                        <i class="fas fa-chart-pie"></i>
+                                    </div>
+                                </div>
+                                <div class="progress mt-2" style="height: 8px;">
+                                    <div class="progress-bar bg-warning" role="progressbar" style="width: 81%" aria-valuenow="81" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filter and View Options -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        <div class="row align-items-center g-3">
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small mb-1">Filter by Category</label>
+                                <select class="form-select" id="categoryFilter">
+                                    <option value="all">All Categories</option>
+                                    <option value="housing">Housing</option>
+                                    <option value="food">Food & Dining</option>
+                                    <option value="transport">Transportation</option>
+                                    <option value="entertainment">Entertainment</option>
+                                    <option value="utilities">Utilities</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small mb-1">Time Period</label>
+                                <select class="form-select" id="periodFilter">
+                                    <option value="current">This Month</option>
+                                    <option value="last">Last Month</option>
+                                    <option value="next">Next Month</option>
+                                    <option value="quarter">This Quarter</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small mb-1">View Type</label>
+                                <div class="btn-group w-100" role="group">
+                                    <input type="radio" class="btn-check" name="viewType" id="monthlyView" checked>
+                                    <label class="btn btn-outline-primary" for="monthlyView">Monthly</label>
+                                    
+                                    <input type="radio" class="btn-check" name="viewType" id="yearlyView">
+                                    <label class="btn btn-outline-primary" for="yearlyView">Yearly</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Insights & Warnings Section -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-0 py-3">
+                        <h5 class="mb-0">
+                            <i class="fas fa-lightbulb text-warning me-2"></i>
+                            AI Insights & Suggestions
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <!-- Warning Insight -->
+                            <div class="col-12 col-lg-6">
+                                <div class="alert alert-warning border-start border-warning border-4 mb-0" role="alert">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h6 class="alert-heading mb-2">
+                                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                                Entertainment Budget Alert
+                                            </h6>
+                                            <p class="mb-0 small">You've used 85% of your entertainment budget. Consider reducing spending by $50 this week.</p>
+                                        </div>
+                                        <button type="button" class="btn-close" aria-label="Close"></button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Success Insight -->
+                            <div class="col-12 col-lg-6">
+                                <div class="alert alert-success border-start border-success border-4 mb-0" role="alert">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h6 class="alert-heading mb-2">
+                                                <i class="fas fa-check-circle me-2"></i>
+                                                Great Savings!
+                                            </h6>
+                                            <p class="mb-0 small">You saved $200 in transportation this month compared to last month. Keep it up!</p>
+                                        </div>
+                                        <button type="button" class="btn-close" aria-label="Close"></button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Info Insight -->
+                            <div class="col-12 col-lg-6">
+                                <div class="alert alert-info border-start border-info border-4 mb-0" role="alert">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h6 class="alert-heading mb-2">
+                                                <i class="fas fa-info-circle me-2"></i>
+                                                Spending Pattern
+                                            </h6>
+                                            <p class="mb-0 small">You're spending 30% more on food this month. Consider meal planning to save money.</p>
+                                        </div>
+                                        <button type="button" class="btn-close" aria-label="Close"></button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Suggestion Insight -->
+                            <div class="col-12 col-lg-6">
+                                <div class="alert alert-primary border-start border-primary border-4 mb-0" role="alert">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h6 class="alert-heading mb-2">
+                                                <i class="fas fa-chart-line me-2"></i>
+                                                Budget Optimization
+                                            </h6>
+                                            <p class="mb-0 small">Consider reducing dining out budget by $100 and increase your savings budget.</p>
+                                        </div>
+                                        <button type="button" class="btn-close" aria-label="Close"></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Budget Categories Section -->
+                <div class="row g-4">
+                    
+                    <!-- Housing Budget -->
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <div class="card budget-card border-0 shadow-sm h-100">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="category-icon bg-primary-subtle text-primary me-3">
+                                            <i class="fas fa-home"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-0 fw-bold">Housing</h6>
+                                            <small class="text-muted">Rent & Utilities</small>
+                                        </div>
+                                    </div>
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-light" type="button" data-bs-toggle="dropdown">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item" href="#"><i class="fas fa-edit me-2"></i>Edit</a></li>
+                                            <li><a class="dropdown-item text-danger" href="#"><i class="fas fa-trash me-2"></i>Delete</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-2">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span class="small">$800 of $1,200</span>
+                                        <span class="small fw-bold text-success">67%</span>
+                                    </div>
+                                    <div class="progress" style="height: 10px;">
+                                        <div class="progress-bar bg-success" role="progressbar" style="width: 67%"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between text-muted small">
+                                    <span>Remaining: $400</span>
+                                    <span class="badge bg-success-subtle text-success">On Track</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Food Budget -->
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <div class="card budget-card border-0 shadow-sm h-100">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="category-icon bg-warning-subtle text-warning me-3">
+                                            <i class="fas fa-utensils"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-0 fw-bold">Food & Dining</h6>
+                                            <small class="text-muted">Groceries & Restaurants</small>
+                                        </div>
+                                    </div>
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-light" type="button" data-bs-toggle="dropdown">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item" href="#"><i class="fas fa-edit me-2"></i>Edit</a></li>
+                                            <li><a class="dropdown-item text-danger" href="#"><i class="fas fa-trash me-2"></i>Delete</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-2">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span class="small">$425 of $500</span>
+                                        <span class="small fw-bold text-warning">85%</span>
+                                    </div>
+                                    <div class="progress" style="height: 10px;">
+                                        <div class="progress-bar bg-warning" role="progressbar" style="width: 85%"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between text-muted small">
+                                    <span>Remaining: $75</span>
+                                    <span class="badge bg-warning-subtle text-warning">Caution</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Transportation Budget -->
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <div class="card budget-card border-0 shadow-sm h-100">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="category-icon bg-info-subtle text-info me-3">
+                                            <i class="fas fa-car"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-0 fw-bold">Transportation</h6>
+                                            <small class="text-muted">Gas & Public Transit</small>
+                                        </div>
+                                    </div>
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-light" type="button" data-bs-toggle="dropdown">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item" href="#"><i class="fas fa-edit me-2"></i>Edit</a></li>
+                                            <li><a class="dropdown-item text-danger" href="#"><i class="fas fa-trash me-2"></i>Delete</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-2">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span class="small">$150 of $300</span>
+                                        <span class="small fw-bold text-success">50%</span>
+                                    </div>
+                                    <div class="progress" style="height: 10px;">
+                                        <div class="progress-bar bg-info" role="progressbar" style="width: 50%"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between text-muted small">
+                                    <span>Remaining: $150</span>
+                                    <span class="badge bg-success-subtle text-success">Good</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Entertainment Budget -->
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <div class="card budget-card border-0 shadow-sm h-100">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="category-icon bg-danger-subtle text-danger me-3">
+                                            <i class="fas fa-film"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-0 fw-bold">Entertainment</h6>
+                                            <small class="text-muted">Movies & Recreation</small>
+                                        </div>
+                                    </div>
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-light" type="button" data-bs-toggle="dropdown">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item" href="#"><i class="fas fa-edit me-2"></i>Edit</a></li>
+                                            <li><a class="dropdown-item text-danger" href="#"><i class="fas fa-trash me-2"></i>Delete</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-2">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span class="small">$340 of $400</span>
+                                        <span class="small fw-bold text-danger">85%</span>
+                                    </div>
+                                    <div class="progress" style="height: 10px;">
+                                        <div class="progress-bar bg-danger" role="progressbar" style="width: 85%"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between text-muted small">
+                                    <span>Remaining: $60</span>
+                                    <span class="badge bg-danger-subtle text-danger">Warning</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Utilities Budget -->
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <div class="card budget-card border-0 shadow-sm h-100">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="category-icon bg-secondary-subtle text-secondary me-3">
+                                            <i class="fas fa-bolt"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-0 fw-bold">Utilities</h6>
+                                            <small class="text-muted">Electric & Internet</small>
+                                        </div>
+                                    </div>
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-light" type="button" data-bs-toggle="dropdown">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item" href="#"><i class="fas fa-edit me-2"></i>Edit</a></li>
+                                            <li><a class="dropdown-item text-danger" href="#"><i class="fas fa-trash me-2"></i>Delete</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-2">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span class="small">$180 of $200</span>
+                                        <span class="small fw-bold text-warning">90%</span>
+                                    </div>
+                                    <div class="progress" style="height: 10px;">
+                                        <div class="progress-bar bg-secondary" role="progressbar" style="width: 90%"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between text-muted small">
+                                    <span>Remaining: $20</span>
+                                    <span class="badge bg-warning-subtle text-warning">Almost</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Shopping Budget -->
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <div class="card budget-card border-0 shadow-sm h-100">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="category-icon bg-success-subtle text-success me-3">
+                                            <i class="fas fa-shopping-bag"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-0 fw-bold">Shopping</h6>
+                                            <small class="text-muted">Clothing & Personal</small>
+                                        </div>
+                                    </div>
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-light" type="button" data-bs-toggle="dropdown">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item" href="#"><i class="fas fa-edit me-2"></i>Edit</a></li>
+                                            <li><a class="dropdown-item text-danger" href="#"><i class="fas fa-trash me-2"></i>Delete</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-2">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span class="small">$170 of $400</span>
+                                        <span class="small fw-bold text-success">43%</span>
+                                    </div>
+                                    <div class="progress" style="height: 10px;">
+                                        <div class="progress-bar bg-success" role="progressbar" style="width: 43%"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between text-muted small">
+                                    <span>Remaining: $230</span>
+                                    <span class="badge bg-success-subtle text-success">Excellent</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Export Options -->
+                <div class="text-center mt-4">
+                    <button class="btn btn-outline-primary">
+                        <i class="fas fa-download me-2"></i> Export Budget Report
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Budget Modal -->
+    <div class="modal fade" id="createBudgetModal" tabindex="-1" aria-labelledby="createBudgetModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createBudgetModalLabel">
+                        <i class="fas fa-plus-circle me-2"></i> Create New Budget
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="createBudgetForm">
+                        
+                        <!-- Monthly Income -->
+                        <div class="mb-3">
+                            <label for="monthlyIncome" class="form-label">Monthly Income</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" id="monthlyIncome" placeholder="5000" required>
+                            </div>
+                        </div>
+
+                        <!-- Category Selection -->
+                        <div class="mb-3">
+                            <label for="budgetCategory" class="form-label">Category</label>
+                            <select class="form-select" id="budgetCategory" required>
+                                <option value="">Choose category...</option>
+                                <option value="housing">🏠 Housing</option>
+                                <option value="food">🍽️ Food & Dining</option>
+                                <option value="transport">🚗 Transportation</option>
+                                <option value="entertainment">🎬 Entertainment</option>
+                                <option value="utilities">⚡ Utilities</option>
+                                <option value="shopping">🛍️ Shopping</option>
+                                <option value="healthcare">🏥 Healthcare</option>
+                                <option value="education">📚 Education</option>
+                                <option value="savings">💰 Savings</option>
+                                <option value="other">📌 Other</option>
+                            </select>
+                        </div>
+
+                        <!-- Budget Amount -->
+                        <div class="mb-3">
+                            <label for="budgetAmount" class="form-label">Budget Amount</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" id="budgetAmount" placeholder="500" required>
+                            </div>
+                        </div>
+
+                        <!-- Time Period -->
+                        <div class="mb-3">
+                            <label for="timePeriod" class="form-label">Time Period</label>
+                            <select class="form-select" id="timePeriod" required>
+                                <option value="current">This Month</option>
+                                <option value="next">Next Month</option>
+                                <option value="quarter">Next 3 Months</option>
+                                <option value="year">This Year</option>
+                            </select>
+                        </div>
+
+                        <!-- Notes (Optional) -->
+                        <div class="mb-3">
+                            <label for="budgetNotes" class="form-label">Notes (Optional)</label>
+                            <textarea class="form-control" id="budgetNotes" rows="2" placeholder="Add any notes..."></textarea>
+                        </div>
+
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="saveBudgetBtn">
+                        <i class="fas fa-save me-2"></i> Create Budget
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JavaScript -->
+    <script src="js/budget.js"></script>
+
+</body>
+</html>
