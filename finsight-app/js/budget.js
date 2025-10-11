@@ -7,6 +7,36 @@
 // Wait for DOM to be fully loaded
 document.addEventListener('DOMContentLoaded', function() {
     
+    console.log('Budget Planning Page Initialized');
+
+    // ==========================================
+    // SIDEBAR TOGGLE FUNCTIONALITY
+    // ==========================================
+    
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebar = document.getElementById('sidebar');
+    
+    if (menuToggle && sidebar) {
+        menuToggle.addEventListener('click', function() {
+            // On mobile, toggle show/hide
+            if (window.innerWidth <= 992) {
+                sidebar.classList.toggle('show');
+            } else {
+                // On desktop, toggle collapsed
+                sidebar.classList.toggle('collapsed');
+            }
+        });
+    }
+    
+    // Close sidebar when clicking outside on mobile
+    document.addEventListener('click', function(e) {
+        if (window.innerWidth <= 992 && sidebar) {
+            if (!sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
+                sidebar.classList.remove('show');
+            }
+        }
+    });
+    
     // ==========================================
     // DUMMY DATA FOR BUDGET CATEGORIES
     // ==========================================
@@ -81,9 +111,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const selectedCategory = this.value;
             console.log('Filter by category:', selectedCategory);
             
-            // TODO: Filter budget cards based on selection
-            // For now, just log the selection
-            
             if (selectedCategory === 'all') {
                 showAllBudgets();
             } else {
@@ -96,9 +123,7 @@ document.addEventListener('DOMContentLoaded', function() {
         periodFilter.addEventListener('change', function() {
             const selectedPeriod = this.value;
             console.log('Filter by period:', selectedPeriod);
-            
             // TODO: Update data based on time period
-            // For now, just log the selection
         });
     }
     
@@ -164,9 +189,6 @@ document.addEventListener('DOMContentLoaded', function() {
             
             console.log('New Budget Created:', newBudget);
             
-            // TODO: Add the new budget to the page dynamically
-            // For now, just show success message
-            
             // Show success message
             alert('Budget created successfully! 🎉');
             
@@ -177,8 +199,6 @@ document.addEventListener('DOMContentLoaded', function() {
             // Close modal
             const modal = bootstrap.Modal.getInstance(document.getElementById('createBudgetModal'));
             modal.hide();
-            
-            // TODO: Refresh the budget cards to show new budget
         });
     }
     
@@ -200,13 +220,11 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (action.includes('Edit')) {
                 console.log('Edit budget:', categoryName);
-                // TODO: Open edit modal with pre-filled data
                 alert('Edit functionality will be added! 📝');
             } else if (action.includes('Delete')) {
                 const confirmDelete = confirm(`Are you sure you want to delete the ${categoryName} budget?`);
                 if (confirmDelete) {
                     console.log('Delete budget:', categoryName);
-                    // TODO: Remove budget from data and DOM
                     alert('Budget deleted! 🗑️');
                 }
             }
@@ -242,9 +260,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (exportButton) {
         exportButton.addEventListener('click', function() {
             console.log('Exporting budget report...');
-            
-            // TODO: Generate PDF or CSV of budget data
-            // For now, just show a message
             alert('Export functionality will be added! 📊\n\nYour budget report will be downloaded as PDF.');
         });
     }
@@ -327,8 +342,6 @@ document.addEventListener('DOMContentLoaded', function() {
             remaining: formatCurrency(remaining),
             percentageUsed: percentageUsed + '%'
         });
-        
-        // TODO: Update the DOM with these values
     }
     
     /**
