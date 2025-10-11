@@ -1,6 +1,6 @@
 /**
- * Finsight - Authentication Validation (COMPREHENSIVE VERSION)
- * Complete validation with industry best practices
+ * Finsight - Authentication Validation (SMART PROGRESSIVE ENABLE)
+ * Progressive field enabling: Fields → Terms Checkbox → Submit Button
  * Authors: Keerthi Chandrakanth, Kottapally Manasvini
  */
 document.addEventListener("DOMContentLoaded", function () {
@@ -61,17 +61,11 @@ document.addEventListener("DOMContentLoaded", function () {
         return emailRegex.test(email);
     }
 
-    /**
-     * Check for repeated characters (e.g., "aaaa", "1111")
-     */
     function hasRepeatedCharacters(str, maxRepeat = 3) {
         const regex = new RegExp(`(.)\\1{${maxRepeat},}`);
         return regex.test(str);
     }
 
-    /**
-     * Check for sequential characters (e.g., "1234", "abcd")
-     */
     function hasSequentialCharacters(str, minLength = 4) {
         for (let i = 0; i <= str.length - minLength; i++) {
             const chars = str.substring(i, i + minLength);
@@ -89,9 +83,6 @@ document.addEventListener("DOMContentLoaded", function () {
         return false;
     }
 
-    /**
-     * Common/weak passwords list
-     */
     const commonPasswords = [
         'password', 'password123', '12345678', 'qwerty', 'abc123',
         'password1', '123456789', 'letmein', 'welcome', 'admin123',
@@ -164,7 +155,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // ==========================================
-    // ENHANCED PASSWORD STRENGTH VALIDATION
+    // PASSWORD STRENGTH VALIDATION
     // ==========================================
 
     function checkPasswordStrength(password) {
@@ -183,14 +174,12 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         };
 
-        // Calculate strength (20% for each requirement)
         if (feedback.requirements.length) strength += 20;
         if (feedback.requirements.uppercase) strength += 20;
         if (feedback.requirements.lowercase) strength += 20;
         if (feedback.requirements.number) strength += 20;
         if (feedback.requirements.special) strength += 20;
 
-        // Set feedback based on strength
         if (strength === 0) {
             feedback.text = "Password strength";
             feedback.color = "";
@@ -249,7 +238,6 @@ document.addEventListener("DOMContentLoaded", function () {
             return false;
         }
 
-        // Check maximum length
         if (password.length > 128) {
             showError(input, "Password is too long (maximum 128 characters)");
             return false;
@@ -280,21 +268,18 @@ document.addEventListener("DOMContentLoaded", function () {
             return false;
         }
 
-        // Check for repeated characters
         if (hasRepeatedCharacters(password, 3)) {
-            showError(input, "Password cannot contain 4 or more repeated characters (e.g., 'aaaa')");
+            showError(input, "Password cannot contain 4 or more repeated characters");
             return false;
         }
 
-        // Check for sequential characters
         if (hasSequentialCharacters(password, 4)) {
-            showError(input, "Password cannot contain sequential characters (e.g., '1234', 'abcd')");
+            showError(input, "Password cannot contain sequential characters (e.g., '1234')");
             return false;
         }
 
-        // Check for common passwords
         if (isCommonPassword(password)) {
-            showError(input, "This password is too common. Please choose a more unique password.");
+            showError(input, "This password is too common. Please choose a more unique password");
             return false;
         }
 
@@ -303,46 +288,26 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // ==========================================
-    // LOGIN FORM - ENABLE BUTTON ON CHECKBOX
-    // ==========================================
-
-    const loginSubmitBtn = document.querySelector('#loginForm button[type="submit"]');
-    const loginTermsCheckbox = document.getElementById("acceptLoginTerms");
-
-    if (loginSubmitBtn && loginTermsCheckbox) {
-        // Initially disable button
-        loginSubmitBtn.disabled = true;
-
-        // Enable/disable based on checkbox
-        loginTermsCheckbox.addEventListener("change", function() {
-            loginSubmitBtn.disabled = !this.checked;
-            console.log('Login button', this.checked ? 'enabled' : 'disabled');
-        });
-    }
-
-    // ==========================================
-    // SIGNUP FORM - ENABLE BUTTON ON CHECKBOX
-    // ==========================================
-
-    const signupSubmitBtn = document.querySelector('#signupForm button[type="submit"]');
-    const signupTermsCheckbox = document.getElementById("acceptTerms");
-
-    if (signupSubmitBtn && signupTermsCheckbox) {
-        // Initially disable button
-        signupSubmitBtn.disabled = true;
-
-        // Enable/disable based on checkbox
-        signupTermsCheckbox.addEventListener("change", function() {
-            signupSubmitBtn.disabled = !this.checked;
-            console.log('Signup button', this.checked ? 'enabled' : 'disabled');
-        });
-    }
-
-    // ==========================================
-    // LOGIN EMAIL VALIDATION
+    // LOGIN FORM - SMART PROGRESSIVE ENABLING
     // ==========================================
 
     const loginEmail = document.getElementById("loginEmail");
+    const loginPassword = document.getElementById("loginPassword");
+    const loginTermsCheckbox = document.getElementById("acceptLoginTerms");
+    const loginSubmitBtn = document.getElementById("loginSubmitBtn");
+
+    function checkLoginFormValidity() {
+        const emailValid = loginEmail && loginEmail.classList.contains("is-valid");
+        const passwordValid = loginPassword && loginPassword.classList.contains("is-valid");
+        
+        // Enable submit button only if all fields valid AND terms checked
+        if (loginSubmitBtn) {
+            const allFieldsValid = emailValid && passwordValid;
+            const termsChecked = loginTermsCheckbox && loginTermsCheckbox.checked;
+            
+            loginSubmitBtn.disabled = !(allFieldsValid && termsChecked);
+        }
+    }
 
     if (loginEmail) {
         loginEmail.addEventListener("blur", function () {
@@ -357,10 +322,10 @@ document.addEventListener("DOMContentLoaded", function () {
             } else {
                 showSuccess(this);
             }
+            checkLoginFormValidity();
         });
 
         loginEmail.addEventListener("input", function () {
-            // Enforce max length
             if (this.value.length > 100) {
                 this.value = this.value.substring(0, 100);
             }
@@ -373,14 +338,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     showSuccess(this);
                 }
             }
+            checkLoginFormValidity();
         });
     }
-
-    // ==========================================
-    // LOGIN PASSWORD VALIDATION
-    // ==========================================
-
-    const loginPassword = document.getElementById("loginPassword");
 
     if (loginPassword) {
         loginPassword.addEventListener("blur", function () {
@@ -395,10 +355,10 @@ document.addEventListener("DOMContentLoaded", function () {
             } else {
                 showSuccess(this);
             }
+            checkLoginFormValidity();
         });
 
         loginPassword.addEventListener("input", function () {
-            // Enforce max length
             if (this.value.length > 128) {
                 this.value = this.value.substring(0, 128);
             }
@@ -408,14 +368,87 @@ document.addEventListener("DOMContentLoaded", function () {
                     showSuccess(this);
                 }
             }
+            checkLoginFormValidity();
+        });
+    }
+
+    if (loginTermsCheckbox) {
+        loginTermsCheckbox.addEventListener("change", function() {
+            checkLoginFormValidity();
         });
     }
 
     // ==========================================
-    // SIGNUP NAME VALIDATION (ENHANCED)
+    // SIGNUP FORM - SMART PROGRESSIVE ENABLING
     // ==========================================
 
+    const signupTitle = document.getElementsByName("signupTitle");
     const signupName = document.getElementById("signupName");
+    const signupEmail = document.getElementById("signupEmail");
+    const signupPhone = document.getElementById("signupPhone");
+    const signupAge = document.getElementById("signupAge");
+    const signupGender = document.getElementById("signupGender");
+    const signupPassword = document.getElementById("signupPassword");
+    const signupConfirmPassword = document.getElementById("signupConfirmPassword");
+    const signupTermsCheckbox = document.getElementById("acceptTerms");
+    const signupSubmitBtn = document.getElementById("signupSubmitBtn");
+    const termsHelpText = document.getElementById("termsHelpText");
+
+    function checkSignupFormValidity() {
+        // Check if title is selected
+        const titleSelected = Array.from(signupTitle).some(radio => radio.checked);
+        
+        // Check if all fields are valid
+        const nameValid = signupName && signupName.classList.contains("is-valid");
+        const emailValid = signupEmail && signupEmail.classList.contains("is-valid");
+        const phoneValid = signupPhone && signupPhone.classList.contains("is-valid");
+        const ageValid = signupAge && signupAge.classList.contains("is-valid");
+        const genderValid = signupGender && signupGender.classList.contains("is-valid");
+        const passwordValid = signupPassword && signupPassword.classList.contains("is-valid");
+        const confirmPasswordValid = signupConfirmPassword && signupConfirmPassword.classList.contains("is-valid");
+        
+        const allFieldsValid = titleSelected && nameValid && emailValid && phoneValid && 
+                               ageValid && genderValid && passwordValid && confirmPasswordValid;
+        
+        // Enable/disable terms checkbox based on field validity
+        if (signupTermsCheckbox) {
+            signupTermsCheckbox.disabled = !allFieldsValid;
+            
+            // Update help text
+            if (termsHelpText) {
+                if (allFieldsValid) {
+                    termsHelpText.innerHTML = '<i class="fas fa-check-circle me-1 text-success"></i>All fields valid! You can now accept the terms.';
+                    termsHelpText.className = 'text-success d-block mt-1 small';
+                } else {
+                    termsHelpText.innerHTML = '<i class="fas fa-info-circle me-1"></i>Fill all required fields to enable this checkbox';
+                    termsHelpText.className = 'text-muted d-block mt-1 small';
+                }
+            }
+        }
+        
+        // Enable submit button only if all fields valid AND terms checked
+        if (signupSubmitBtn) {
+            const termsChecked = signupTermsCheckbox && signupTermsCheckbox.checked;
+            signupSubmitBtn.disabled = !(allFieldsValid && termsChecked);
+        }
+    }
+
+    // ==========================================
+    // TITLE RADIO BUTTONS VALIDATION
+    // ==========================================
+
+    if (signupTitle.length > 0) {
+        signupTitle.forEach(radio => {
+            radio.addEventListener("change", function() {
+                console.log("Title selected:", this.value);
+                checkSignupFormValidity();
+            });
+        });
+    }
+
+    // ==========================================
+    // SIGNUP NAME VALIDATION
+    // ==========================================
 
     if (signupName) {
         signupName.addEventListener("blur", function () {
@@ -436,31 +469,29 @@ document.addEventListener("DOMContentLoaded", function () {
             } else {
                 showSuccess(this);
             }
+            checkSignupFormValidity();
         });
 
         signupName.addEventListener("input", function () {
-            // Enforce max length
             if (this.value.length > 50) {
                 this.value = this.value.substring(0, 50);
-                showError(this, "Name is too long (maximum 50 characters)");
             }
             
             if (this.classList.contains("is-invalid") || this.classList.contains("is-valid")) {
                 const name = this.value.trim();
                 if (name === "") {
                     clearValidation(this);
-                } else if (name.length >= 3 && name.length <= 50 && /^[a-zA-Z\s]+$/.test(name) && !hasRepeatedCharacters(name, 3)) {
+                } else if (name.length >= 3 && name.length <= 50 && /^[a-zA-Z\s]+$/.test(name) && !hasRepeatedCharacters(name, 3) && !/\s{2,}/.test(name)) {
                     showSuccess(this);
                 }
             }
+            checkSignupFormValidity();
         });
     }
 
     // ==========================================
-    // SIGNUP EMAIL VALIDATION (ENHANCED)
+    // SIGNUP EMAIL VALIDATION
     // ==========================================
-
-    const signupEmail = document.getElementById("signupEmail");
 
     if (signupEmail) {
         signupEmail.addEventListener("blur", function () {
@@ -475,13 +506,12 @@ document.addEventListener("DOMContentLoaded", function () {
             } else {
                 showSuccess(this);
             }
+            checkSignupFormValidity();
         });
 
         signupEmail.addEventListener("input", function () {
-            // Enforce max length
             if (this.value.length > 100) {
                 this.value = this.value.substring(0, 100);
-                showError(this, "Email is too long (maximum 100 characters)");
             }
             
             if (this.classList.contains("is-invalid") || this.classList.contains("is-valid")) {
@@ -492,14 +522,13 @@ document.addEventListener("DOMContentLoaded", function () {
                     showSuccess(this);
                 }
             }
+            checkSignupFormValidity();
         });
     }
 
     // ==========================================
-    // SIGNUP PHONE VALIDATION (10 DIGITS)
+    // SIGNUP PHONE VALIDATION
     // ==========================================
-
-    const signupPhone = document.getElementById("signupPhone");
 
     if (signupPhone) {
         signupPhone.addEventListener("blur", function () {
@@ -510,16 +539,16 @@ document.addEventListener("DOMContentLoaded", function () {
             } else if (!/^\d{10}$/.test(phone)) {
                 showError(this, "Phone number must be exactly 10 digits");
             } else if (hasRepeatedCharacters(phone, 5)) {
-                showError(this, "Phone number cannot contain 6 or more repeated digits (e.g., '1111111111')");
+                showError(this, "Phone number cannot contain 6 or more repeated digits");
             } else if (hasSequentialCharacters(phone, 6)) {
                 showError(this, "Phone number cannot be sequential (e.g., '1234567890')");
             } else {
                 showSuccess(this);
             }
+            checkSignupFormValidity();
         });
 
         signupPhone.addEventListener("input", function () {
-            // Only allow numbers and enforce max length
             this.value = this.value.replace(/\D/g, '');
             if (this.value.length > 10) {
                 this.value = this.value.substring(0, 10);
@@ -533,14 +562,13 @@ document.addEventListener("DOMContentLoaded", function () {
                     showSuccess(this);
                 }
             }
+            checkSignupFormValidity();
         });
     }
 
     // ==========================================
-    // SIGNUP AGE VALIDATION (18-120)
+    // SIGNUP AGE VALIDATION
     // ==========================================
-
-    const signupAge = document.getElementById("signupAge");
 
     if (signupAge) {
         signupAge.addEventListener("blur", function () {
@@ -549,16 +577,16 @@ document.addEventListener("DOMContentLoaded", function () {
             if (this.value === "") {
                 showError(this, "Age is required");
             } else if (age < 18) {
-                showError(this, "You must be at least 18 years old to use Finsight");
+                showError(this, "You must be at least 18 years old");
             } else if (age > 120) {
                 showError(this, "Please enter a valid age (maximum 120)");
             } else {
                 showSuccess(this);
             }
+            checkSignupFormValidity();
         });
 
         signupAge.addEventListener("input", function () {
-            // Only allow numbers and enforce max length (3 digits)
             this.value = this.value.replace(/\D/g, '');
             if (this.value.length > 3) {
                 this.value = this.value.substring(0, 3);
@@ -572,14 +600,13 @@ document.addEventListener("DOMContentLoaded", function () {
                     showSuccess(this);
                 }
             }
+            checkSignupFormValidity();
         });
     }
 
     // ==========================================
     // SIGNUP GENDER VALIDATION
     // ==========================================
-
-    const signupGender = document.getElementById("signupGender");
 
     if (signupGender) {
         signupGender.addEventListener("change", function () {
@@ -588,28 +615,28 @@ document.addEventListener("DOMContentLoaded", function () {
             } else {
                 showSuccess(this);
             }
+            checkSignupFormValidity();
         });
     }
 
     // ==========================================
-    // SIGNUP PASSWORD VALIDATION (STRICT)
+    // SIGNUP PASSWORD VALIDATION
     // ==========================================
-
-    const signupPassword = document.getElementById("signupPassword");
 
     if (signupPassword) {
         signupPassword.addEventListener("input", function () {
-            // Enforce max length
             if (this.value.length > 128) {
                 this.value = this.value.substring(0, 128);
             }
             updatePasswordStrength(this.value);
+            checkSignupFormValidity();
         });
 
         signupPassword.addEventListener("blur", function () {
             if (this.value.trim() !== "") {
                 validateStrictPassword(this);
             }
+            checkSignupFormValidity();
         });
 
         signupPassword.addEventListener("focus", function () {
@@ -624,8 +651,6 @@ document.addEventListener("DOMContentLoaded", function () {
     // CONFIRM PASSWORD VALIDATION
     // ==========================================
 
-    const signupConfirmPassword = document.getElementById("signupConfirmPassword");
-
     if (signupConfirmPassword && signupPassword) {
         signupConfirmPassword.addEventListener("blur", function () {
             const password = signupPassword.value;
@@ -638,10 +663,10 @@ document.addEventListener("DOMContentLoaded", function () {
             } else {
                 showSuccess(this);
             }
+            checkSignupFormValidity();
         });
 
         signupConfirmPassword.addEventListener("input", function () {
-            // Enforce max length
             if (this.value.length > 128) {
                 this.value = this.value.substring(0, 128);
             }
@@ -658,6 +683,14 @@ document.addEventListener("DOMContentLoaded", function () {
                     showError(this, "Passwords do not match");
                 }
             }
+            checkSignupFormValidity();
+        });
+    }
+
+    // Terms checkbox change handler for signup
+    if (signupTermsCheckbox) {
+        signupTermsCheckbox.addEventListener("change", function() {
+            checkSignupFormValidity();
         });
     }
 
@@ -675,20 +708,16 @@ document.addEventListener("DOMContentLoaded", function () {
             const emailInput = document.getElementById("loginEmail");
             const passwordInput = document.getElementById("loginPassword");
             const termsCheckbox = document.getElementById("acceptLoginTerms");
-            const submitButton = this.querySelector('button[type="submit"]');
+            const submitButton = document.getElementById("loginSubmitBtn");
 
             let isValid = true;
 
             // Validate email
             const email = emailInput.value.trim();
-            if (email === "") {
-                showError(emailInput, "Email address is required");
-                isValid = false;
-            } else if (email.length > 100) {
-                showError(emailInput, "Email is too long (maximum 100 characters)");
-                isValid = false;
-            } else if (!isValidEmail(email)) {
-                showError(emailInput, "Please enter a valid email address");
+            if (email === "" || email.length > 100 || !isValidEmail(email)) {
+                if (email === "") showError(emailInput, "Email address is required");
+                else if (email.length > 100) showError(emailInput, "Email is too long");
+                else showError(emailInput, "Please enter a valid email address");
                 isValid = false;
             } else {
                 showSuccess(emailInput);
@@ -696,14 +725,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
             // Validate password
             const password = passwordInput.value.trim();
-            if (password === "") {
-                showError(passwordInput, "Password is required");
-                isValid = false;
-            } else if (password.length < 6) {
-                showError(passwordInput, "Password must be at least 6 characters");
-                isValid = false;
-            } else if (password.length > 128) {
-                showError(passwordInput, "Password is too long (maximum 128 characters)");
+            if (password === "" || password.length < 6 || password.length > 128) {
+                if (password === "") showError(passwordInput, "Password is required");
+                else if (password.length < 6) showError(passwordInput, "Password must be at least 6 characters");
+                else showError(passwordInput, "Password is too long");
                 isValid = false;
             } else {
                 showSuccess(passwordInput);
@@ -711,12 +736,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
             // Validate terms
             if (!termsCheckbox.checked) {
-                showAlert("loginAlert", "You must accept the Terms & Conditions to continue.", "warning");
+                showAlert("loginAlert", "You must accept the Terms & Conditions", "warning");
                 isValid = false;
             }
 
             if (!isValid) {
-                showAlert("loginAlert", "Please fix the errors above before submitting.", "danger");
+                showAlert("loginAlert", "Please fix the errors above", "danger");
                 return;
             }
 
@@ -725,13 +750,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
             setTimeout(function () {
                 removeButtonLoading(submitButton);
-                
-                // Show success message
                 showAlert("loginAlert", "✅ Login successful! Redirecting to dashboard...", "success");
-
                 console.log("Login successful:", { email, password });
 
-                // Redirect to DASHBOARD after 1 second
                 setTimeout(function() {
                     window.location.href = 'dashboard.html';
                 }, 1000);
@@ -750,6 +771,7 @@ document.addEventListener("DOMContentLoaded", function () {
             e.preventDefault();
             hideAlert("signupAlert");
 
+            const titleInput = document.querySelector('input[name="signupTitle"]:checked');
             const nameInput = document.getElementById("signupName");
             const emailInput = document.getElementById("signupEmail");
             const phoneInput = document.getElementById("signupPhone");
@@ -758,114 +780,41 @@ document.addEventListener("DOMContentLoaded", function () {
             const passwordInput = document.getElementById("signupPassword");
             const confirmPasswordInput = document.getElementById("signupConfirmPassword");
             const termsCheckbox = document.getElementById("acceptTerms");
-            const submitButton = this.querySelector('button[type="submit"]');
+            const submitButton = document.getElementById("signupSubmitBtn");
 
             let isValid = true;
 
-            // Validate name
+            // Validate title
+            if (!titleInput) {
+                showAlert("signupAlert", "Please select your title (Mr./Ms./Mrs./Dr./Prof.)", "danger");
+                isValid = false;
+            }
+
+            // Validate all other fields
             const name = nameInput.value.trim();
-            if (name === "") {
-                showError(nameInput, "Full name is required");
-                isValid = false;
-            } else if (name.length < 3) {
-                showError(nameInput, "Name must be at least 3 characters");
-                isValid = false;
-            } else if (name.length > 50) {
-                showError(nameInput, "Name is too long (maximum 50 characters)");
-                isValid = false;
-            } else if (!/^[a-zA-Z\s]+$/.test(name)) {
-                showError(nameInput, "Name can only contain letters and spaces");
-                isValid = false;
-            } else if (hasRepeatedCharacters(name, 3)) {
-                showError(nameInput, "Name cannot contain 4 or more repeated characters");
-                isValid = false;
-            } else {
-                showSuccess(nameInput);
-            }
-
-            // Validate email
             const email = emailInput.value.trim();
-            if (email === "") {
-                showError(emailInput, "Email address is required");
-                isValid = false;
-            } else if (email.length > 100) {
-                showError(emailInput, "Email is too long (maximum 100 characters)");
-                isValid = false;
-            } else if (!isValidEmail(email)) {
-                showError(emailInput, "Please enter a valid email address");
-                isValid = false;
-            } else {
-                showSuccess(emailInput);
-            }
-
-            // Validate phone
             const phone = phoneInput.value.trim();
-            if (phone === "") {
-                showError(phoneInput, "Phone number is required");
-                isValid = false;
-            } else if (!/^\d{10}$/.test(phone)) {
-                showError(phoneInput, "Phone number must be exactly 10 digits");
-                isValid = false;
-            } else if (hasRepeatedCharacters(phone, 5)) {
-                showError(phoneInput, "Phone number cannot contain 6 or more repeated digits");
-                isValid = false;
-            } else if (hasSequentialCharacters(phone, 6)) {
-                showError(phoneInput, "Phone number cannot be sequential");
-                isValid = false;
-            } else {
-                showSuccess(phoneInput);
-            }
-
-            // Validate age
             const age = parseInt(ageInput.value);
-            if (ageInput.value === "") {
-                showError(ageInput, "Age is required");
-                isValid = false;
-            } else if (age < 18) {
-                showError(ageInput, "You must be at least 18 years old to use Finsight");
-                isValid = false;
-            } else if (age > 120) {
-                showError(ageInput, "Please enter a valid age (maximum 120)");
-                isValid = false;
-            } else {
-                showSuccess(ageInput);
-            }
-
-            // Validate gender
             const gender = genderInput.value;
-            if (gender === "") {
-                showError(genderInput, "Please select your gender");
-                isValid = false;
-            } else {
-                showSuccess(genderInput);
-            }
-
-            // Validate password (strict - all checks)
-            if (!validateStrictPassword(passwordInput)) {
-                isValid = false;
-            }
-
-            // Validate confirm password
             const password = passwordInput.value;
             const confirmPassword = confirmPasswordInput.value;
-            if (confirmPassword === "") {
-                showError(confirmPasswordInput, "Please confirm your password");
-                isValid = false;
-            } else if (password !== confirmPassword) {
-                showError(confirmPasswordInput, "Passwords do not match");
-                isValid = false;
-            } else {
-                showSuccess(confirmPasswordInput);
-            }
 
-            // Validate terms
+            // Run all validations
+            if (!nameInput.classList.contains("is-valid")) isValid = false;
+            if (!emailInput.classList.contains("is-valid")) isValid = false;
+            if (!phoneInput.classList.contains("is-valid")) isValid = false;
+            if (!ageInput.classList.contains("is-valid")) isValid = false;
+            if (!genderInput.classList.contains("is-valid")) isValid = false;
+            if (!passwordInput.classList.contains("is-valid")) isValid = false;
+            if (!confirmPasswordInput.classList.contains("is-valid")) isValid = false;
+
             if (!termsCheckbox.checked) {
-                showAlert("signupAlert", "You must accept the Terms & Conditions to continue.", "warning");
+                showAlert("signupAlert", "You must accept the Terms & Conditions", "warning");
                 isValid = false;
             }
 
             if (!isValid) {
-                showAlert("signupAlert", "Please fix the errors above before submitting.", "danger");
+                showAlert("signupAlert", "Please fix the errors above", "danger");
                 return;
             }
 
@@ -874,13 +823,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
             setTimeout(function () {
                 removeButtonLoading(submitButton);
-                
-                // Show success message
                 showAlert("signupAlert", "✅ Account created successfully! Redirecting to welcome page...", "success");
+                
+                console.log("Signup successful:", { 
+                    title: titleInput.value,
+                    name, email, phone, age, gender 
+                });
 
-                console.log("Signup successful:", { name, email, phone, age, gender });
-
-                // Redirect to WELCOME PAGE after 1 second
                 setTimeout(function() {
                     window.location.href = 'welcome.html';
                 }, 1000);
@@ -911,7 +860,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         resetEmail.addEventListener("input", function () {
-            // Enforce max length
             if (this.value.length > 100) {
                 this.value = this.value.substring(0, 100);
             }
@@ -941,19 +889,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
             showSuccess(emailInput);
 
-            // Show success message
             const successMessage = document.getElementById("resetSuccessMessage");
             if (successMessage) {
                 successMessage.classList.remove("d-none");
                 
                 setTimeout(function () {
                     successMessage.classList.add("d-none");
-                    // Close modal
                     const modal = bootstrap.Modal.getInstance(document.getElementById('forgotPasswordModal'));
                     if (modal) {
                         modal.hide();
                     }
-                    // Reset form
                     forgotPasswordForm.reset();
                     clearValidation(emailInput);
                 }, 3000);
@@ -967,15 +912,16 @@ document.addEventListener("DOMContentLoaded", function () {
     // CONSOLE LOG SUMMARY
     // ==========================================
 
+    console.log("✅ Title radio buttons initialized (Mr/Ms/Mrs/Dr/Prof)");
+    console.log("✅ Progressive enabling: Fields → Terms Checkbox → Submit Button");
+    console.log("✅ Login: Email + Password valid → Terms checkbox → Button enabled");
+    console.log("✅ Signup: All 8 fields valid → Terms checkbox enabled → Check terms → Button enabled");
     console.log("📍 Password toggle initialized");
-    console.log("📝 Form handlers ready");
-    console.log("✉️  Email validation active (max 100 chars)");
-    console.log("📱 Phone validation active (exactly 10 digits, no repeated/sequential)");
-    console.log("🎂 Age validation active (18-120 years, max 3 digits)");
-    console.log("⚧️  Gender validation active");
-    console.log("👤 Name validation active (3-50 chars, no repeated chars)");
-    console.log("🔒 Password validation active (8-128 chars, with special char, no common/repeated/sequential)");
-    console.log("✅ Button enable/disable on terms checkbox");
+    console.log("✉️  Email validation (max 100 chars)");
+    console.log("📱 Phone validation (10 digits, no repeated/sequential)");
+    console.log("🎂 Age validation (18-120)");
+    console.log("⚧️  Gender validation");
+    console.log("👤 Name validation (3-50 chars, no repeated)");
+    console.log("🔒 Password validation (8-128 chars, strict)");
     console.log("🔄 Redirects: Login → Dashboard, Signup → Welcome");
-    console.log("🎯 All comprehensive validations initialized successfully!");
 });
