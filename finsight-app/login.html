@@ -158,11 +158,11 @@
                                         
                                         <!-- Social Login Buttons -->
                                         <div class="d-flex gap-2 mb-3">
-                                            <button type="button" class="btn btn-outline-secondary w-100" 
+                                            <button type="button" id="googleLoginBtn" class="btn btn-outline-secondary w-100" 
                                                     aria-label="Sign in with Google">
                                                 <i class="fab fa-google me-2" aria-hidden="true"></i> Google
                                             </button>
-                                            <button type="button" class="btn btn-outline-secondary w-100" 
+                                            <button type="button" id="facebookLoginBtn" class="btn btn-outline-secondary w-100" 
                                                     aria-label="Sign in with Facebook">
                                                 <i class="fab fa-facebook-f me-2" aria-hidden="true"></i> Facebook
                                             </button>
@@ -245,18 +245,45 @@
                                             <div class="invalid-feedback" id="signupEmailError"></div>
                                         </div>
                                         
-                                        <!-- Phone Number Field -->
+                                        <!-- Phone Number Field with Country Code -->
                                         <div class="mb-3">
                                             <label for="signupPhone" class="form-label">Phone Number</label>
-                                            <div class="input-group">
-                                                <span class="input-group-text">
-                                                    <i class="fas fa-phone" aria-hidden="true"></i>
-                                                </span>
-                                                <input type="tel" class="form-control" id="signupPhone" 
-                                                       placeholder="10-digit phone number" maxlength="10" required
-                                                       aria-describedby="signupPhoneError">
+                                            <div class="row g-2">
+                                                <div class="col-4">
+                                                    <select class="form-select" id="countryCode" required>
+                                                        <option value="+1" selected>🇺🇸 +1 (US)</option>
+                                                        <option value="+91">🇮🇳 +91 (India)</option>
+                                                        <option value="+44">🇬🇧 +44 (UK)</option>
+                                                        <option value="+86">🇨🇳 +86 (China)</option>
+                                                        <option value="+81">🇯🇵 +81 (Japan)</option>
+                                                        <option value="+82">🇰🇷 +82 (Korea)</option>
+                                                        <option value="+61">🇦🇺 +61 (Australia)</option>
+                                                        <option value="+49">🇩🇪 +49 (Germany)</option>
+                                                        <option value="+33">🇫🇷 +33 (France)</option>
+                                                        <option value="+39">🇮🇹 +39 (Italy)</option>
+                                                        <option value="+34">🇪🇸 +34 (Spain)</option>
+                                                        <option value="+7">🇷🇺 +7 (Russia)</option>
+                                                        <option value="+55">🇧🇷 +55 (Brazil)</option>
+                                                        <option value="+52">🇲🇽 +52 (Mexico)</option>
+                                                        <option value="+27">🇿🇦 +27 (South Africa)</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-8">
+                                                    <div class="input-group">
+                                                        <span class="input-group-text">
+                                                            <i class="fas fa-phone" aria-hidden="true"></i>
+                                                        </span>
+                                                        <input type="tel" class="form-control" id="signupPhone" 
+                                                               placeholder="(555) 123-4567" maxlength="15" required
+                                                               aria-describedby="signupPhoneError">
+                                                    </div>
+                                                </div>
                                             </div>
                                             <div class="invalid-feedback" id="signupPhoneError"></div>
+                                            <small class="text-muted d-block mt-1">
+                                                <i class="fas fa-info-circle me-1"></i>
+                                                Enter phone number without country code
+                                            </small>
                                         </div>
                                         
                                         <!-- Age Field -->
@@ -373,11 +400,11 @@
                                         
                                         <!-- Social Sign Up Buttons -->
                                         <div class="d-flex gap-2 mb-3">
-                                            <button type="button" class="btn btn-outline-secondary w-100" 
+                                            <button type="button" id="googleSignupBtn" class="btn btn-outline-secondary w-100" 
                                                     aria-label="Sign up with Google">
                                                 <i class="fab fa-google me-2" aria-hidden="true"></i> Google
                                             </button>
-                                            <button type="button" class="btn btn-outline-secondary w-100" 
+                                            <button type="button" id="facebookSignupBtn" class="btn btn-outline-secondary w-100" 
                                                     aria-label="Sign up with Facebook">
                                                 <i class="fab fa-facebook-f me-2" aria-hidden="true"></i> Facebook
                                             </button>

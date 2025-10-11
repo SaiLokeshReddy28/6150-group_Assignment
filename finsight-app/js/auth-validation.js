@@ -527,42 +527,123 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // ==========================================
-    // SIGNUP PHONE VALIDATION
+    // PHONE FORMATTING HELPER
     // ==========================================
 
+    function formatPhoneNumber(value, countryCode) {
+        // Remove all non-digits
+        const cleaned = value.replace(/\D/g, '');
+        
+        // Format based on country
+        if (countryCode === '+1') {
+            // US format: (555) 123-4567
+            if (cleaned.length <= 3) {
+                return cleaned;
+            } else if (cleaned.length <= 6) {
+                return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3)}`;
+            } else {
+                return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6, 10)}`;
+            }
+        } else if (countryCode === '+91') {
+            // India format: 98765 43210
+            if (cleaned.length <= 5) {
+                return cleaned;
+            } else {
+                return `${cleaned.slice(0, 5)} ${cleaned.slice(5, 10)}`;
+            }
+        } else if (countryCode === '+44') {
+            // UK format: 7700 900123
+            if (cleaned.length <= 4) {
+                return cleaned;
+            } else {
+                return `${cleaned.slice(0, 4)} ${cleaned.slice(4, 10)}`;
+            }
+        } else {
+            // Default: no formatting
+            return cleaned.slice(0, 15);
+        }
+    }
+
+    function validatePhoneByCountry(phone, countryCode) {
+        const cleaned = phone.replace(/\D/g, '');
+        
+        // Validation rules by country
+        const rules = {
+            '+1': { length: 10, name: 'US' },      // USA
+            '+91': { length: 10, name: 'India' },  // India
+            '+44': { length: 10, name: 'UK' },     // UK
+            '+86': { length: 11, name: 'China' },  // China
+            '+81': { length: 10, name: 'Japan' },  // Japan
+            '+82': { length: 10, name: 'Korea' },  // South Korea
+            '+61': { length: 9, name: 'Australia' }, // Australia
+            '+49': { length: 10, name: 'Germany' }, // Germany
+            '+33': { length: 9, name: 'France' },  // France
+            '+39': { length: 10, name: 'Italy' },  // Italy
+            '+34': { length: 9, name: 'Spain' },   // Spain
+            '+7': { length: 10, name: 'Russia' },  // Russia
+            '+55': { length: 11, name: 'Brazil' }, // Brazil
+            '+52': { length: 10, name: 'Mexico' }, // Mexico
+            '+27': { length: 9, name: 'South Africa' } // South Africa
+        };
+        
+        const rule = rules[countryCode] || { length: 10, name: 'selected country' };
+        
+        return {
+            isValid: cleaned.length === rule.length,
+            expectedLength: rule.length,
+            countryName: rule.name,
+            cleaned: cleaned
+        };
+    }
+
+    // ==========================================
+    // SIGNUP PHONE VALIDATION (WITH COUNTRY CODE)
+    // ==========================================
+
+    const countryCodeSelect = document.getElementById('countryCode');
+
     if (signupPhone) {
-        signupPhone.addEventListener("blur", function () {
-            const phone = this.value.trim();
+        signupPhone.addEventListener("input", function () {
+            const countryCode = countryCodeSelect ? countryCodeSelect.value : '+1';
             
-            if (phone === "") {
+            // Auto-format as user types
+            const formatted = formatPhoneNumber(this.value, countryCode);
+            this.value = formatted;
+            
+            checkSignupFormValidity();
+        });
+
+        signupPhone.addEventListener("blur", function () {
+            const countryCode = countryCodeSelect ? countryCodeSelect.value : '+1';
+            const validation = validatePhoneByCountry(this.value, countryCode);
+            
+            if (this.value.trim() === "") {
                 showError(this, "Phone number is required");
-            } else if (!/^\d{10}$/.test(phone)) {
-                showError(this, "Phone number must be exactly 10 digits");
-            } else if (hasRepeatedCharacters(phone, 5)) {
+            } else if (!validation.isValid) {
+                showError(this, `Phone number for ${validation.countryName} must be ${validation.expectedLength} digits`);
+            } else if (hasRepeatedCharacters(validation.cleaned, 5)) {
                 showError(this, "Phone number cannot contain 6 or more repeated digits");
-            } else if (hasSequentialCharacters(phone, 6)) {
-                showError(this, "Phone number cannot be sequential (e.g., '1234567890')");
+            } else if (hasSequentialCharacters(validation.cleaned, 6)) {
+                showError(this, "Phone number cannot be sequential");
             } else {
                 showSuccess(this);
             }
             checkSignupFormValidity();
         });
+    }
 
-        signupPhone.addEventListener("input", function () {
-            this.value = this.value.replace(/\D/g, '');
-            if (this.value.length > 10) {
-                this.value = this.value.substring(0, 10);
+    // Country code change handler
+    if (countryCodeSelect && signupPhone) {
+        countryCodeSelect.addEventListener('change', function() {
+            // Revalidate phone when country changes
+            if (signupPhone.value.trim() !== "") {
+                // Clear and reformat
+                const cleaned = signupPhone.value.replace(/\D/g, '');
+                signupPhone.value = cleaned;
+                
+                // Trigger validation
+                signupPhone.dispatchEvent(new Event('blur'));
             }
-            
-            if (this.classList.contains("is-invalid") || this.classList.contains("is-valid")) {
-                const phone = this.value.trim();
-                if (phone === "") {
-                    clearValidation(this);
-                } else if (/^\d{10}$/.test(phone) && !hasRepeatedCharacters(phone, 5) && !hasSequentialCharacters(phone, 6)) {
-                    showSuccess(this);
-                }
-            }
-            checkSignupFormValidity();
         });
     }
 
@@ -909,6 +990,58 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // ==========================================
+    // SOCIAL LOGIN HANDLERS
+    // ==========================================
+
+    /**
+     * Handle social login/signup buttons
+     * Opens external authentication pages in new tab
+     */
+    function handleSocialAuth(provider) {
+        console.log(`${provider} authentication requested`);
+        
+        if (provider === 'Google') {
+            // Redirect to Google Sign-In
+            window.open('https://accounts.google.com/signin', '_blank');
+        } else if (provider === 'Facebook') {
+            // Redirect to Facebook Login
+            window.open('https://www.facebook.com/login/', '_blank');
+        }
+    }
+
+    // Login tab - Google button
+    const googleLoginBtn = document.getElementById('googleLoginBtn');
+    if (googleLoginBtn) {
+        googleLoginBtn.addEventListener('click', function() {
+            handleSocialAuth('Google');
+        });
+    }
+
+    // Login tab - Facebook button
+    const facebookLoginBtn = document.getElementById('facebookLoginBtn');
+    if (facebookLoginBtn) {
+        facebookLoginBtn.addEventListener('click', function() {
+            handleSocialAuth('Facebook');
+        });
+    }
+
+    // Signup tab - Google button
+    const googleSignupBtn = document.getElementById('googleSignupBtn');
+    if (googleSignupBtn) {
+        googleSignupBtn.addEventListener('click', function() {
+            handleSocialAuth('Google');
+        });
+    }
+
+    // Signup tab - Facebook button
+    const facebookSignupBtn = document.getElementById('facebookSignupBtn');
+    if (facebookSignupBtn) {
+        facebookSignupBtn.addEventListener('click', function() {
+            handleSocialAuth('Facebook');
+        });
+    }
+
+    // ==========================================
     // CONSOLE LOG SUMMARY
     // ==========================================
 
@@ -916,9 +1049,12 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log("✅ Progressive enabling: Fields → Terms Checkbox → Submit Button");
     console.log("✅ Login: Email + Password valid → Terms checkbox → Button enabled");
     console.log("✅ Signup: All 8 fields valid → Terms checkbox enabled → Check terms → Button enabled");
+    console.log("🔵 Social login: Google and Facebook buttons → Open external auth");
+    console.log("📱 International phone: 15 countries with auto-formatting");
+    console.log("🇺🇸 US format: (555) 123-4567");
+    console.log("🇮🇳 India format: 98765 43210");
     console.log("📍 Password toggle initialized");
     console.log("✉️  Email validation (max 100 chars)");
-    console.log("📱 Phone validation (10 digits, no repeated/sequential)");
     console.log("🎂 Age validation (18-120)");
     console.log("⚧️  Gender validation");
     console.log("👤 Name validation (3-50 chars, no repeated)");
