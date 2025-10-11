@@ -206,15 +206,7 @@ document.addEventListener('DOMContentLoaded', function() {
         startFreeTrialCTABtn.addEventListener('click', redirectToSignup);
     }
 
-    // 4. "Watch Demo" Button (ID: watchDemoBtn)
-    const watchDemoBtn = document.getElementById('watchDemoBtn');
-    if (watchDemoBtn) {
-        watchDemoBtn.addEventListener('click', function() {
-            handlePlaceholderAction('Watch Demo');
-        });
-    }
-
-    // 5. "Contact Sales" Button (ID: contactSalesBtn)
+    // 4. "Contact Sales" Button (ID: contactSalesBtn)
     const contactSalesBtn = document.getElementById('contactSalesBtn');
     if (contactSalesBtn) {
         contactSalesBtn.addEventListener('click', function() {
