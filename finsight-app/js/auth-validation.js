@@ -1,11 +1,24 @@
 /**
- * Finsight - Authentication Validation (SMART PROGRESSIVE ENABLE)
+ * Finsight - Authentication Validation with localStorage
  * Progressive field enabling: Fields → Terms Checkbox → Submit Button
  * Authors: Keerthi Chandrakanth, Kottapally Manasvini
  */
 document.addEventListener("DOMContentLoaded", function () {
     
     console.log("✅ Authentication JavaScript loaded successfully!");
+
+    // ==========================================
+    // SESSION CHECK - NO AUTO-REDIRECT OR MESSAGES
+    // ==========================================
+    
+    // Note: We don't check for existing sessions on login page
+    // Users can always access login page and login with any registered account
+    // This allows:
+    // - Testing multiple accounts
+    // - Multiple users on same device
+    // - Manual logout/login flow
+    
+    console.log('✅ Login page ready - no session restrictions');
 
     // ==========================================
     // AUTO-OPEN SIGNUP TAB IF URL PARAMETER EXISTS
@@ -155,6 +168,122 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // ==========================================
+    // localStorage HELPER FUNCTIONS
+    // ==========================================
+
+    /**
+     * Get all users from localStorage
+     */
+    function getAllUsers() {
+        try {
+            const users = localStorage.getItem('finsight_users');
+            return users ? JSON.parse(users) : [];
+        } catch (e) {
+            console.error('Error reading users from localStorage:', e);
+            return [];
+        }
+    }
+
+    /**
+     * Save users to localStorage
+     */
+    function saveUsers(users) {
+        try {
+            localStorage.setItem('finsight_users', JSON.stringify(users));
+            return true;
+        } catch (e) {
+            console.error('Error saving users to localStorage:', e);
+            return false;
+        }
+    }
+
+    /**
+     * Check if email already exists
+     */
+    function emailExists(email) {
+        const users = getAllUsers();
+        return users.some(user => user.email.toLowerCase() === email.toLowerCase());
+    }
+
+    /**
+     * Save current user session
+     */
+    function saveUserSession(user, rememberMe = false) {
+        try {
+            const sessionData = {
+                email: user.email,
+                name: user.name,
+                title: user.title,
+                loggedInAt: new Date().toISOString(),
+                rememberMe: rememberMe
+            };
+            
+            localStorage.setItem('finsight_currentUser', JSON.stringify(sessionData));
+            console.log('✅ User session saved:', user.email);
+            return true;
+        } catch (e) {
+            console.error('Error saving user session:', e);
+            return false;
+        }
+    }
+
+    /**
+     * Validate login credentials
+     */
+    function validateCredentials(email, password) {
+        const users = getAllUsers();
+        const user = users.find(u => 
+            u.email.toLowerCase() === email.toLowerCase() && 
+            u.password === password
+        );
+        return user || null;
+    }
+
+    /**
+     * Register new user
+     */
+    function registerUser(userData) {
+        const users = getAllUsers();
+        
+        // Check if email already exists
+        if (emailExists(userData.email)) {
+            return {
+                success: false,
+                message: 'An account with this email already exists.'
+            };
+        }
+        
+        // Add new user
+        const newUser = {
+            title: userData.title,
+            name: userData.name,
+            email: userData.email,
+            phone: userData.phone,
+            countryCode: userData.countryCode,
+            age: userData.age,
+            gender: userData.gender,
+            password: userData.password, // In production: hash this!
+            createdAt: new Date().toISOString(),
+            id: Date.now().toString() // Simple ID generation
+        };
+        
+        users.push(newUser);
+        
+        if (saveUsers(users)) {
+            console.log('✅ User registered:', newUser.email);
+            return {
+                success: true,
+                user: newUser
+            };
+        } else {
+            return {
+                success: false,
+                message: 'Failed to save user data. Please try again.'
+            };
+        }
+    }
+
+    // ==========================================
     // PASSWORD STRENGTH VALIDATION
     // ==========================================
 
@@ -295,12 +424,12 @@ document.addEventListener("DOMContentLoaded", function () {
     const loginPassword = document.getElementById("loginPassword");
     const loginTermsCheckbox = document.getElementById("acceptLoginTerms");
     const loginSubmitBtn = document.getElementById("loginSubmitBtn");
+    const rememberMeCheckbox = document.getElementById("rememberMe");
 
     function checkLoginFormValidity() {
         const emailValid = loginEmail && loginEmail.classList.contains("is-valid");
         const passwordValid = loginPassword && loginPassword.classList.contains("is-valid");
         
-        // Enable submit button only if all fields valid AND terms checked
         if (loginSubmitBtn) {
             const allFieldsValid = emailValid && passwordValid;
             const termsChecked = loginTermsCheckbox && loginTermsCheckbox.checked;
@@ -395,10 +524,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const termsHelpText = document.getElementById("termsHelpText");
 
     function checkSignupFormValidity() {
-        // Check if title is selected
         const titleSelected = Array.from(signupTitle).some(radio => radio.checked);
-        
-        // Check if all fields are valid
         const nameValid = signupName && signupName.classList.contains("is-valid");
         const emailValid = signupEmail && signupEmail.classList.contains("is-valid");
         const phoneValid = signupPhone && signupPhone.classList.contains("is-valid");
@@ -410,11 +536,9 @@ document.addEventListener("DOMContentLoaded", function () {
         const allFieldsValid = titleSelected && nameValid && emailValid && phoneValid && 
                                ageValid && genderValid && passwordValid && confirmPasswordValid;
         
-        // Enable/disable terms checkbox based on field validity
         if (signupTermsCheckbox) {
             signupTermsCheckbox.disabled = !allFieldsValid;
             
-            // Update help text
             if (termsHelpText) {
                 if (allFieldsValid) {
                     termsHelpText.innerHTML = '<i class="fas fa-check-circle me-1 text-success"></i>All fields valid! You can now accept the terms.';
@@ -426,17 +550,13 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }
         
-        // Enable submit button only if all fields valid AND terms checked
         if (signupSubmitBtn) {
             const termsChecked = signupTermsCheckbox && signupTermsCheckbox.checked;
             signupSubmitBtn.disabled = !(allFieldsValid && termsChecked);
         }
     }
 
-    // ==========================================
-    // TITLE RADIO BUTTONS VALIDATION
-    // ==========================================
-
+    // Title radio buttons validation
     if (signupTitle.length > 0) {
         signupTitle.forEach(radio => {
             radio.addEventListener("change", function() {
@@ -446,10 +566,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // ==========================================
-    // SIGNUP NAME VALIDATION
-    // ==========================================
-
+    // Signup name validation
     if (signupName) {
         signupName.addEventListener("blur", function () {
             const name = this.value.trim();
@@ -489,10 +606,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // ==========================================
-    // SIGNUP EMAIL VALIDATION
-    // ==========================================
-
+    // Signup email validation
     if (signupEmail) {
         signupEmail.addEventListener("blur", function () {
             const email = this.value.trim();
@@ -503,6 +617,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 showError(this, "Email is too long (maximum 100 characters)");
             } else if (!isValidEmail(email)) {
                 showError(this, "Please enter a valid email address");
+            } else if (emailExists(email)) {
+                showError(this, "An account with this email already exists");
             } else {
                 showSuccess(this);
             }
@@ -518,7 +634,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 const email = this.value.trim();
                 if (email === "") {
                     clearValidation(this);
-                } else if (isValidEmail(email) && email.length <= 100) {
+                } else if (isValidEmail(email) && email.length <= 100 && !emailExists(email)) {
                     showSuccess(this);
                 }
             }
@@ -526,17 +642,13 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // ==========================================
-    // PHONE FORMATTING HELPER
-    // ==========================================
+    // Phone formatting and validation
+    const countryCodeSelect = document.getElementById('countryCode');
 
     function formatPhoneNumber(value, countryCode) {
-        // Remove all non-digits
         const cleaned = value.replace(/\D/g, '');
         
-        // Format based on country
         if (countryCode === '+1') {
-            // US format: (555) 123-4567
             if (cleaned.length <= 3) {
                 return cleaned;
             } else if (cleaned.length <= 6) {
@@ -545,21 +657,18 @@ document.addEventListener("DOMContentLoaded", function () {
                 return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6, 10)}`;
             }
         } else if (countryCode === '+91') {
-            // India format: 98765 43210
             if (cleaned.length <= 5) {
                 return cleaned;
             } else {
                 return `${cleaned.slice(0, 5)} ${cleaned.slice(5, 10)}`;
             }
         } else if (countryCode === '+44') {
-            // UK format: 7700 900123
             if (cleaned.length <= 4) {
                 return cleaned;
             } else {
                 return `${cleaned.slice(0, 4)} ${cleaned.slice(4, 10)}`;
             }
         } else {
-            // Default: no formatting
             return cleaned.slice(0, 15);
         }
     }
@@ -567,23 +676,22 @@ document.addEventListener("DOMContentLoaded", function () {
     function validatePhoneByCountry(phone, countryCode) {
         const cleaned = phone.replace(/\D/g, '');
         
-        // Validation rules by country
         const rules = {
-            '+1': { length: 10, name: 'US' },      // USA
-            '+91': { length: 10, name: 'India' },  // India
-            '+44': { length: 10, name: 'UK' },     // UK
-            '+86': { length: 11, name: 'China' },  // China
-            '+81': { length: 10, name: 'Japan' },  // Japan
-            '+82': { length: 10, name: 'Korea' },  // South Korea
-            '+61': { length: 9, name: 'Australia' }, // Australia
-            '+49': { length: 10, name: 'Germany' }, // Germany
-            '+33': { length: 9, name: 'France' },  // France
-            '+39': { length: 10, name: 'Italy' },  // Italy
-            '+34': { length: 9, name: 'Spain' },   // Spain
-            '+7': { length: 10, name: 'Russia' },  // Russia
-            '+55': { length: 11, name: 'Brazil' }, // Brazil
-            '+52': { length: 10, name: 'Mexico' }, // Mexico
-            '+27': { length: 9, name: 'South Africa' } // South Africa
+            '+1': { length: 10, name: 'US' },
+            '+91': { length: 10, name: 'India' },
+            '+44': { length: 10, name: 'UK' },
+            '+86': { length: 11, name: 'China' },
+            '+81': { length: 10, name: 'Japan' },
+            '+82': { length: 10, name: 'Korea' },
+            '+61': { length: 9, name: 'Australia' },
+            '+49': { length: 10, name: 'Germany' },
+            '+33': { length: 9, name: 'France' },
+            '+39': { length: 10, name: 'Italy' },
+            '+34': { length: 9, name: 'Spain' },
+            '+7': { length: 10, name: 'Russia' },
+            '+55': { length: 11, name: 'Brazil' },
+            '+52': { length: 10, name: 'Mexico' },
+            '+27': { length: 9, name: 'South Africa' }
         };
         
         const rule = rules[countryCode] || { length: 10, name: 'selected country' };
@@ -596,20 +704,11 @@ document.addEventListener("DOMContentLoaded", function () {
         };
     }
 
-    // ==========================================
-    // SIGNUP PHONE VALIDATION (WITH COUNTRY CODE)
-    // ==========================================
-
-    const countryCodeSelect = document.getElementById('countryCode');
-
     if (signupPhone) {
         signupPhone.addEventListener("input", function () {
             const countryCode = countryCodeSelect ? countryCodeSelect.value : '+1';
-            
-            // Auto-format as user types
             const formatted = formatPhoneNumber(this.value, countryCode);
             this.value = formatted;
-            
             checkSignupFormValidity();
         });
 
@@ -632,25 +731,17 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Country code change handler
     if (countryCodeSelect && signupPhone) {
         countryCodeSelect.addEventListener('change', function() {
-            // Revalidate phone when country changes
             if (signupPhone.value.trim() !== "") {
-                // Clear and reformat
                 const cleaned = signupPhone.value.replace(/\D/g, '');
                 signupPhone.value = cleaned;
-                
-                // Trigger validation
                 signupPhone.dispatchEvent(new Event('blur'));
             }
         });
     }
 
-    // ==========================================
-    // SIGNUP AGE VALIDATION
-    // ==========================================
-
+    // Age validation
     if (signupAge) {
         signupAge.addEventListener("blur", function () {
             const age = parseInt(this.value);
@@ -685,10 +776,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // ==========================================
-    // SIGNUP GENDER VALIDATION
-    // ==========================================
-
+    // Gender validation
     if (signupGender) {
         signupGender.addEventListener("change", function () {
             if (this.value === "") {
@@ -700,10 +788,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // ==========================================
-    // SIGNUP PASSWORD VALIDATION
-    // ==========================================
-
+    // Password validation
     if (signupPassword) {
         signupPassword.addEventListener("input", function () {
             if (this.value.length > 128) {
@@ -728,10 +813,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // ==========================================
-    // CONFIRM PASSWORD VALIDATION
-    // ==========================================
-
+    // Confirm password validation
     if (signupConfirmPassword && signupPassword) {
         signupConfirmPassword.addEventListener("blur", function () {
             const password = signupPassword.value;
@@ -768,7 +850,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Terms checkbox change handler for signup
+    // Terms checkbox
     if (signupTermsCheckbox) {
         signupTermsCheckbox.addEventListener("change", function() {
             checkSignupFormValidity();
@@ -776,7 +858,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // ==========================================
-    // LOGIN FORM SUBMISSION
+    // LOGIN FORM SUBMISSION WITH localStorage
     // ==========================================
 
     const loginForm = document.getElementById("loginForm");
@@ -790,10 +872,10 @@ document.addEventListener("DOMContentLoaded", function () {
             const passwordInput = document.getElementById("loginPassword");
             const termsCheckbox = document.getElementById("acceptLoginTerms");
             const submitButton = document.getElementById("loginSubmitBtn");
+            const rememberMe = rememberMeCheckbox ? rememberMeCheckbox.checked : false;
 
             let isValid = true;
 
-            // Validate email
             const email = emailInput.value.trim();
             if (email === "" || email.length > 100 || !isValidEmail(email)) {
                 if (email === "") showError(emailInput, "Email address is required");
@@ -804,7 +886,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 showSuccess(emailInput);
             }
 
-            // Validate password
             const password = passwordInput.value.trim();
             if (password === "" || password.length < 6 || password.length > 128) {
                 if (password === "") showError(passwordInput, "Password is required");
@@ -815,7 +896,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 showSuccess(passwordInput);
             }
 
-            // Validate terms
             if (!termsCheckbox.checked) {
                 showAlert("loginAlert", "You must accept the Terms & Conditions", "warning");
                 isValid = false;
@@ -826,23 +906,52 @@ document.addEventListener("DOMContentLoaded", function () {
                 return;
             }
 
-            // All valid - simulate login
+            // Validate credentials from localStorage
             setButtonLoading(submitButton);
 
             setTimeout(function () {
-                removeButtonLoading(submitButton);
-                showAlert("loginAlert", "✅ Login successful! Redirecting to dashboard...", "success");
-                console.log("Login successful:", { email, password });
+                const user = validateCredentials(email, password);
+                
+                if (user) {
+                    // Valid credentials - user exists in localStorage
+                    saveUserSession(user, rememberMe);
+                    
+                    removeButtonLoading(submitButton);
+                    showAlert("loginAlert", `✅ Welcome back, ${user.name}! Redirecting to dashboard...`, "success");
+                    console.log("✅ Login successful:", { email: user.email });
 
-                setTimeout(function() {
-                    window.location.href = 'dashboard.html';
-                }, 1000);
-            }, 1500);
+                    setTimeout(function() {
+                        window.location.href = 'dashboard.html';
+                    }, 1500);
+                } else {
+                    // Invalid credentials - either email doesn't exist or password is wrong
+                    const users = getAllUsers();
+                    const emailExists = users.some(u => u.email.toLowerCase() === email.toLowerCase());
+                    
+                    removeButtonLoading(submitButton);
+                    
+                    if (!emailExists) {
+                        // Email not registered
+                        showAlert("loginAlert", "❌ Email not registered. Please sign up first!", "danger");
+                        console.log("❌ Login failed: Email not found");
+                        
+                        // Highlight the email field
+                        showError(emailInput, "This email is not registered");
+                    } else {
+                        // Email exists but password is wrong
+                        showAlert("loginAlert", "❌ Incorrect password. Please try again.", "danger");
+                        console.log("❌ Login failed: Incorrect password");
+                        
+                        // Highlight the password field
+                        showError(passwordInput, "Incorrect password");
+                    }
+                }
+            }, 1000);
         });
     }
 
     // ==========================================
-    // SIGNUP FORM SUBMISSION
+    // SIGNUP FORM SUBMISSION WITH localStorage
     // ==========================================
 
     const signupForm = document.getElementById("signupForm");
@@ -865,22 +974,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
             let isValid = true;
 
-            // Validate title
             if (!titleInput) {
                 showAlert("signupAlert", "Please select your title (Mr./Ms./Mrs./Dr./Prof.)", "danger");
                 isValid = false;
             }
 
-            // Validate all other fields
-            const name = nameInput.value.trim();
-            const email = emailInput.value.trim();
-            const phone = phoneInput.value.trim();
-            const age = parseInt(ageInput.value);
-            const gender = genderInput.value;
-            const password = passwordInput.value;
-            const confirmPassword = confirmPasswordInput.value;
-
-            // Run all validations
             if (!nameInput.classList.contains("is-valid")) isValid = false;
             if (!emailInput.classList.contains("is-valid")) isValid = false;
             if (!phoneInput.classList.contains("is-valid")) isValid = false;
@@ -899,22 +997,40 @@ document.addEventListener("DOMContentLoaded", function () {
                 return;
             }
 
-            // All valid - simulate signup
+            // Register user in localStorage
             setButtonLoading(submitButton);
 
             setTimeout(function () {
-                removeButtonLoading(submitButton);
-                showAlert("signupAlert", "✅ Account created successfully! Redirecting to welcome page...", "success");
-                
-                console.log("Signup successful:", { 
+                const userData = {
                     title: titleInput.value,
-                    name, email, phone, age, gender 
-                });
+                    name: nameInput.value.trim(),
+                    email: emailInput.value.trim(),
+                    phone: phoneInput.value.trim(),
+                    countryCode: countryCodeSelect ? countryCodeSelect.value : '+1',
+                    age: parseInt(ageInput.value),
+                    gender: genderInput.value,
+                    password: passwordInput.value
+                };
 
-                setTimeout(function() {
-                    window.location.href = 'welcome.html';
-                }, 1000);
-            }, 1500);
+                const result = registerUser(userData);
+                
+                removeButtonLoading(submitButton);
+                
+                if (result.success) {
+                    // Save user session
+                    saveUserSession(result.user);
+                    
+                    showAlert("signupAlert", `✅ Welcome to Finsight, ${result.user.name}! Redirecting...`, "success");
+                    console.log("Signup successful:", { email: result.user.email });
+
+                    setTimeout(function() {
+                        window.location.href = 'welcome.html';
+                    }, 1500);
+                } else {
+                    showAlert("signupAlert", "❌ " + result.message, "danger");
+                    console.log("Signup failed:", result.message);
+                }
+            }, 1000);
         });
     }
 
@@ -993,23 +1109,16 @@ document.addEventListener("DOMContentLoaded", function () {
     // SOCIAL LOGIN HANDLERS
     // ==========================================
 
-    /**
-     * Handle social login/signup buttons
-     * Opens external authentication pages in new tab
-     */
     function handleSocialAuth(provider) {
         console.log(`${provider} authentication requested`);
         
         if (provider === 'Google') {
-            // Redirect to Google Sign-In
             window.open('https://accounts.google.com/signin', '_blank');
         } else if (provider === 'Facebook') {
-            // Redirect to Facebook Login
             window.open('https://www.facebook.com/login/', '_blank');
         }
     }
 
-    // Login tab - Google button
     const googleLoginBtn = document.getElementById('googleLoginBtn');
     if (googleLoginBtn) {
         googleLoginBtn.addEventListener('click', function() {
@@ -1017,7 +1126,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Login tab - Facebook button
     const facebookLoginBtn = document.getElementById('facebookLoginBtn');
     if (facebookLoginBtn) {
         facebookLoginBtn.addEventListener('click', function() {
@@ -1025,7 +1133,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Signup tab - Google button
     const googleSignupBtn = document.getElementById('googleSignupBtn');
     if (googleSignupBtn) {
         googleSignupBtn.addEventListener('click', function() {
@@ -1033,7 +1140,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Signup tab - Facebook button
     const facebookSignupBtn = document.getElementById('facebookSignupBtn');
     if (facebookSignupBtn) {
         facebookSignupBtn.addEventListener('click', function() {
@@ -1045,6 +1151,9 @@ document.addEventListener("DOMContentLoaded", function () {
     // CONSOLE LOG SUMMARY
     // ==========================================
 
+    console.log("✅ localStorage authentication initialized");
+    console.log("📦 Users stored in: finsight_users");
+    console.log("🔐 Current session in: finsight_currentUser");
     console.log("✅ Title radio buttons initialized (Mr/Ms/Mrs/Dr/Prof)");
     console.log("✅ Progressive enabling: Fields → Terms Checkbox → Submit Button");
     console.log("✅ Login: Email + Password valid → Terms checkbox → Button enabled");
@@ -1053,11 +1162,15 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log("📱 International phone: 15 countries with auto-formatting");
     console.log("🇺🇸 US format: (555) 123-4567");
     console.log("🇮🇳 India format: 98765 43210");
-    console.log("📍 Password toggle initialized");
-    console.log("✉️  Email validation (max 100 chars)");
+    console.log("🔍 Password toggle initialized");
+    console.log("✉️ Email validation (max 100 chars)");
     console.log("🎂 Age validation (18-120)");
-    console.log("⚧️  Gender validation");
+    console.log("⚧️ Gender validation");
     console.log("👤 Name validation (3-50 chars, no repeated)");
     console.log("🔒 Password validation (8-128 chars, strict)");
     console.log("🔄 Redirects: Login → Dashboard, Signup → Welcome");
+    
+    // Log current localStorage state
+    const users = getAllUsers();
+    console.log(`📊 Total registered users: ${users.length}`);
 });

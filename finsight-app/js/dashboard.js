@@ -3,9 +3,64 @@
  * Author: Finsight Team - Sai Lokesh Reddy Nandavarapu
  */
 
+// ==========================================
+// LOAD AND DISPLAY LOGGED-IN USER (ADDED)
+// ==========================================
+
+// Check if user is logged in
+const userData = localStorage.getItem('finsight_currentUser');
+if (!userData) {
+    console.log('⚠️ No user session found. Redirecting to login...');
+    window.location.href = 'login.html';
+} else {
+    try {
+        const user = JSON.parse(userData);
+        window.CURRENT_USER = user; // Make globally available
+        console.log('✅ User session loaded:', user.name);
+    } catch (e) {
+        console.error('❌ Error loading user session:', e);
+        window.location.href = 'login.html';
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     
     console.log('✅ Dashboard initialized');
+
+    // ==========================================
+    // DISPLAY REAL USER NAME (ADDED)
+    // ==========================================
+    
+    if (window.CURRENT_USER) {
+        const firstName = window.CURRENT_USER.name.split(' ')[0];
+        const fullName = window.CURRENT_USER.name;
+        
+        // Update welcome message
+        const welcomeMsg = document.querySelector('.welcome-card h2');
+        if (welcomeMsg) {
+            welcomeMsg.innerHTML = `Welcome back, ${firstName}! 👋`;
+            console.log('✅ Updated welcome message for:', firstName);
+        }
+        
+        // Update profile dropdown name
+        document.querySelectorAll('.profile-btn span').forEach(span => {
+            // Only update text spans, not icon spans
+            if (!span.querySelector('i') && span.textContent.trim() && span.textContent === 'John Doe') {
+                span.textContent = fullName;
+                console.log('✅ Updated profile dropdown to:', fullName);
+            }
+        });
+        
+        // Update dropdown menu user name
+        document.querySelectorAll('.dropdown-menu').forEach(dropdown => {
+            const profileLink = dropdown.querySelector('a[href="#profile"]');
+            if (profileLink && profileLink.textContent.includes('Profile')) {
+                // User name is already showing in profile button, no need to duplicate
+            }
+        });
+        
+        console.log('✅ Dashboard displaying info for user:', fullName);
+    }
 
     // ==========================================
     // SIDEBAR TOGGLE FUNCTIONALITY
@@ -369,7 +424,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     console.log('✅ Dashboard JavaScript fully loaded');
     console.log('🎨 Charts initialized');
-    console.log('🔄 Event listeners attached');
+    console.log('📄 Event listeners attached');
     console.log('📱 Responsive handlers ready');
     
 });

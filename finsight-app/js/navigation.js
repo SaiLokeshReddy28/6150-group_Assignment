@@ -252,6 +252,169 @@ document.addEventListener('DOMContentLoaded', function() {
         activateSignupTabOnLoad();
     }
 
-    console.log("📍 CTA and Navigation links initialized.");
+    console.log("🔗 CTA and Navigation links initialized.");
+
+    // ==========================================
+    // LOGOUT FUNCTIONALITY (ADDED)
+    // ==========================================
+
+    /**
+     * Logout user and clear session
+     */
+    function logout() {
+        try {
+            const currentUserData = localStorage.getItem('finsight_currentUser');
+            let userName = 'User';
+            
+            if (currentUserData) {
+                const user = JSON.parse(currentUserData);
+                userName = user.name || 'User';
+            }
+            
+            // Clear user session
+            localStorage.removeItem('finsight_currentUser');
+            
+            console.log('✅ User logged out successfully:', userName);
+            
+            // Show brief confirmation
+            alert(`✅ Goodbye, ${userName}! You've been logged out successfully.`);
+            
+            // Redirect to login page
+            window.location.href = 'login.html';
+            
+        } catch (e) {
+            console.error('❌ Error during logout:', e);
+            // Redirect anyway
+            window.location.href = 'login.html';
+        }
+    }
+
+    /**
+     * Attach logout functionality to all logout buttons
+     */
+    function attachLogoutHandlers() {
+        // Find all logout buttons (sidebar, dropdown, etc.)
+        const logoutButtons = document.querySelectorAll('.logout-btn');
+        
+        logoutButtons.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('🚪 Logout button clicked');
+                logout();
+            });
+        });
+        
+        // Handle dropdown logout links
+        const dropdownLogoutLinks = document.querySelectorAll('.dropdown-menu a[href="index.html"]');
+        dropdownLogoutLinks.forEach(link => {
+            const linkText = link.textContent.toLowerCase();
+            if (linkText.includes('logout') || linkText.includes('sign out')) {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('🚪 Dropdown logout clicked');
+                    logout();
+                });
+            }
+        });
+        
+        console.log(`✅ Logout handlers attached to ${logoutButtons.length} button(s)`);
+    }
+    
+    // Attach logout handlers on page load
+    attachLogoutHandlers();
+
+    // Make logout function globally available
+    window.finsightLogout = logout;
+
+    // ==========================================
+    // DISPLAY LOGGED-IN USER INFO (ADDED)
+    // ==========================================
+
+    /**
+     * Display logged-in user's name on all pages
+     */
+    function displayUserInfo() {
+        const currentUserData = localStorage.getItem('finsight_currentUser');
+        
+        if (currentUserData) {
+            try {
+                const user = JSON.parse(currentUserData);
+                const firstName = user.name.split(' ')[0];
+                
+                // Update profile dropdown name in header (all pages)
+                document.querySelectorAll('.profile-btn span').forEach(span => {
+                    // Skip icon spans, only update text spans
+                    if (!span.querySelector('i') && span.textContent.trim() && span.textContent === 'John Doe') {
+                        span.textContent = user.name;
+                        console.log('✅ Updated profile to:', user.name);
+                    }
+                });
+                
+                // Update welcome messages (budget, upload, insights pages)
+                document.querySelectorAll('.welcome-card h2, h1').forEach(header => {
+                    const text = header.textContent;
+                    if (text.includes('Welcome back, John')) {
+                        header.innerHTML = text.replace('John', firstName);
+                        console.log('✅ Updated welcome for:', firstName);
+                    }
+                });
+                
+            } catch (e) {
+                console.error('❌ Error displaying user info:', e);
+            }
+        }
+    }
+    
+    // Display user info on page load
+    displayUserInfo();
+
+    // ==========================================
+    // PROTECT PAGES - REQUIRE LOGIN (ADDED)
+    // ==========================================
+
+    /**
+     * Check if user is logged in on protected pages
+     */
+    function requireLogin() {
+        const protectedPages = ['dashboard.html', 'budget.html', 'upload.html', 'insights.html'];
+        const currentPage = window.location.pathname.split('/').pop();
+        
+        if (protectedPages.includes(currentPage)) {
+            const currentUser = localStorage.getItem('finsight_currentUser');
+            
+            if (!currentUser) {
+                console.log('⚠️ User not logged in. Redirecting to login page...');
+                alert('⚠️ Please login to access this page.');
+                window.location.href = 'login.html';
+                return false;
+            }
+        }
+        
+        return true;
+    }
+    
+    // Check login status
+    requireLogin();
+
+    // ==========================================
+    // KEYBOARD SHORTCUT FOR LOGOUT (ADDED)
+    // ==========================================
+
+    /**
+     * Press Ctrl+Shift+L to logout quickly
+     */
+    document.addEventListener('keydown', function(e) {
+        // Ctrl + Shift + L
+        if (e.ctrlKey && e.shiftKey && e.key === 'L') {
+            e.preventDefault();
+            console.log('⌨️ Keyboard shortcut logout triggered');
+            logout();
+        }
+    });
+    
+    console.log('⌨️ Keyboard shortcut enabled: Ctrl+Shift+L to logout');
+    console.log('🚪 Logout system ready');
 
 });
