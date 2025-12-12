@@ -1,0 +1,484 @@
+/**
+ * Finsight - Budget Planning Styles
+ * Person 3: Budget Page
+ */
+
+/* ============================================
+   CSS VARIABLES - Using Finsight Colors
+   ============================================ */
+:root {
+    --primary-color: #4A90E2;
+    --secondary-color: #50C878;
+    --dark-color: #2C3E50;
+    --light-color: #ECF0F1;
+    --danger-color: #E74C3C;
+    --warning-color: #F39C12;
+    --success-color: #27AE60;
+    --info-color: #3498DB;
+    --gradient-primary: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+}
+
+/* ============================================
+   GLOBAL BUDGET PAGE STYLES
+   ============================================ */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #F8F9FA;
+    color: var(--dark-color);
+}
+
+/* ============================================
+   ICON BOX STYLES (Summary Cards)
+   ============================================ */
+.icon-box {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+/* ============================================
+   CATEGORY ICON STYLES
+   ============================================ */
+.category-icon {
+    width: 45px;
+    height: 45px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+/* ============================================
+   BUDGET CARD STYLES
+   ============================================ */
+.budget-card {
+    transition: all 0.3s ease;
+    border-left: 4px solid transparent;
+}
+
+.budget-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Budget card variants based on status */
+.budget-card:has(.bg-success) {
+    border-left-color: var(--success-color);
+}
+
+.budget-card:has(.bg-warning) {
+    border-left-color: var(--warning-color);
+}
+
+.budget-card:has(.bg-danger) {
+    border-left-color: var(--danger-color);
+}
+
+.budget-card:has(.bg-info) {
+    border-left-color: var(--info-color);
+}
+
+/* ============================================
+   PROGRESS BAR CUSTOMIZATION
+   ============================================ */
+.progress {
+    border-radius: 10px;
+    background-color: #E9ECEF;
+}
+
+.progress-bar {
+    border-radius: 10px;
+    transition: width 0.6s ease;
+}
+
+/* Progress bar color overrides */
+.progress-bar.bg-success {
+    background-color: var(--success-color) !important;
+}
+
+.progress-bar.bg-warning {
+    background-color: var(--warning-color) !important;
+}
+
+.progress-bar.bg-danger {
+    background-color: var(--danger-color) !important;
+}
+
+.progress-bar.bg-info {
+    background-color: var(--info-color) !important;
+}
+
+/* ============================================
+   ALERT CUSTOMIZATION (AI Insights)
+   ============================================ */
+.alert {
+    border-radius: 12px;
+    border: none;
+}
+
+.alert-heading {
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.alert .btn-close {
+    font-size: 12px;
+}
+
+/* ============================================
+   FILTER SECTION STYLES
+   ============================================ */
+.form-label {
+    font-weight: 500;
+    color: var(--dark-color);
+}
+
+.form-select,
+.form-control {
+    border-radius: 8px;
+    border: 1px solid #DEE2E6;
+    transition: all 0.3s ease;
+}
+
+.form-select:focus,
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.15);
+}
+
+/* ============================================
+   BUTTON GROUP STYLES (View Toggle)
+   ============================================ */
+.btn-group .btn-check:checked + .btn-outline-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+}
+
+.btn-group .btn-outline-primary:hover {
+    background-color: rgba(74, 144, 226, 0.1);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+/* ============================================
+   DROPDOWN MENU STYLES
+   ============================================ */
+.dropdown-menu {
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+    border: none;
+}
+
+.dropdown-item {
+    padding: 10px 15px;
+    transition: all 0.2s ease;
+}
+
+.dropdown-item:hover {
+    background-color: #F8F9FA;
+    color: var(--primary-color);
+}
+
+.dropdown-item.text-danger:hover {
+    background-color: #FFE5E5;
+    color: var(--danger-color);
+}
+
+/* ============================================
+   BADGE STYLES (Status Indicators)
+   ============================================ */
+.badge {
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Custom badge colors */
+.bg-success-subtle {
+    background-color: #D4EDDA !important;
+}
+
+.bg-warning-subtle {
+    background-color: #FFF3CD !important;
+}
+
+.bg-danger-subtle {
+    background-color: #F8D7DA !important;
+}
+
+.bg-info-subtle {
+    background-color: #D1ECF1 !important;
+}
+
+.bg-primary-subtle {
+    background-color: #D0E7FA !important;
+}
+
+.bg-secondary-subtle {
+    background-color: #E2E3E5 !important;
+}
+
+/* ============================================
+   MODAL STYLES
+   ============================================ */
+.modal-content {
+    border-radius: 15px;
+    border: none;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+    border-bottom: 1px solid #E9ECEF;
+    padding: 20px 25px;
+}
+
+.modal-body {
+    padding: 25px;
+}
+
+.modal-footer {
+    border-top: 1px solid #E9ECEF;
+    padding: 15px 25px;
+}
+
+.modal-title {
+    font-weight: 600;
+    color: var(--dark-color);
+}
+
+/* ============================================
+   CARD HEADER STYLES
+   ============================================ */
+.card-header {
+    border-bottom: 2px solid #E9ECEF;
+}
+
+.card-header h5 {
+    font-weight: 600;
+    color: var(--dark-color);
+}
+
+/* ============================================
+   BUTTON STYLES
+   ============================================ */
+.btn {
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    background-color: #357ABD;
+    border-color: #357ABD;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+}
+
+.btn-outline-primary {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 14px;
+}
+
+/* ============================================
+   NAVBAR STYLES
+   ============================================ */
+.navbar {
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    padding: 1rem 0;
+}
+
+.navbar-brand {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--primary-color) !important;
+    transition: all 0.3s ease;
+}
+
+.navbar-brand:hover {
+    color: #357ABD !important;
+}
+
+.navbar-text strong {
+    color: var(--dark-color);
+    font-size: 20px;
+}
+
+/* ============================================
+   CARD SHADOW EFFECTS
+   ============================================ */
+.shadow-sm {
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08) !important;
+}
+
+.card:hover.shadow-sm {
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* ============================================
+   TEXT UTILITIES
+   ============================================ */
+.text-success {
+    color: var(--success-color) !important;
+}
+
+.text-warning {
+    color: var(--warning-color) !important;
+}
+
+.text-danger {
+    color: var(--danger-color) !important;
+}
+
+.text-info {
+    color: var(--info-color) !important;
+}
+
+.text-primary {
+    color: var(--primary-color) !important;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+/* Tablet */
+@media (max-width: 992px) {
+    .icon-box {
+        width: 45px;
+        height: 45px;
+        font-size: 18px;
+    }
+    
+    .category-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+    }
+    
+    h1.h3 {
+        font-size: 24px;
+    }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .container-fluid {
+        padding: 15px;
+    }
+    
+    .icon-box {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+    }
+    
+    .category-icon {
+        width: 35px;
+        height: 35px;
+        font-size: 14px;
+    }
+    
+    h1.h3 {
+        font-size: 20px;
+    }
+    
+    .btn {
+        padding: 8px 16px;
+        font-size: 14px;
+    }
+    
+    .card-body {
+        padding: 15px;
+    }
+    
+    .modal-body {
+        padding: 20px;
+    }
+    
+    /* Stack filter controls vertically on mobile */
+    .row.align-items-center > .col-12 {
+        margin-bottom: 10px;
+    }
+    
+    /* Adjust insight cards for mobile */
+    .alert {
+        font-size: 14px;
+    }
+    
+    .alert-heading {
+        font-size: 14px;
+    }
+}
+
+/* Small mobile */
+@media (max-width: 576px) {
+    h1.h3 {
+        font-size: 18px;
+    }
+    
+    .navbar-text strong {
+        font-size: 16px;
+    }
+    
+    .card-body h6 {
+        font-size: 14px;
+    }
+    
+    .badge {
+        font-size: 10px;
+        padding: 4px 8px;
+    }
+}
+
+/* ============================================
+   ANIMATION
+   ============================================ */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.budget-card {
+    animation: fadeIn 0.5s ease;
+}
+
+/* Stagger animation for budget cards */
+.budget-card:nth-child(1) { animation-delay: 0.1s; }
+.budget-card:nth-child(2) { animation-delay: 0.2s; }
+.budget-card:nth-child(3) { animation-delay: 0.3s; }
+.budget-card:nth-child(4) { animation-delay: 0.4s; }
+.budget-card:nth-child(5) { animation-delay: 0.5s; }
+.budget-card:nth-child(6) { animation-delay: 0.6s; }
