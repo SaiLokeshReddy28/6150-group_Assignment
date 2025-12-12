@@ -8,6 +8,8 @@ const routeTitleMap = {
   "/budget": "Budget Planning",
   "/upload": "Upload Documents",
   "/insights": "View Insights",
+  "/profile": "My Profile",
+  "/settings": "Settings",
 };
 
 const Topbar = ({ onToggleSidebar }) => {
@@ -19,6 +21,15 @@ const Topbar = ({ onToggleSidebar }) => {
     routeTitleMap[location.pathname] || "Finsight Dashboard";
 
   const displayName = user?.name || user?.fullName || "User";
+
+  // 👉 Navigation handlers
+  const handleProfile = () => {
+    navigate("/profile");
+  };
+
+  const handleSettings = () => {
+    navigate("/settings");
+  };
 
   const handleLogout = () => {
     logout();
@@ -62,23 +73,30 @@ const Topbar = ({ onToggleSidebar }) => {
             <i className="fas fa-user-circle"></i>
             <span>{displayName}</span>
           </button>
+
           <ul className="dropdown-menu dropdown-menu-end">
+            {/* 🎯 PROFILE BUTTON */}
             <li>
-              <button className="dropdown-item">
-                <i className="fas fa-user me-2"></i>Profile
+              <button className="dropdown-item" onClick={handleProfile}>
+                <i className="fas fa-user me-2"></i> Profile
               </button>
             </li>
+
+            {/* 🎯 SETTINGS BUTTON */}
             <li>
-              <button className="dropdown-item">
-                <i className="fas fa-cog me-2"></i>Settings
+              <button className="dropdown-item" onClick={handleSettings}>
+                <i className="fas fa-cog me-2"></i> Settings
               </button>
             </li>
+
             <li>
               <hr className="dropdown-divider" />
             </li>
+
+            {/* 🔴 LOGOUT */}
             <li>
               <button className="dropdown-item" onClick={handleLogout}>
-                <i className="fas fa-sign-out-alt me-2"></i>Logout
+                <i className="fas fa-sign-out-alt me-2"></i> Logout
               </button>
             </li>
           </ul>

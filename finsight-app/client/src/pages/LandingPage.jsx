@@ -12,6 +12,12 @@ const LandingPage = () => {
     navigate("/auth?tab=signup");
   };
 
+  // 🔹 NEW: dedicated admin login entry
+  const goToAdminLogin = () => {
+    navigate("/auth?tab=login&mode=admin");
+  };
+
+
   return (
     <div className="landing-page">
       {/* NAVBAR */}
@@ -26,8 +32,7 @@ const LandingPage = () => {
             to="/"
             aria-label="Finsight Home"
           >
-            <i className="fas fa-wallet" aria-hidden="true"></i>
-            {" "}
+            <i className="fas fa-wallet" aria-hidden="true"></i>{" "}
             Finsight
           </Link>
 
@@ -62,6 +67,8 @@ const LandingPage = () => {
                   Testimonials
                 </a>
               </li>
+
+              {/* Normal Login */}
               <li className="nav-item ms-lg-3">
                 <button
                   className="btn btn-outline-primary"
@@ -71,11 +78,25 @@ const LandingPage = () => {
                   <i
                     className="fas fa-sign-in-alt"
                     aria-hidden="true"
-                  ></i>
-                  {" "}
+                  ></i>{" "}
                   Login
                 </button>
               </li>
+
+              {/* 🔹 NEW: Admin Login button */}
+              <li className="nav-item ms-2">
+                <button
+                  className="btn btn-outline-secondary"
+                  aria-label="Admin login"
+                  onClick={goToAdminLogin}
+                >
+                  <i className="fas fa-user-shield me-1" aria-hidden="true"></i>
+                  Admin Login
+                </button>
+              </li>
+
+
+              {/* Get Started / Signup */}
               <li className="nav-item ms-2">
                 <button
                   id="getStartedNavBtn"
@@ -103,8 +124,7 @@ const LandingPage = () => {
                   <i
                     className="fas fa-sparkles"
                     aria-hidden="true"
-                  ></i>
-                  {" "}
+                  ></i>{" "}
                   Free Personal Finance Manager
                 </span>
 
@@ -129,8 +149,7 @@ const LandingPage = () => {
                     <i
                       className="fas fa-rocket me-2"
                       aria-hidden="true"
-                    ></i>
-                    {" "}
+                    ></i>{" "}
                     Get Started
                   </button>
                   <a
@@ -141,8 +160,7 @@ const LandingPage = () => {
                     <i
                       className="fas fa-info-circle me-2"
                       aria-hidden="true"
-                    ></i>
-                    {" "}
+                    ></i>{" "}
                     Learn More
                   </a>
                 </div>
@@ -667,8 +685,7 @@ const LandingPage = () => {
               <i
                 className="fas fa-rocket"
                 aria-hidden="true"
-              ></i>
-              {" "}
+              ></i>{" "}
               Start Managing Your Money Today
             </span>
 
@@ -695,8 +712,7 @@ const LandingPage = () => {
                 <i
                   className="fas fa-rocket me-2"
                   aria-hidden="true"
-                ></i>
-                {" "}
+                ></i>{" "}
                 Get Started Free
               </button>
               <a
@@ -708,8 +724,7 @@ const LandingPage = () => {
                 <i
                   className="fas fa-info-circle me-2"
                   aria-hidden="true"
-                ></i>
-                {" "}
+                ></i>{" "}
                 Learn More
               </a>
             </div>

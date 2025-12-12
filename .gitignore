@@ -158,3 +158,5 @@ dump.rdb
 .dynamodb/
 .firebase/
 .tern-port
+.package-lock.json
+package-lock.json

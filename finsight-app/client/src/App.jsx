@@ -8,9 +8,19 @@ import DashboardPage from "./pages/DashboardPage.jsx";
 import BudgetPage from "./pages/BudgetPage.jsx";
 import UploadPage from "./pages/UploadPage.jsx";
 import InsightsPage from "./pages/InsightsPage.jsx";
+import ProfilePage from "./pages/ProfilePage.jsx";
 
 import ProtectedRoute from "./routes/ProtectedRoute.jsx";
 import AppLayout from "./components/layout/AppLayout.jsx";
+
+
+
+// Admin pages
+import AdminLayout from "./pages/admin/AdminLayout.jsx";
+import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
+import AdminUsersPage from "./pages/admin/AdminUsersPage.jsx";
+import AdminUploadsPage from "./pages/admin/AdminUploadsPage.jsx";
+import AdminRequestsPage from "./pages/admin/AdminRequestsPage.jsx"; // ✅ NEW
 
 function App() {
   return (
@@ -63,7 +73,45 @@ function App() {
             </AppLayout>
           </ProtectedRoute>
         }
+
       />
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <ProfilePage />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+
+
+      {/* Admin routes (protected) */}
+      <Route
+        path="/admin"
+        element={
+          <ProtectedRoute>
+            <AdminLayout />
+          </ProtectedRoute>
+        }
+      >
+        {/* /admin → dashboard */}
+        <Route index element={<AdminDashboard />} />
+        {/* /admin/dashboard → also dashboard (for your sidebar link) */}
+        <Route path="dashboard" element={<AdminDashboard />} />
+
+        {/* /admin/users */}
+        <Route path="users" element={<AdminUsersPage />} />
+
+        {/* /admin/uploads */}
+        <Route path="uploads" element={<AdminUploadsPage />} />
+
+        {/* /admin/requests → NEW admin approval page */}
+        <Route path="requests" element={<AdminRequestsPage />} />
+
+
+      </Route>
     </Routes>
   );
 }
