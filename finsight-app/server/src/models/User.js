@@ -43,6 +43,32 @@ const userSchema = new mongoose.Schema(
     passwordHash: {
       type: String,
       required: true
+    },
+
+    // 🔹 USER ROLE
+    role: {
+      type: String,
+      enum: ["user", "admin"],
+      default: "user"
+    },
+
+    // 🔹 IF USER REQUESTED ADMIN ACCESS
+    isAdminRequested: {
+      type: Boolean,
+      default: false
+    },
+
+    // 🔹 WHO APPROVED THIS USER TO BE ADMIN
+    approvedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null
+    },
+
+    // 🔹 ACCOUNT STATUS
+    isActive: {
+      type: Boolean,
+      default: true
     }
   },
   {
