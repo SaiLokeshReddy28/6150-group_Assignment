@@ -472,71 +472,70 @@ const AuthPage = () => {
   };
 
   const handleSignupSubmit = async (e) => {
-    e.preventDefault();
-    setSignupAlert("");
+  e.preventDefault();
+  setSignupAlert("");
 
-    if (!signupForm.phone || !signupForm.age || !signupForm.gender) {
-      setSignupAlert("Please fill in phone, age, and gender.");
-    }
+  // Basic checks
+  if (!signupForm.phone || !signupForm.age || !signupForm.gender) {
+    setSignupAlert("Please fill in phone, age, and gender.");
+    return;
+  }
 
-    const fieldsToValidate = [
-      "title",
-      "name",
-      "email",
-      "phone",
-      "age",
-      "gender",
-      "password",
-      "confirmPassword",
-      "acceptTerms",
-    ];
+  // Fields to validate
+  const fieldsToValidate = [
+    "title",
+    "name",
+    "email",
+    "phone",
+    "age",
+    "gender",
+    "password",
+    "confirmPassword",
+    "acceptTerms",
+  ];
 
-    const errors = {};
-    fieldsToValidate.forEach((field) => {
-      const err = validateField(field);
-      if (err) {
-        errors[field] = err;
-      }
-    });
+  const errors = {};
+  fieldsToValidate.forEach((field) => {
+    const err = validateField(field);
+    if (err) errors[field] = err;
+  });
 
-    if (Object.keys(errors).length > 0) {
-      setSignupAlert("Please fix the highlighted fields.");
-      return;
-    }
+  if (Object.keys(errors).length > 0) {
+    setSignupAlert("Please fix the highlighted fields.");
+    return;
+  }
 
-    try {
-      const payload = {
-        title: signupForm.title,
-        fullName: signupForm.name,
-        name: signupForm.name,
-        email: signupForm.email,
-        phone: signupForm.phone,
-        countryCode: signupForm.countryCode,
-        age: Number(signupForm.age),
-        gender: signupForm.gender,
-        password: signupForm.password,
-        // 🔹 When mode is admin, backend can treat this flag as "admin requested"
-        requestAdmin: loginMode === "admin" ? signupForm.requestAdmin : false,
-      };
+  try {
+    // ✅ FINAL FIX — always send requestAdmin EXACTLY as checkbox value
+    const payload = {
+      title: signupForm.title,
+      fullName: signupForm.name,
+      name: signupForm.name,
+      email: signupForm.email,
+      phone: signupForm.phone,
+      countryCode: signupForm.countryCode,
+      age: Number(signupForm.age),
+      gender: signupForm.gender,
+      password: signupForm.password,
+      requestAdmin: signupForm.requestAdmin,   // FIXED ✔✔✔
+    };
 
-      const res = await api.post("/auth/register", payload);
-      const { token, user } = res.data;
+    const res = await api.post("/auth/register", payload);
+    const { token, user } = res.data;
 
-      saveAuth(user, token, true);
+    saveAuth(user, token, true);
 
-      // After signup:
-      // - normal: go to dashboard
-      // - admin request: still go to dashboard, but admin will later approve
-      navigate("/dashboard");
-    } catch (err) {
-      console.error("Signup error:", err?.response?.data || err);
-      const msg = getServerErrorMessage(
-        err,
-        "Something went wrong during signup."
-      );
-      setSignupAlert(msg);
-    }
-  };
+    // Redirect after signup
+    navigate("/dashboard");
+  } catch (err) {
+    console.error("Signup error:", err?.response?.data || err);
+    const msg = getServerErrorMessage(
+      err,
+      "Something went wrong during signup."
+    );
+    setSignupAlert(msg);
+  }
+};
 
   // ==========================
   // RESET PASSWORD HANDLERS

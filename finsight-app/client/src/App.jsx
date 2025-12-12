@@ -9,7 +9,6 @@ import BudgetPage from "./pages/BudgetPage.jsx";
 import UploadPage from "./pages/UploadPage.jsx";
 import InsightsPage from "./pages/InsightsPage.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
-import SettingsPage from "./pages/SettingsPage.jsx";
 
 import ProtectedRoute from "./routes/ProtectedRoute.jsx";
 import AppLayout from "./components/layout/AppLayout.jsx";
@@ -82,16 +81,6 @@ function App() {
           <ProtectedRoute>
             <AppLayout>
               <ProfilePage />
-            </AppLayout>
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/settings"
-        element={
-          <ProtectedRoute>
-            <AppLayout>
-              <SettingsPage />
             </AppLayout>
           </ProtectedRoute>
         }
