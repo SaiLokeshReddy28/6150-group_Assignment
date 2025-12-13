@@ -8,6 +8,7 @@ import DashboardPage from "./pages/DashboardPage.jsx";
 import BudgetPage from "./pages/BudgetPage.jsx";
 import UploadPage from "./pages/UploadPage.jsx";
 import InsightsPage from "./pages/InsightsPage.jsx";
+import TransactionsPage from "./pages/TransactionsPage.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
 
 import ProtectedRoute from "./routes/ProtectedRoute.jsx";
@@ -74,6 +75,16 @@ function App() {
           </ProtectedRoute>
         }
 
+      />
+      <Route
+        path="/transactions"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <TransactionsPage />
+            </AppLayout>
+          </ProtectedRoute>
+        }
       />
       <Route
         path="/profile"

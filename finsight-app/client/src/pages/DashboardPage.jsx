@@ -1,51 +1,176 @@
 // src/pages/DashboardPage.jsx
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import api from "../api/axiosClient";
 
+const currencyFormatter = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+  maximumFractionDigits: 0,
+});
+
+const formatCurrency = (value = 0) => currencyFormatter.format(value);
+
+const formatMonthLabel = (monthKey) => {
+  if (!monthKey) return "-";
+  const [year, month] = monthKey.split("-");
+  const date = new Date(Number(year), Number(month) - 1, 1);
+  return date.toLocaleDateString("en-US", { month: "short", year: "numeric" });
+};
+
+const defaultAlertCategories = [
+  "Food & Dining",
+  "Transport",
+  "Shopping",
+  "Entertainment",
+  "Housing",
+  "Utilities",
+  "Healthcare",
+  "Education",
+  "Income",
+  "Fees",
+  "Other",
+];
+
+const loadStoredAlerts = () => {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem("finsight_alerts");
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+};
+
+const fallbackStats = {
+  summary: {
+    totalBalance: 0,
+    totalIncome: 0,
+    totalExpenses: 0,
+    monthlyIncome: 0,
+    monthlySpending: 0,
+    budgetUsage: null,
+  },
+  categories: [],
+  monthlyTrend: [],
+  recentTransactions: [],
+  budget: null,
+};
+
 const DashboardPage = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const displayName = user?.name || user?.fullName || "User";
+
   const [transactions, setTransactions] = React.useState([]);
-  const [loading, setLoading] = React.useState(true);
+  const [stats, setStats] = React.useState(null);
+  const [statsLoading, setStatsLoading] = React.useState(true);
+  const [txLoading, setTxLoading] = React.useState(true);
+  const [error, setError] = React.useState(null);
+  const [showAlertModal, setShowAlertModal] = React.useState(false);
+  const [alertForm, setAlertForm] = React.useState({ category: "", threshold: "" });
+  const [alertFeedback, setAlertFeedback] = React.useState(null);
+  const [savedAlerts, setSavedAlerts] = React.useState(loadStoredAlerts);
 
   React.useEffect(() => {
-    const fetchTransactions = async () => {
+    let isMounted = true;
+
+    const loadStats = async () => {
+      setStatsLoading(true);
+      try {
+        const res = await api.get("/transactions/dashboard");
+        if (!isMounted) return;
+        setStats(res.data);
+        setError(null);
+      } catch (err) {
+        console.error("Failed to load dashboard stats", err);
+        if (isMounted) {
+          setStats(fallbackStats);
+          setError("Unable to load dashboard data right now.");
+        }
+      } finally {
+        if (isMounted) setStatsLoading(false);
+      }
+    };
+
+    const loadTransactions = async () => {
+      setTxLoading(true);
       try {
         const res = await api.get("/transactions");
+        if (!isMounted) return;
         setTransactions(res.data.transactions || []);
       } catch (err) {
         console.error("Failed to fetch transactions", err);
       } finally {
-        setLoading(false);
+        if (isMounted) setTxLoading(false);
       }
     };
-    fetchTransactions();
+
+    loadStats();
+    loadTransactions();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
+
+  React.useEffect(() => {
+    try {
+      localStorage.setItem("finsight_alerts", JSON.stringify(savedAlerts));
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("finsight-alerts-updated"));
+      }
+    } catch (err) {
+      console.error("Failed to persist alerts", err);
+    }
+  }, [savedAlerts]);
+
+  React.useEffect(() => {
+    if (!alertFeedback) return undefined;
+    const timer = setTimeout(() => setAlertFeedback(null), 4000);
+    return () => clearTimeout(timer);
+  }, [alertFeedback]);
+
+  const summary = stats?.summary || {};
+  const categories = stats?.categories || [];
+  const monthlyTrend = stats?.monthlyTrend || [];
+  const budgetUsage = summary?.budgetUsage;
+  const topCategory = categories[0];
+  const categoryOptions = React.useMemo(() => {
+    const set = new Set(categories.map((cat) => cat.name).filter(Boolean));
+    defaultAlertCategories.forEach((cat) => set.add(cat));
+    return Array.from(set);
+  }, [categories]);
+
+  const insightMessage = statsLoading
+    ? "Crunching the latest numbers..."
+    : topCategory
+    ? `Your top spending category this month is ${topCategory.name} with ${formatCurrency(
+        topCategory.spent
+      )}.`
+    : "Upload a statement to unlock personalized insights.";
 
   return (
     <>
-      {/* Welcome Card */}
       <div className="card welcome-card mb-4">
         <div className="card-body">
-          <div className="d-flex justify-content-between align-items-center">
+          <div className="d-flex justify-content-between align-items-center flex-wrap gap-3">
             <div>
               <h2 className="mb-2">Welcome back, {displayName}! 👋</h2>
               <p className="text-muted mb-0">
-                Here's what's happening with your finances today.
+                Here&apos;s the latest snapshot of your finances.
               </p>
             </div>
-            <button className="btn btn-primary">
-              <i className="fas fa-plus me-2"></i>Quick Add
-            </button>
           </div>
         </div>
       </div>
 
-      {/* Stat Cards */}
+      {error && !stats && (
+        <div className="alert alert-warning">{error}</div>
+      )}
+
       <div className="row g-4 mb-4">
-        {/* Total Balance */}
         <div className="col-12 col-sm-6 col-xl-3">
           <div className="stat-card stat-card-primary">
             <div className="stat-icon">
@@ -53,15 +178,18 @@ const DashboardPage = () => {
             </div>
             <div className="stat-details">
               <p className="stat-label">Total Balance</p>
-              <h3 className="stat-value">$12,450</h3>
+              <h3 className="stat-value">
+                {statsLoading
+                  ? "..."
+                  : formatCurrency(summary.totalBalance || 0)}
+              </h3>
               <span className="stat-change positive">
-                <i className="fas fa-arrow-up"></i> 12.5%
+                Lifetime income {formatCurrency(summary.totalIncome || 0)}
               </span>
             </div>
           </div>
         </div>
 
-        {/* Monthly Spending */}
         <div className="col-12 col-sm-6 col-xl-3">
           <div className="stat-card stat-card-danger">
             <div className="stat-icon">
@@ -69,31 +197,39 @@ const DashboardPage = () => {
             </div>
             <div className="stat-details">
               <p className="stat-label">Monthly Spending</p>
-              <h3 className="stat-value">$2,845</h3>
+              <h3 className="stat-value">
+                {statsLoading
+                  ? "..."
+                  : formatCurrency(summary.monthlySpending || 0)}
+              </h3>
               <span className="stat-change negative">
-                <i className="fas fa-arrow-down"></i> 3.2%
+                Expenses YTD {formatCurrency(summary.totalExpenses || 0)}
               </span>
             </div>
           </div>
         </div>
 
-        {/* Savings Goal */}
         <div className="col-12 col-sm-6 col-xl-3">
           <div className="stat-card stat-card-success">
             <div className="stat-icon">
-              <i className="fas fa-piggy-bank"></i>
+              <i className="fas fa-coins"></i>
             </div>
             <div className="stat-details">
-              <p className="stat-label">Savings Goal</p>
-              <h3 className="stat-value">$8,200</h3>
+              <p className="stat-label">Monthly Income</p>
+              <h3 className="stat-value">
+                {statsLoading
+                  ? "..."
+                  : formatCurrency(summary.monthlyIncome || 0)}
+              </h3>
               <span className="stat-change positive">
-                <i className="fas fa-arrow-up"></i> 82%
+                Net {formatCurrency(
+                  (summary.monthlyIncome || 0) - (summary.monthlySpending || 0)
+                )}
               </span>
             </div>
           </div>
         </div>
 
-        {/* Budget Used */}
         <div className="col-12 col-sm-6 col-xl-3">
           <div className="stat-card stat-card-warning">
             <div className="stat-icon">
@@ -101,57 +237,106 @@ const DashboardPage = () => {
             </div>
             <div className="stat-details">
               <p className="stat-label">Budget Used</p>
-              <h3 className="stat-value">81%</h3>
+              <h3 className="stat-value">
+                {budgetUsage ? `${budgetUsage.percent}%` : "No budget"}
+              </h3>
               <span className="stat-change neutral">
-                <i className="fas fa-minus"></i> On track
+                {budgetUsage
+                  ? `${formatCurrency(
+                      budgetUsage.spent
+                    )} of ${formatCurrency(budgetUsage.limit)}`
+                  : "Set up a monthly budget"}
               </span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Charts Row */}
       <div className="row g-4 mb-4">
-        {/* Spending Trend */}
         <div className="col-lg-8">
-          <div className="card">
+          <div className="card h-100">
             <div className="card-header d-flex justify-content-between align-items-center">
-              <h5>
+              <h5 className="mb-0">
                 <i className="fas fa-chart-line me-2"></i>Spending Trend
               </h5>
+              <small className="text-muted">Last 6 months</small>
             </div>
             <div className="card-body">
-              <p className="text-muted mb-0">
-                Charts coming soon – data visualization will appear here.
-              </p>
+              {statsLoading ? (
+                <p className="text-muted mb-0">Loading trend data...</p>
+              ) : monthlyTrend.length === 0 ? (
+                <p className="text-muted mb-0">
+                  Upload statements to see month-over-month trends.
+                </p>
+              ) : (
+                <div className="table-responsive">
+                  <table className="table table-sm align-middle">
+                    <thead>
+                      <tr>
+                        <th>Month</th>
+                        <th className="text-success">Income</th>
+                        <th className="text-danger">Expenses</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {monthlyTrend.map((item) => (
+                        <tr key={item.month}>
+                          <td>{formatMonthLabel(item.month)}</td>
+                          <td className="text-success">
+                            {formatCurrency(item.income)}
+                          </td>
+                          <td className="text-danger">
+                            {formatCurrency(item.expenses)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Categories */}
         <div className="col-lg-4">
-          <div className="card">
+          <div className="card h-100">
             <div className="card-header">
-              <h5>
+              <h5 className="mb-0">
                 <i className="fas fa-chart-pie me-2"></i>Categories
               </h5>
             </div>
             <div className="card-body">
-              <p className="text-muted mb-0">
-                Category breakdown chart will go here.
-              </p>
+              {statsLoading ? (
+                <p className="text-muted mb-0">Loading categories...</p>
+              ) : categories.length === 0 ? (
+                <p className="text-muted mb-0">
+                  No categorized spend for this month yet.
+                </p>
+              ) : (
+                <ul className="list-group list-group-flush">
+                  {categories.slice(0, 5).map((cat) => (
+                    <li
+                      className="list-group-item d-flex justify-content-between align-items-center px-0"
+                      key={cat.name}
+                    >
+                      <span>{cat.name}</span>
+                      <strong className="text-danger">
+                        {formatCurrency(cat.spent)}
+                      </strong>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Quick Actions + Recent Transactions */}
       <div className="row g-4 mb-4">
-        {/* Quick Actions */}
         <div className="col-lg-4">
-          <div className="card">
+          <div className="card h-100">
             <div className="card-header">
-              <h5>
+              <h5 className="mb-0">
                 <i className="fas fa-bolt me-2"></i>Quick Actions
               </h5>
             </div>
@@ -169,23 +354,66 @@ const DashboardPage = () => {
                   <i className="fas fa-chart-bar"></i>
                   <span>View Insights</span>
                 </Link>
-                <button className="quick-action-btn">
+                <button
+                  className="quick-action-btn"
+                  onClick={() => setShowAlertModal(true)}
+                >
                   <i className="fas fa-bell"></i>
                   <span>Set Alert</span>
                 </button>
               </div>
+              {alertFeedback && (
+                <div className="alert alert-success mt-3 mb-0 py-2">
+                  <i className="fas fa-check-circle me-2"></i>
+                  {alertFeedback}
+                </div>
+              )}
+              {savedAlerts.length > 0 && (
+                <div className="mt-4">
+                  <h6 className="text-muted text-uppercase small mb-2">
+                    Active Alerts
+                  </h6>
+                  <ul className="list-group list-group-flush">
+                    {savedAlerts.map((alert) => (
+                      <li
+                        className="list-group-item px-0 d-flex justify-content-between align-items-center"
+                        key={alert.id}
+                      >
+                        <div>
+                          <strong>{alert.category}</strong>{" "}
+                          <span className="text-muted small">
+                            {`>${formatCurrency(alert.threshold)}`}
+                          </span>
+                        </div>
+                        <button
+                          className="btn btn-sm btn-link text-danger"
+                          onClick={() =>
+                            setSavedAlerts((prev) =>
+                              prev.filter((item) => item.id !== alert.id)
+                            )
+                          }
+                        >
+                          Remove
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Recent Transactions */}
         <div className="col-lg-8">
-          <div className="card">
+          <div className="card h-100">
             <div className="card-header d-flex justify-content-between align-items-center">
-              <h5>
+              <h5 className="mb-0">
                 <i className="fas fa-list me-2"></i>Recent Transactions
               </h5>
-              <button className="btn btn-sm btn-outline-primary">
+              <button
+                className="btn btn-sm btn-outline-primary"
+                onClick={() => navigate("/transactions")}
+              >
                 View All
               </button>
             </div>
@@ -201,10 +429,13 @@ const DashboardPage = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {loading ? (
+                    {txLoading ? (
                       <tr>
                         <td colSpan="4" className="text-center py-4">
-                          <div className="spinner-border text-primary" role="status">
+                          <div
+                            className="spinner-border text-primary"
+                            role="status"
+                          >
                             <span className="visually-hidden">Loading...</span>
                           </div>
                         </td>
@@ -212,7 +443,8 @@ const DashboardPage = () => {
                     ) : transactions.length === 0 ? (
                       <tr>
                         <td colSpan="4" className="text-center py-4 text-muted">
-                          No transactions found. Upload a statement to get started.
+                          No transactions found. Upload a statement to get
+                          started.
                         </td>
                       </tr>
                     ) : (
@@ -225,10 +457,17 @@ const DashboardPage = () => {
                           </td>
                           <td>
                             <div className="d-flex align-items-center">
-                              <div className="icon-circle bg-light text-primary me-2 rounded-circle d-flex align-items-center justify-content-center" style={{ width: '32px', height: '32px' }}>
+                              <div
+                                className="icon-circle bg-light text-primary me-2 rounded-circle d-flex align-items-center justify-content-center"
+                                style={{ width: "32px", height: "32px" }}
+                              >
                                 <i className="fas fa-receipt"></i>
                               </div>
-                              <span className="text-truncate" style={{ maxWidth: '200px' }} title={txn.description}>
+                              <span
+                                className="text-truncate"
+                                style={{ maxWidth: "200px" }}
+                                title={txn.description}
+                              >
                                 {txn.description}
                               </span>
                             </div>
@@ -243,8 +482,8 @@ const DashboardPage = () => {
                               txn.amount < 0 ? "text-danger" : "text-success"
                             }
                           >
-                            {txn.amount < 0 ? "-" : "+"}$
-                            {Math.abs(txn.amount).toFixed(2)}
+                            {txn.amount < 0 ? "-" : "+"}
+                            {formatCurrency(Math.abs(txn.amount))}
                           </td>
                         </tr>
                       ))
@@ -257,7 +496,6 @@ const DashboardPage = () => {
         </div>
       </div>
 
-      {/* AI Insight Alert */}
       <div className="row g-4">
         <div className="col-12">
           <div
@@ -265,19 +503,119 @@ const DashboardPage = () => {
             role="alert"
           >
             <i className="fas fa-lightbulb me-2"></i>
-            <strong>Insight:</strong> You're spending 25% more on dining out
-            this month. Consider meal planning to save $150!
+            <strong>Insight:</strong> {insightMessage}
             <button
               type="button"
               className="btn-close"
               aria-label="Close"
               onClick={(e) =>
-                e.target.closest(".alert")?.classList.add("d-none")
+                e.currentTarget.closest(".alert")?.classList.add("d-none")
               }
             ></button>
           </div>
         </div>
       </div>
+
+      {showAlertModal && (
+        <>
+          <div className="modal fade show d-block" tabIndex="-1" role="dialog">
+            <div className="modal-dialog modal-dialog-centered">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title">
+                    <i className="fas fa-bell me-2"></i>Create Spending Alert
+                  </h5>
+                  <button
+                    type="button"
+                    className="btn-close"
+                    onClick={() => setShowAlertModal(false)}
+                  ></button>
+                </div>
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    if (!alertForm.category || !alertForm.threshold) return;
+                    const newAlert = {
+                      id: Date.now(),
+                      category: alertForm.category,
+                      threshold: Number(alertForm.threshold),
+                      createdAt: new Date().toISOString(),
+                    };
+                    setSavedAlerts((prev) => [...prev, newAlert]);
+                    setAlertForm({ category: "", threshold: "" });
+                    setShowAlertModal(false);
+                    setAlertFeedback(
+                      `Alert saved for ${newAlert.category} spending above ${formatCurrency(
+                        newAlert.threshold
+                      )}.`
+                    );
+                  }}
+                >
+                  <div className="modal-body">
+                    <div className="mb-3">
+                      <label className="form-label">Category</label>
+                      <select
+                        className="form-select"
+                        value={alertForm.category}
+                        onChange={(e) =>
+                          setAlertForm((prev) => ({
+                            ...prev,
+                            category: e.target.value,
+                          }))
+                        }
+                      >
+                        <option value="">Select a category</option>
+                        {categoryOptions.map((option) => (
+                          <option key={option} value={option}>
+                            {option}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="mb-3">
+                      <label className="form-label">Monthly Threshold ($)</label>
+                      <input
+                        type="number"
+                        className="form-control"
+                        min="0"
+                        value={alertForm.threshold}
+                        onChange={(e) =>
+                          setAlertForm((prev) => ({
+                            ...prev,
+                            threshold: e.target.value,
+                          }))
+                        }
+                        placeholder="500"
+                      />
+                    </div>
+                    <p className="text-muted small mb-0">
+                      Alerts are stored locally for now — we&apos;ll remind you when
+                      a category exceeds your limit.
+                    </p>
+                  </div>
+                  <div className="modal-footer">
+                    <button
+                      type="button"
+                      className="btn btn-outline-secondary"
+                      onClick={() => setShowAlertModal(false)}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="btn btn-primary"
+                      disabled={!alertForm.category || !alertForm.threshold}
+                    >
+                      Save Alert
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+          <div className="modal-backdrop fade show"></div>
+        </>
+      )}
     </>
   );
 };

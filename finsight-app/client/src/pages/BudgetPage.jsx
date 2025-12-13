@@ -1,783 +1,586 @@
 // src/pages/BudgetPage.jsx
-import React, { useState } from "react";
+import React from "react";
+import api from "../api/axiosClient";
+
+const CATEGORY_OPTIONS = [
+  "Housing",
+  "Food & Dining",
+  "Transport",
+  "Shopping",
+  "Entertainment",
+  "Utilities",
+  "Healthcare",
+  "Education",
+  "Income",
+  "Fees",
+  "Other",
+];
+
+const getCurrentMonthKey = () => {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+};
+
+const formatCurrency = (value = 0, currency = "USD") =>
+  new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency,
+    maximumFractionDigits: 0,
+  }).format(value);
+
+const generateCategoryId = () =>
+  typeof crypto !== "undefined" && crypto.randomUUID
+    ? crypto.randomUUID()
+    : `cat-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
+const createCategoryEntry = (name = "", limit = "") => ({
+  id: generateCategoryId(),
+  name,
+  limit:
+    limit === undefined || limit === null || Number.isNaN(limit)
+      ? ""
+      : String(limit),
+});
+
+const buildEmptySummaryData = (month) => ({
+  month,
+  currency: "USD",
+  summary: {
+    totalLimit: 0,
+    totalSpent: 0,
+    totalIncome: 0,
+    remaining: 0,
+    percentUsed: null,
+  },
+  categories: [],
+  uncategorized: [],
+  notes: "",
+});
+
+const buildFormState = (month, budget, summary) => ({
+  month,
+  totalLimit:
+    budget?.totalLimit ??
+    summary?.summary?.totalLimit ??
+    summary?.summary?.totalSpent ??
+    "",
+  currency: budget?.currency || summary?.currency || "USD",
+  notes: budget?.notes || "",
+  categories:
+    budget?.categories?.length
+      ? budget.categories.map((cat) => ({
+        ...createCategoryEntry(cat.name, cat.limit),
+      }))
+      : summary?.categories?.length
+      ? summary.categories.map((cat) => ({
+          ...createCategoryEntry(cat.name, cat.limit ?? cat.spent ?? 0),
+        }))
+      : [createCategoryEntry()],
+});
+
+const initialMonthKey = getCurrentMonthKey();
 
 const BudgetPage = () => {
-  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [selectedMonth, setSelectedMonth] =
+    React.useState(initialMonthKey);
+  const [summaryData, setSummaryData] = React.useState(
+    buildEmptySummaryData(initialMonthKey)
+  );
+  const [budget, setBudget] = React.useState(null);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState(null);
+  const [formData, setFormData] = React.useState(
+    buildFormState(initialMonthKey, null, buildEmptySummaryData(initialMonthKey))
+  );
+  const [saving, setSaving] = React.useState(false);
+  const [formErrors, setFormErrors] = React.useState([]);
 
-  const openCreateModal = () => setShowCreateModal(true);
-  const closeCreateModal = () => setShowCreateModal(false);
+  const loadBudgetData = React.useCallback(async () => {
+    setLoading(true);
+    try {
+      const [budgetResult, summaryResult] = await Promise.allSettled([
+        api.get("/budgets", { params: { month: selectedMonth } }),
+        api.get("/budgets/summary", { params: { month: selectedMonth } }),
+      ]);
+
+      const resolvedBudget =
+        budgetResult.status === "fulfilled"
+          ? budgetResult.value.data.budget || null
+          : null;
+      if (budgetResult.status === "rejected") {
+        console.error("Budget fetch failed:", budgetResult.reason);
+      }
+
+      const resolvedSummary =
+        summaryResult.status === "fulfilled"
+          ? summaryResult.value.data
+          : buildEmptySummaryData(selectedMonth);
+      if (summaryResult.status === "rejected") {
+        console.error("Budget summary fetch failed:", summaryResult.reason);
+      }
+
+      setBudget(resolvedBudget);
+      setSummaryData(resolvedSummary);
+      setFormData(buildFormState(selectedMonth, resolvedBudget, resolvedSummary));
+
+      const bothFailed =
+        budgetResult.status === "rejected" &&
+        summaryResult.status === "rejected";
+      const someFailed =
+        budgetResult.status === "rejected" ||
+        summaryResult.status === "rejected";
+
+      setError(
+        bothFailed
+          ? "Unable to load budget data. Please try again."
+          : someFailed
+          ? "Some budget data could not be loaded. Showing latest available information."
+          : null
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedMonth]);
+
+  React.useEffect(() => {
+    loadBudgetData();
+  }, [loadBudgetData]);
+
+  const currency = summaryData?.currency || "USD";
+  const summary = summaryData?.summary || {};
+  const categories = summaryData?.categories || [];
+  const uncategorized = summaryData?.uncategorized || [];
+
+  const handleFormChange = (field, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleMonthFieldChange = (value) => {
+    setSelectedMonth(value);
+    setFormErrors([]);
+    setFormData((prev) => ({
+      ...prev,
+      month: value,
+    }));
+  };
+
+  const handleCategoryChange = (index, field, value) => {
+    setFormData((prev) => {
+      const updated = [...prev.categories];
+      updated[index] = { ...updated[index], [field]: value };
+      return { ...prev, categories: updated };
+    });
+  };
+
+  const addCategoryRow = () => {
+    setFormData((prev) => ({
+      ...prev,
+      categories: [...prev.categories, createCategoryEntry()],
+    }));
+  };
+
+  const removeCategoryRow = (index) => {
+    setFormData((prev) => ({
+      ...prev,
+      categories: prev.categories.filter((_, idx) => idx !== index),
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const validationErrors = [];
+
+    if (!formData.month || !/^\d{4}-\d{2}$/.test(formData.month)) {
+      validationErrors.push("Please select a valid month.");
+    }
+
+    if (!formData.currency || formData.currency.length !== 3) {
+      validationErrors.push("Currency must be a 3-letter code.");
+    }
+
+    if (!formData.totalLimit || Number(formData.totalLimit) <= 0) {
+      validationErrors.push("Total budget must be greater than zero.");
+    }
+
+    const categoryPayload = formData.categories
+      .filter((cat) => cat.name.trim())
+      .map((cat) => ({
+        name: cat.name.trim(),
+        limit: Math.max(Number(cat.limit) || 0, 0),
+      }));
+
+    if (!categoryPayload.length) {
+      validationErrors.push("Add at least one category with a limit.");
+    }
+
+    const hasEmptyLimit = categoryPayload.some((cat) => cat.limit <= 0);
+    if (hasEmptyLimit) {
+      validationErrors.push("Each category limit must be greater than zero.");
+    }
+
+    if (validationErrors.length) {
+      setFormErrors(validationErrors);
+      return;
+    }
+
+    setFormErrors([]);
+    setSaving(true);
+    try {
+      const payload = {
+        month: formData.month,
+        totalLimit: Number(formData.totalLimit) || 0,
+        currency: formData.currency,
+        notes: formData.notes,
+        categories: categoryPayload,
+      };
+
+      await api.post("/budgets", payload);
+      setError(null);
+      loadBudgetData();
+    } catch (err) {
+      console.error("Failed to save budget", err);
+      const msg =
+        err.response?.data?.message || err.message || "Unknown error";
+      setFormErrors([`Unable to save budget: ${msg}`]);
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <>
-      {/* Page Header */}
-      <div className="d-flex justify-content-between align-items-center mb-4">
+      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
         <div>
           <h2 className="h3 mb-1">💰 Budget Planning</h2>
           <p className="text-muted mb-0">
-            Create and manage your monthly budgets
+            Track how your actual spending compares to your targets.
           </p>
         </div>
-        <button className="btn btn-primary" onClick={openCreateModal}>
-          <i className="fas fa-plus me-2"></i> Create New Budget
-        </button>
       </div>
 
-      {/* Budget Summary Cards */}
-      <div className="row g-4 mb-4">
-        {/* Total Monthly Budget */}
-        <div className="col-12 col-md-6 col-lg-3">
-          <div className="card border-0 shadow-sm h-100">
-            <div className="card-body">
-              <div className="d-flex justify-content-between align-items-start">
-                <div>
-                  <p className="text-muted mb-1 small">Total Monthly Budget</p>
-                  <h3 className="mb-0 fw-bold">$3,500</h3>
-                </div>
-                <div className="icon-box bg-primary-subtle text-primary">
-                  <i className="fas fa-wallet"></i>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+      {error && <div className="alert alert-warning">{error}</div>}
 
-        {/* Total Spent */}
-        <div className="col-12 col-md-6 col-lg-3">
-          <div className="card border-0 shadow-sm h-100">
-            <div className="card-body">
-              <div className="d-flex justify-content-between align-items-start">
-                <div>
-                  <p className="text-muted mb-1 small">Total Spent</p>
-                  <h3 className="mb-0 fw-bold text-danger">$2,845</h3>
-                </div>
-                <div className="icon-box bg-danger-subtle text-danger">
-                  <i className="fas fa-credit-card"></i>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Remaining */}
-        <div className="col-12 col-md-6 col-lg-3">
-          <div className="card border-0 shadow-sm h-100">
-            <div className="card-body">
-              <div className="d-flex justify-content-between align-items-start">
-                <div>
-                  <p className="text-muted mb-1 small">Remaining</p>
-                  <h3 className="mb-0 fw-bold text-success">$655</h3>
-                </div>
-                <div className="icon-box bg-success-subtle text-success">
-                  <i className="fas fa-piggy-bank"></i>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Budget Used */}
-        <div className="col-12 col-md-6 col-lg-3">
-          <div className="card border-0 shadow-sm h-100">
-            <div className="card-body">
-              <div className="d-flex justify-content-between align-items-start">
-                <div>
-                  <p className="text-muted mb-1 small">Budget Used</p>
-                  <h3 className="mb-0 fw-bold">81%</h3>
-                </div>
-                <div className="icon-box bg-warning-subtle text-warning">
-                  <i className="fas fa-chart-pie"></i>
-                </div>
-              </div>
-              <div className="progress mt-2" style={{ height: "8px" }}>
-                <div
-                  className="progress-bar bg-warning"
-                  role="progressbar"
-                  style={{ width: "81%" }}
-                  aria-valuenow="81"
-                  aria-valuemin="0"
-                  aria-valuemax="100"
-                ></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Filter and View Options */}
       <div className="card border-0 shadow-sm mb-4">
-        <div className="card-body">
-          <div className="row align-items-center g-3">
-            <div className="col-12 col-md-4">
-              <label className="form-label small mb-1">
-                Filter by Category
-              </label>
-              <select className="form-select" id="categoryFilter">
-                <option value="all">All Categories</option>
-                <option value="housing">Housing</option>
-                <option value="food">Food & Dining</option>
-                <option value="transport">Transportation</option>
-                <option value="entertainment">Entertainment</option>
-                <option value="utilities">Utilities</option>
-              </select>
-            </div>
-            <div className="col-12 col-md-4">
-              <label className="form-label small mb-1">Time Period</label>
-              <select className="form-select" id="periodFilter">
-                <option value="current">This Month</option>
-                <option value="last">Last Month</option>
-                <option value="next">Next Month</option>
-                <option value="quarter">This Quarter</option>
-              </select>
-            </div>
-            <div className="col-12 col-md-4">
-              <label className="form-label small mb-1">View Type</label>
-              <div className="btn-group w-100" role="group">
-                <input
-                  type="radio"
-                  className="btn-check"
-                  name="viewType"
-                  id="monthlyView"
-                  defaultChecked
-                />
-                <label className="btn btn-outline-primary" htmlFor="monthlyView">
-                  Monthly
-                </label>
-
-                <input
-                  type="radio"
-                  className="btn-check"
-                  name="viewType"
-                  id="yearlyView"
-                />
-                <label className="btn btn-outline-primary" htmlFor="yearlyView">
-                  Yearly
-                </label>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* AI Insights & Suggestions */}
-      <div className="card border-0 shadow-sm mb-4">
-        <div className="card-header bg-white border-0 py-3">
-          <h5 className="mb-0">
-            <i className="fas fa-lightbulb text-warning me-2"></i>
-            AI Insights & Suggestions
-          </h5>
+        <div className="card-header bg-white border-0">
+          <h5 className="mb-0">Budget Setup</h5>
         </div>
         <div className="card-body">
-          <div className="row g-3">
-            <div className="col-12 col-lg-6">
-              <div className="alert alert-warning border-start border-warning border-4 mb-0">
-                <div className="d-flex justify-content-between align-items-start">
-                  <div>
-                    <h6 className="alert-heading mb-2">
-                      <i className="fas fa-exclamation-triangle me-2"></i>
-                      Entertainment Budget Alert
-                    </h6>
-                    <p className="mb-0 small">
-                      You've used 85% of your entertainment budget. Consider
-                      reducing spending by $50 this week.
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    className="btn-close"
-                    aria-label="Close"
-                    onClick={(e) =>
-                      e.target.closest(".alert")?.classList.add("d-none")
-                    }
-                  ></button>
-                </div>
+          <form onSubmit={handleSubmit}>
+            <div className="row g-3">
+              <div className="col-md-6">
+                <label className="form-label">Month</label>
+                <input
+                  type="month"
+                  className="form-control"
+                  value={formData.month}
+                  onChange={(e) => handleMonthFieldChange(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="col-md-6">
+                <label className="form-label">Currency</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={formData.currency}
+                  onChange={(e) =>
+                    handleFormChange(
+                      "currency",
+                      e.target.value.toUpperCase()
+                    )
+                  }
+                  maxLength={3}
+                  required
+                />
+              </div>
+              <div className="col-md-6">
+                <label className="form-label">Total Budget</label>
+                <input
+                  type="number"
+                  className="form-control"
+                  value={formData.totalLimit}
+                  min="1"
+                  onChange={(e) =>
+                    handleFormChange("totalLimit", e.target.value)
+                  }
+                  placeholder="3500"
+                  required
+                />
+              </div>
+              <div className="col-md-6">
+                <label className="form-label">Notes</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={formData.notes}
+                  onChange={(e) =>
+                    handleFormChange("notes", e.target.value)
+                  }
+                  placeholder="Optional notes"
+                />
               </div>
             </div>
 
-            <div className="col-12 col-lg-6">
-              <div className="alert alert-success border-start border-success border-4 mb-0">
-                <div className="d-flex justify-content-between align-items-start">
-                  <div>
-                    <h6 className="alert-heading mb-2">
-                      <i className="fas fa-check-circle me-2"></i>
-                      Great Savings!
-                    </h6>
-                    <p className="mb-0 small">
-                      You saved $200 in transportation this month compared to
-                      last month. Keep it up!
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    className="btn-close"
-                    aria-label="Close"
-                    onClick={(e) =>
-                      e.target.closest(".alert")?.classList.add("d-none")
-                    }
-                  ></button>
-                </div>
-              </div>
+            <hr className="my-4" />
+
+            <div className="d-flex justify-content-between align-items-center mb-3">
+              <h6 className="mb-0">Category Budgets</h6>
+              <button
+                type="button"
+                className="btn btn-sm btn-outline-primary"
+                onClick={addCategoryRow}
+              >
+                <i className="fas fa-plus me-2"></i>Add Category
+              </button>
             </div>
 
-            <div className="col-12 col-lg-6">
-              <div className="alert alert-info border-start border-info border-4 mb-0">
-                <div className="d-flex justify-content-between align-items-start">
-                  <div>
-                    <h6 className="alert-heading mb-2">
-                      <i className="fas fa-info-circle me-2"></i>
-                      Spending Pattern
-                    </h6>
-                    <p className="mb-0 small">
-                      You're spending 30% more on food this month. Consider meal
-                      planning to save money.
-                    </p>
-                  </div>
+            {formData.categories.map((cat, index) => (
+              <div className="row g-3 align-items-end mb-2" key={cat.id}>
+                <div className="col-md-6">
+                  <label className="form-label">Category</label>
+                  <select
+                    className="form-select"
+                    value={cat.name}
+                    onChange={(e) =>
+                      handleCategoryChange(index, "name", e.target.value)
+                    }
+                    required
+                  >
+                    <option value="">Select category</option>
+                    {CATEGORY_OPTIONS.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="col-md-4">
+                  <label className="form-label">Limit</label>
+                  <input
+                    type="number"
+                    className="form-control"
+                    value={cat.limit}
+                    min="1"
+                    onChange={(e) =>
+                      handleCategoryChange(index, "limit", e.target.value)
+                    }
+                    placeholder="1200"
+                    required
+                  />
+                </div>
+                <div className="col-md-2 text-end">
                   <button
                     type="button"
-                    className="btn-close"
-                    aria-label="Close"
-                    onClick={(e) =>
-                      e.target.closest(".alert")?.classList.add("d-none")
-                    }
-                  ></button>
+                    className="btn btn-outline-danger w-100"
+                    onClick={() => removeCategoryRow(index)}
+                    disabled={formData.categories.length === 1}
+                  >
+                    <i className="fas fa-trash"></i>
+                  </button>
                 </div>
               </div>
-            </div>
+            ))}
 
-            <div className="col-12 col-lg-6">
-              <div className="alert alert-primary border-start border-primary border-4 mb-0">
-                <div className="d-flex justify-content-between align-items-start">
-                  <div>
-                    <h6 className="alert-heading mb-2">
-                      <i className="fas fa-chart-line me-2"></i>
-                      Budget Optimization
-                    </h6>
-                    <p className="mb-0 small">
-                      Consider reducing dining out budget by $100 and increase
-                      your savings budget.
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    className="btn-close"
-                    aria-label="Close"
-                    onClick={(e) =>
-                      e.target.closest(".alert")?.classList.add("d-none")
-                    }
-                  ></button>
-                </div>
+            {formErrors.length > 0 && (
+              <div className="alert alert-warning mt-3" role="alert">
+                <ul className="mb-0">
+                  {formErrors.map((message, idx) => (
+                    <li key={idx}>{message}</li>
+                  ))}
+                </ul>
               </div>
+            )}
+
+            <div className="d-flex justify-content-end mt-4">
+              <button
+                type="submit"
+                className="btn btn-primary"
+                disabled={saving}
+              >
+                {saving
+                  ? "Saving..."
+                  : budget
+                  ? "Update Budget"
+                  : "Create Budget"}
+              </button>
             </div>
-          </div>
+          </form>
         </div>
       </div>
 
-      {/* Budget Categories */}
-      <div className="row g-4">
-        {/* Housing */}
-        <div className="col-12 col-md-6 col-xl-4">
-          <div className="card budget-card border-0 shadow-sm h-100">
-            <div className="card-body">
-              <div className="d-flex justify-content-between align-items-start mb-3">
-                <div className="d-flex align-items-center">
-                  <div className="category-icon bg-primary-subtle text-primary me-3">
-                    <i className="fas fa-home"></i>
-                  </div>
-                  <div>
-                    <h6 className="mb-0 fw-bold">Housing</h6>
-                    <small className="text-muted">Rent & Utilities</small>
-                  </div>
-                </div>
-                <div className="dropdown">
-                  <button
-                    className="btn btn-sm btn-light"
-                    type="button"
-                    data-bs-toggle="dropdown"
-                  >
-                    <i className="fas fa-ellipsis-v"></i>
-                  </button>
-                  <ul className="dropdown-menu">
-                    <li>
-                      <button className="dropdown-item">
-                        <i className="fas fa-edit me-2"></i>Edit
-                      </button>
-                    </li>
-                    <li>
-                      <button className="dropdown-item text-danger">
-                        <i className="fas fa-trash me-2"></i>Delete
-                      </button>
-                    </li>
-                  </ul>
+      {loading ? (
+        <div className="text-center py-5">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+        </div>
+      ) : (
+        <>
+          <div className="row g-4 mb-4">
+            <div className="col-12 col-md-6 col-lg-3">
+              <div className="card border-0 shadow-sm h-100">
+                <div className="card-body">
+                  <p className="text-muted small mb-1">Total Monthly Budget</p>
+                  <h3 className="fw-bold mb-0">
+                    {formatCurrency(summary.totalLimit || 0, currency)}
+                  </h3>
                 </div>
               </div>
-
-              <div className="mb-2">
-                <div className="d-flex justify-content-between mb-1">
-                  <span className="small">$800 of $1,200</span>
-                  <span className="small fw-bold text-success">67%</span>
-                </div>
-                <div className="progress" style={{ height: "10px" }}>
-                  <div
-                    className="progress-bar bg-success"
-                    role="progressbar"
-                    style={{ width: "67%" }}
-                  ></div>
+            </div>
+            <div className="col-12 col-md-6 col-lg-3">
+              <div className="card border-0 shadow-sm h-100">
+                <div className="card-body">
+                  <p className="text-muted small mb-1">Total Spent</p>
+                  <h3 className="fw-bold text-danger mb-0">
+                    {formatCurrency(summary.totalSpent || 0, currency)}
+                  </h3>
                 </div>
               </div>
-
-              <div className="d-flex justify-content-between text-muted small">
-                <span>Remaining: $400</span>
-                <span className="badge bg-success-subtle text-success">
-                  On Track
-                </span>
+            </div>
+            <div className="col-12 col-md-6 col-lg-3">
+              <div className="card border-0 shadow-sm h-100">
+                <div className="card-body">
+                  <p className="text-muted small mb-1">Remaining</p>
+                  <h3 className="fw-bold text-success mb-0">
+                    {formatCurrency(summary.remaining || 0, currency)}
+                  </h3>
+                </div>
+              </div>
+            </div>
+            <div className="col-12 col-md-6 col-lg-3">
+              <div className="card border-0 shadow-sm h-100">
+                <div className="card-body">
+                  <p className="text-muted small mb-1">Budget Used</p>
+                  <h3 className="fw-bold mb-2">
+                    {summary.percentUsed !== null
+                      ? `${summary.percentUsed}%`
+                      : "--"}
+                  </h3>
+                  <div className="progress" style={{ height: "6px" }}>
+                    <div
+                      className="progress-bar bg-warning"
+                      role="progressbar"
+                      style={{
+                        width: `${Math.min(summary.percentUsed || 0, 100)}%`,
+                      }}
+                    ></div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Food & Dining */}
-        <div className="col-12 col-md-6 col-xl-4">
-          <div className="card budget-card border-0 shadow-sm h-100">
-            <div className="card-body">
-              <div className="d-flex justify-content-between align-items-start mb-3">
-                <div className="d-flex align-items-center">
-                  <div className="category-icon bg-warning-subtle text-warning me-3">
-                    <i className="fas fa-utensils"></i>
-                  </div>
-                  <div>
-                    <h6 className="mb-0 fw-bold">Food & Dining</h6>
-                    <small className="text-muted">
-                      Groceries & Restaurants
-                    </small>
-                  </div>
+          <div className="row g-4 mb-4">
+            <div className="col-lg-8">
+              <div className="card border-0 shadow-sm h-100">
+                <div className="card-header bg-white border-0">
+                  <h5 className="mb-0">Budget Categories</h5>
+                  <small className="text-muted">
+                    Actual spend vs plan for {selectedMonth}
+                  </small>
                 </div>
-                <div className="dropdown">
-                  <button
-                    className="btn btn-sm btn-light"
-                    type="button"
-                    data-bs-toggle="dropdown"
-                  >
-                    <i className="fas fa-ellipsis-v"></i>
-                  </button>
-                  <ul className="dropdown-menu">
-                    <li>
-                      <button className="dropdown-item">
-                        <i className="fas fa-edit me-2"></i>Edit
-                      </button>
-                    </li>
-                    <li>
-                      <button className="dropdown-item text-danger">
-                        <i className="fas fa-trash me-2"></i>Delete
-                      </button>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-
-              <div className="mb-2">
-                <div className="d-flex justify-content-between mb-1">
-                  <span className="small">$425 of $500</span>
-                  <span className="small fw-bold text-warning">85%</span>
-                </div>
-                <div className="progress" style={{ height: "10px" }}>
-                  <div
-                    className="progress-bar bg-warning"
-                    role="progressbar"
-                    style={{ width: "85%" }}
-                  ></div>
-                </div>
-              </div>
-
-              <div className="d-flex justify-content-between text-muted small">
-                <span>Remaining: $75</span>
-                <span className="badge bg-warning-subtle text-warning">
-                  Caution
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Transportation */}
-        <div className="col-12 col-md-6 col-xl-4">
-          <div className="card budget-card border-0 shadow-sm h-100">
-            <div className="card-body">
-              <div className="d-flex justify-content-between align-items-start mb-3">
-                <div className="d-flex align-items-center">
-                  <div className="category-icon bg-info-subtle text-info me-3">
-                    <i className="fas fa-car"></i>
-                  </div>
-                  <div>
-                    <h6 className="mb-0 fw-bold">Transportation</h6>
-                    <small className="text-muted">
-                      Gas & Public Transit
-                    </small>
-                  </div>
-                </div>
-                <div className="dropdown">
-                  <button
-                    className="btn btn-sm btn-light"
-                    type="button"
-                    data-bs-toggle="dropdown"
-                  >
-                    <i className="fas fa-ellipsis-v"></i>
-                  </button>
-                  <ul className="dropdown-menu">
-                    <li>
-                      <button className="dropdown-item">
-                        <i className="fas fa-edit me-2"></i>Edit
-                      </button>
-                    </li>
-                    <li>
-                      <button className="dropdown-item text-danger">
-                        <i className="fas fa-trash me-2"></i>Delete
-                      </button>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-
-              <div className="mb-2">
-                <div className="d-flex justify-content-between mb-1">
-                  <span className="small">$150 of $300</span>
-                  <span className="small fw-bold text-success">50%</span>
-                </div>
-                <div className="progress" style={{ height: "10px" }}>
-                  <div
-                    className="progress-bar bg-info"
-                    role="progressbar"
-                    style={{ width: "50%" }}
-                  ></div>
-                </div>
-              </div>
-
-              <div className="d-flex justify-content-between text-muted small">
-                <span>Remaining: $150</span>
-                <span className="badge bg-success-subtle text-success">
-                  Good
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Entertainment */}
-        <div className="col-12 col-md-6 col-xl-4">
-          <div className="card budget-card border-0 shadow-sm h-100">
-            <div className="card-body">
-              <div className="d-flex justify-content-between align-items-start mb-3">
-                <div className="d-flex align-items-center">
-                  <div className="category-icon bg-danger-subtle text-danger me-3">
-                    <i className="fas fa-film"></i>
-                  </div>
-                  <div>
-                    <h6 className="mb-0 fw-bold">Entertainment</h6>
-                    <small className="text-muted">Movies & Recreation</small>
-                  </div>
-                </div>
-                <div className="dropdown">
-                  <button
-                    className="btn btn-sm btn-light"
-                    type="button"
-                    data-bs-toggle="dropdown"
-                  >
-                    <i className="fas fa-ellipsis-v"></i>
-                  </button>
-                  <ul className="dropdown-menu">
-                    <li>
-                      <button className="dropdown-item">
-                        <i className="fas fa-edit me-2"></i>Edit
-                      </button>
-                    </li>
-                    <li>
-                      <button className="dropdown-item text-danger">
-                        <i className="fas fa-trash me-2"></i>Delete
-                      </button>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-
-              <div className="mb-2">
-                <div className="d-flex justify-content-between mb-1">
-                  <span className="small">$340 of $400</span>
-                  <span className="small fw-bold text-danger">85%</span>
-                </div>
-                <div className="progress" style={{ height: "10px" }}>
-                  <div
-                    className="progress-bar bg-danger"
-                    role="progressbar"
-                    style={{ width: "85%" }}
-                  ></div>
-                </div>
-              </div>
-
-              <div className="d-flex justify-content-between text-muted small">
-                <span>Remaining: $60</span>
-                <span className="badge bg-danger-subtle text-danger">
-                  Warning
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Utilities */}
-        <div className="col-12 col-md-6 col-xl-4">
-          <div className="card budget-card border-0 shadow-sm h-100">
-            <div className="card-body">
-              <div className="d-flex justify-content-between align-items-start mb-3">
-                <div className="d-flex align-items-center">
-                  <div className="category-icon bg-secondary-subtle text-secondary me-3">
-                    <i className="fas fa-bolt"></i>
-                  </div>
-                  <div>
-                    <h6 className="mb-0 fw-bold">Utilities</h6>
-                    <small className="text-muted">Electric & Internet</small>
-                  </div>
-                </div>
-                <div className="dropdown">
-                  <button
-                    className="btn btn-sm btn-light"
-                    type="button"
-                    data-bs-toggle="dropdown"
-                  >
-                    <i className="fas fa-ellipsis-v"></i>
-                  </button>
-                  <ul className="dropdown-menu">
-                    <li>
-                      <button className="dropdown-item">
-                        <i className="fas fa-edit me-2"></i>Edit
-                      </button>
-                    </li>
-                    <li>
-                      <button className="dropdown-item text-danger">
-                        <i className="fas fa-trash me-2"></i>Delete
-                      </button>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-
-              <div className="mb-2">
-                <div className="d-flex justify-content-between mb-1">
-                  <span className="small">$180 of $200</span>
-                  <span className="small fw-bold text-warning">90%</span>
-                </div>
-                <div className="progress" style={{ height: "10px" }}>
-                  <div
-                    className="progress-bar bg-secondary"
-                    role="progressbar"
-                    style={{ width: "90%" }}
-                  ></div>
-                </div>
-              </div>
-
-              <div className="d-flex justify-content-between text-muted small">
-                <span>Remaining: $20</span>
-                <span className="badge bg-warning-subtle text-warning">
-                  Almost
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Shopping */}
-        <div className="col-12 col-md-6 col-xl-4">
-          <div className="card budget-card border-0 shadow-sm h-100">
-            <div className="card-body">
-              <div className="d-flex justify-content-between align-items-start mb-3">
-                <div className="d-flex align-items-center">
-                  <div className="category-icon bg-success-subtle text-success me-3">
-                    <i className="fas fa-shopping-bag"></i>
-                  </div>
-                  <div>
-                    <h6 className="mb-0 fw-bold">Shopping</h6>
-                    <small className="text-muted">
-                      Clothing & Personal
-                    </small>
-                  </div>
-                </div>
-                <div className="dropdown">
-                  <button
-                    className="btn btn-sm btn-light"
-                    type="button"
-                    data-bs-toggle="dropdown"
-                  >
-                    <i className="fas fa-ellipsis-v"></i>
-                  </button>
-                  <ul className="dropdown-menu">
-                    <li>
-                      <button className="dropdown-item">
-                        <i className="fas fa-edit me-2"></i>Edit
-                      </button>
-                    </li>
-                    <li>
-                      <button className="dropdown-item text-danger">
-                        <i className="fas fa-trash me-2"></i>Delete
-                      </button>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-
-              <div className="mb-2">
-                <div className="d-flex justify-content-between mb-1">
-                  <span className="small">$170 of $400</span>
-                  <span className="small fw-bold text-success">43%</span>
-                </div>
-                <div className="progress" style={{ height: "10px" }}>
-                  <div
-                    className="progress-bar bg-success"
-                    role="progressbar"
-                    style={{ width: "43%" }}
-                  ></div>
-                </div>
-              </div>
-
-              <div className="d-flex justify-content-between text-muted small">
-                <span>Remaining: $230</span>
-                <span className="badge bg-success-subtle text-success">
-                  Excellent
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Export button */}
-      <div className="text-center mt-4 mb-2">
-        <button className="btn btn-outline-primary">
-          <i className="fas fa-download me-2"></i> Export Budget Report
-        </button>
-      </div>
-
-      {/* CREATE BUDGET MODAL */}
-      {showCreateModal && (
-        <div
-          className="modal fade show d-block"
-          tabIndex="-1"
-          aria-labelledby="createBudgetModalLabel"
-          aria-modal="true"
-          role="dialog"
-          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
-        >
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title" id="createBudgetModalLabel">
-                  <i className="fas fa-plus-circle me-2"></i> Create New Budget
-                </h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  aria-label="Close"
-                  onClick={closeCreateModal}
-                ></button>
-              </div>
-              <div className="modal-body">
-                <form id="createBudgetForm">
-                  {/* Monthly Income */}
-                  <div className="mb-3">
-                    <label htmlFor="monthlyIncome" className="form-label">
-                      Monthly Income
-                    </label>
-                    <div className="input-group">
-                      <span className="input-group-text">$</span>
-                      <input
-                        type="number"
-                        className="form-control"
-                        id="monthlyIncome"
-                        placeholder="5000"
-                      />
+                <div className="card-body">
+                  {categories.length === 0 ? (
+                    <p className="text-muted mb-0">
+                      Add categories to your budget to start tracking progress.
+                    </p>
+                  ) : (
+                    <div className="row g-3">
+                      {categories.map((cat) => (
+                        <div className="col-12 col-md-6" key={cat.name}>
+                          <div className="border rounded p-3 h-100">
+                            <div className="d-flex justify-content-between mb-2">
+                              <div>
+                                <h6 className="mb-1">{cat.name}</h6>
+                                <small className="text-muted">
+                                  {formatCurrency(cat.spent, currency)} /{" "}
+                                  {formatCurrency(cat.limit || 0, currency)}
+                                </small>
+                              </div>
+                              <span
+                                className={
+                                  cat.percentUsed >= 90
+                                    ? "badge bg-danger-subtle text-danger"
+                                    : cat.percentUsed >= 70
+                                      ? "badge bg-warning-subtle text-warning"
+                                      : "badge bg-success-subtle text-success"
+                                }
+                              >
+                                {cat.percentUsed !== null
+                                  ? `${cat.percentUsed}%`
+                                  : "--"}
+                              </span>
+                            </div>
+                            <div className="progress" style={{ height: "6px" }}>
+                              <div
+                                className="progress-bar"
+                                role="progressbar"
+                                style={{
+                                  width: `${Math.min(
+                                    cat.percentUsed || 0,
+                                    100
+                                  )}%`,
+                                }}
+                              ></div>
+                            </div>
+                            <div className="d-flex justify-content-between mt-2 text-muted small">
+                              <span>
+                                Remaining:{" "}
+                                {formatCurrency(cat.remaining, currency)}
+                              </span>
+                              <span>
+                                Spent: {formatCurrency(cat.spent, currency)}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  </div>
-
-                  {/* Category Selection */}
-                  <div className="mb-3">
-                    <label htmlFor="budgetCategory" className="form-label">
-                      Category
-                    </label>
-                    <select className="form-select" id="budgetCategory">
-                      <option value="">Choose category...</option>
-                      <option value="housing">🏠 Housing</option>
-                      <option value="food">🍽️ Food & Dining</option>
-                      <option value="transport">🚗 Transportation</option>
-                      <option value="entertainment">🎬 Entertainment</option>
-                      <option value="utilities">⚡ Utilities</option>
-                      <option value="shopping">🛍️ Shopping</option>
-                      <option value="healthcare">🏥 Healthcare</option>
-                      <option value="education">📚 Education</option>
-                      <option value="savings">💰 Savings</option>
-                      <option value="other">📌 Other</option>
-                    </select>
-                  </div>
-
-                  {/* Budget Amount */}
-                  <div className="mb-3">
-                    <label htmlFor="budgetAmount" className="form-label">
-                      Budget Amount
-                    </label>
-                    <div className="input-group">
-                      <span className="input-group-text">$</span>
-                      <input
-                        type="number"
-                        className="form-control"
-                        id="budgetAmount"
-                        placeholder="500"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Time Period */}
-                  <div className="mb-3">
-                    <label htmlFor="timePeriod" className="form-label">
-                      Time Period
-                    </label>
-                    <select className="form-select" id="timePeriod">
-                      <option value="current">This Month</option>
-                      <option value="next">Next Month</option>
-                      <option value="quarter">Next 3 Months</option>
-                      <option value="year">This Year</option>
-                    </select>
-                  </div>
-
-                  {/* Notes */}
-                  <div className="mb-3">
-                    <label htmlFor="budgetNotes" className="form-label">
-                      Notes (Optional)
-                    </label>
-                    <textarea
-                      className="form-control"
-                      id="budgetNotes"
-                      rows="2"
-                      placeholder="Add any notes..."
-                    ></textarea>
-                  </div>
-                </form>
-              </div>
-              <div className="modal-footer">
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={closeCreateModal}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  id="saveBudgetBtn"
-                  onClick={closeCreateModal} // later: save to backend
-                >
-                  <i className="fas fa-save me-2"></i> Create Budget
-                </button>
+                  )}
+                </div>
               </div>
             </div>
           </div>
-        </div>
+
+          {uncategorized.length > 0 && (
+            <div className="card border-0 shadow-sm mb-4">
+              <div className="card-header bg-white border-0">
+                <h5 className="mb-0">Uncategorized Spending</h5>
+                <small className="text-muted">
+                  Assign these merchants to keep your budget accurate.
+                </small>
+              </div>
+              <div className="card-body">
+                <div className="table-responsive">
+                  <table className="table table-sm align-middle">
+                    <thead>
+                      <tr>
+                        <th>Category</th>
+                        <th className="text-end">Spent</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {uncategorized.map((item) => (
+                        <tr key={item.name}>
+                          <td>{item.name}</td>
+                          <td className="text-end">
+                            {formatCurrency(item.spent, currency)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+        </>
       )}
+
     </>
   );
 };
