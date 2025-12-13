@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import Transaction from "../models/Transaction.js";
+import Budget from "../models/Budget.js";
 
 const monthRegex = /^(\d{4})-(\d{1,2})$/;
 
@@ -42,6 +43,11 @@ export const getInsights = async (req, res) => {
     const { start: startPrev, end: endPrev } = getMonthRange(previousMonth);
 
     const userObjectId = new mongoose.Types.ObjectId(req.user.id);
+
+    const budgetDoc = await Budget.findOne({
+      user: req.user.id,
+      month,
+    }).lean();
 
     const [currentTotals] = await Transaction.aggregate([
       {
@@ -260,6 +266,8 @@ export const getInsights = async (req, res) => {
 
     const totalSpentCurrent = Math.abs(currentTotals?.expenses || 0);
     const totalIncomeCurrent = currentTotals?.income || 0;
+    const manualIncome = budgetDoc?.manualIncome || 0;
+    const incomeUsed = manualIncome > 0 ? manualIncome : totalIncomeCurrent;
 
     if (totalIncomeCurrent > 0 && totalSpentCurrent > totalIncomeCurrent * 1.2) {
       alerts.push("Monthly spending exceeds income by more than 20%.");
@@ -273,7 +281,9 @@ export const getInsights = async (req, res) => {
       month,
       previousMonth,
       cashflow: {
-        income: totalIncomeCurrent,
+        income: incomeUsed,
+        actualIncome: totalIncomeCurrent,
+        manualIncome,
         expenses: totalSpentCurrent,
         previousExpenses: Math.abs(previousTotals?.expenses || 0),
       },

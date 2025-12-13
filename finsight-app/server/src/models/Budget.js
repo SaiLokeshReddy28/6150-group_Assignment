@@ -47,6 +47,11 @@ const budgetSchema = new mongoose.Schema(
       type: [categoryBudgetSchema],
       default: [],
     },
+    manualIncome: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
   },
   {
     timestamps: true,

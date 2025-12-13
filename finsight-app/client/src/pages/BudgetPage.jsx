@@ -33,6 +33,8 @@ const generateCategoryId = () =>
     ? crypto.randomUUID()
     : `cat-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
+const CATEGORY_LOCKS = new Set(["Housing", "Food & Dining"]);
+
 const createCategoryEntry = (name = "", limit = "") => ({
   id: generateCategoryId(),
   name,
@@ -40,6 +42,7 @@ const createCategoryEntry = (name = "", limit = "") => ({
     limit === undefined || limit === null || Number.isNaN(limit)
       ? ""
       : String(limit),
+  locked: CATEGORY_LOCKS.has(name),
 });
 
 const buildEmptySummaryData = (month) => ({
@@ -65,6 +68,11 @@ const buildFormState = (month, budget, summary) => ({
     summary?.summary?.totalSpent ??
     "",
   currency: budget?.currency || summary?.currency || "USD",
+  manualIncome:
+    budget?.manualIncome ??
+    summary?.summary?.manualIncome ??
+    summary?.summary?.actualIncome ??
+    "",
   notes: budget?.notes || "",
   categories:
     budget?.categories?.length
@@ -72,10 +80,10 @@ const buildFormState = (month, budget, summary) => ({
         ...createCategoryEntry(cat.name, cat.limit),
       }))
       : summary?.categories?.length
-      ? summary.categories.map((cat) => ({
+        ? summary.categories.map((cat) => ({
           ...createCategoryEntry(cat.name, cat.limit ?? cat.spent ?? 0),
         }))
-      : [createCategoryEntry()],
+        : [createCategoryEntry()],
 });
 
 const initialMonthKey = getCurrentMonthKey();
@@ -134,8 +142,8 @@ const BudgetPage = () => {
         bothFailed
           ? "Unable to load budget data. Please try again."
           : someFailed
-          ? "Some budget data could not be loaded. Showing latest available information."
-          : null
+            ? "Some budget data could not be loaded. Showing latest available information."
+            : null
       );
     } finally {
       setLoading(false);
@@ -150,6 +158,21 @@ const BudgetPage = () => {
   const summary = summaryData?.summary || {};
   const categories = summaryData?.categories || [];
   const uncategorized = summaryData?.uncategorized || [];
+  const manualIncomeValue = Number(summary?.manualIncome || 0);
+  const actualIncomeValue = Number(
+    summary?.actualIncome ?? summary?.totalIncome ?? 0
+  );
+  const incomeDisplay =
+    manualIncomeValue > 0 ? manualIncomeValue : actualIncomeValue;
+  const incomeLabel =
+    manualIncomeValue > 0 ? "Planned Income (manual)" : "Income from statements";
+  const displayCategories =
+    categories.length > 0
+      ? categories.map((cat) => ({ ...cat, hasBudget: true }))
+      : (uncategorized || []).map((cat) => ({
+        ...cat,
+        hasBudget: false,
+      }));
 
   const handleFormChange = (field, value) => {
     setFormData((prev) => ({
@@ -170,7 +193,15 @@ const BudgetPage = () => {
   const handleCategoryChange = (index, field, value) => {
     setFormData((prev) => {
       const updated = [...prev.categories];
-      updated[index] = { ...updated[index], [field]: value };
+      if (field === "name") {
+        updated[index] = {
+          ...updated[index],
+          name: value,
+          locked: CATEGORY_LOCKS.has(value),
+        };
+      } else {
+        updated[index] = { ...updated[index], [field]: value };
+      }
       return { ...prev, categories: updated };
     });
   };
@@ -198,10 +229,6 @@ const BudgetPage = () => {
       validationErrors.push("Please select a valid month.");
     }
 
-    if (!formData.currency || formData.currency.length !== 3) {
-      validationErrors.push("Currency must be a 3-letter code.");
-    }
-
     if (!formData.totalLimit || Number(formData.totalLimit) <= 0) {
       validationErrors.push("Total budget must be greater than zero.");
     }
@@ -211,7 +238,12 @@ const BudgetPage = () => {
       .map((cat) => ({
         name: cat.name.trim(),
         limit: Math.max(Number(cat.limit) || 0, 0),
+        locked: cat.locked ?? CATEGORY_LOCKS.has(cat.name),
       }));
+
+    if (formData.manualIncome && Number(formData.manualIncome) < 0) {
+      validationErrors.push("Monthly income cannot be negative.");
+    }
 
     if (!categoryPayload.length) {
       validationErrors.push("Add at least one category with a limit.");
@@ -220,6 +252,16 @@ const BudgetPage = () => {
     const hasEmptyLimit = categoryPayload.some((cat) => cat.limit <= 0);
     if (hasEmptyLimit) {
       validationErrors.push("Each category limit must be greater than zero.");
+    }
+
+    const categoriesTotal = categoryPayload.reduce(
+      (sum, cat) => sum + cat.limit,
+      0
+    );
+    if (categoriesTotal > Number(formData.totalLimit || 0)) {
+      validationErrors.push(
+        "Total of category budgets cannot exceed the overall budget."
+      );
     }
 
     if (validationErrors.length) {
@@ -234,6 +276,7 @@ const BudgetPage = () => {
         month: formData.month,
         totalLimit: Number(formData.totalLimit) || 0,
         currency: formData.currency,
+        manualIncome: Number(formData.manualIncome) || 0,
         notes: formData.notes,
         categories: categoryPayload,
       };
@@ -286,15 +329,8 @@ const BudgetPage = () => {
                 <input
                   type="text"
                   className="form-control"
-                  value={formData.currency}
-                  onChange={(e) =>
-                    handleFormChange(
-                      "currency",
-                      e.target.value.toUpperCase()
-                    )
-                  }
-                  maxLength={3}
-                  required
+                  value="USD"
+                  readOnly
                 />
               </div>
               <div className="col-md-6">
@@ -310,6 +346,22 @@ const BudgetPage = () => {
                   placeholder="3500"
                   required
                 />
+              </div>
+              <div className="col-md-6">
+                <label className="form-label">Projected Monthly Income</label>
+                <input
+                  type="number"
+                  className="form-control"
+                  value={formData.manualIncome}
+                  min="0"
+                  onChange={(e) =>
+                    handleFormChange("manualIncome", e.target.value)
+                  }
+                  placeholder="4000"
+                />
+                <small className="text-muted">
+                  Leave blank to rely on detected income from statements.
+                </small>
               </div>
               <div className="col-md-6">
                 <label className="form-label">Notes</label>
@@ -349,6 +401,7 @@ const BudgetPage = () => {
                       handleCategoryChange(index, "name", e.target.value)
                     }
                     required
+                    disabled={cat.locked}
                   >
                     <option value="">Select category</option>
                     {CATEGORY_OPTIONS.map((option) => (
@@ -370,6 +423,7 @@ const BudgetPage = () => {
                     }
                     placeholder="1200"
                     required
+                    disabled={cat.locked}
                   />
                 </div>
                 <div className="col-md-2 text-end">
@@ -377,7 +431,7 @@ const BudgetPage = () => {
                     type="button"
                     className="btn btn-outline-danger w-100"
                     onClick={() => removeCategoryRow(index)}
-                    disabled={formData.categories.length === 1}
+                    disabled={formData.categories.length === 1 || cat.locked}
                   >
                     <i className="fas fa-trash"></i>
                   </button>
@@ -404,8 +458,8 @@ const BudgetPage = () => {
                 {saving
                   ? "Saving..."
                   : budget
-                  ? "Update Budget"
-                  : "Create Budget"}
+                    ? "Update Budget"
+                    : "Create Budget"}
               </button>
             </div>
           </form>
@@ -472,6 +526,16 @@ const BudgetPage = () => {
                 </div>
               </div>
             </div>
+            <div className="col-12 col-md-6 col-lg-3">
+              <div className="card border-0 shadow-sm h-100">
+                <div className="card-body">
+                  <p className="text-muted small mb-1">{incomeLabel}</p>
+                  <h3 className="fw-bold mb-0">
+                    {formatCurrency(incomeDisplay || 0, currency)}
+                  </h3>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="row g-4 mb-4">
@@ -480,62 +544,89 @@ const BudgetPage = () => {
                 <div className="card-header bg-white border-0">
                   <h5 className="mb-0">Budget Categories</h5>
                   <small className="text-muted">
-                    Actual spend vs plan for {selectedMonth}
+                    {categories.length > 0
+                      ? `Actual spend vs plan for ${selectedMonth}`
+                      : `Statement spend captured for ${selectedMonth}`}
                   </small>
                 </div>
                 <div className="card-body">
-                  {categories.length === 0 ? (
+                  {displayCategories.length === 0 ? (
                     <p className="text-muted mb-0">
-                      Add categories to your budget to start tracking progress.
+                      Upload a statement to start tracking spending for this
+                      month.
                     </p>
                   ) : (
                     <div className="row g-3">
-                      {categories.map((cat) => (
+                      {displayCategories.map((cat) => (
                         <div className="col-12 col-md-6" key={cat.name}>
                           <div className="border rounded p-3 h-100">
                             <div className="d-flex justify-content-between mb-2">
                               <div>
                                 <h6 className="mb-1">{cat.name}</h6>
                                 <small className="text-muted">
-                                  {formatCurrency(cat.spent, currency)} /{" "}
-                                  {formatCurrency(cat.limit || 0, currency)}
+                                  {cat.hasBudget && cat.limit !== null
+                                    ? `${formatCurrency(
+                                      cat.spent,
+                                      currency
+                                    )} / ${formatCurrency(
+                                      cat.limit || 0,
+                                      currency
+                                    )}`
+                                    : `Spent ${formatCurrency(
+                                      cat.spent,
+                                      currency
+                                    )} from your card statements`}
                                 </small>
                               </div>
-                              <span
-                                className={
-                                  cat.percentUsed >= 90
-                                    ? "badge bg-danger-subtle text-danger"
-                                    : cat.percentUsed >= 70
-                                      ? "badge bg-warning-subtle text-warning"
-                                      : "badge bg-success-subtle text-success"
-                                }
-                              >
-                                {cat.percentUsed !== null
-                                  ? `${cat.percentUsed}%`
-                                  : "--"}
-                              </span>
+                              {cat.hasBudget && (
+                                <span
+                                  className={
+                                    cat.percentUsed >= 90
+                                      ? "badge bg-danger-subtle text-danger"
+                                      : cat.percentUsed >= 70
+                                        ? "badge bg-warning-subtle text-warning"
+                                        : "badge bg-success-subtle text-success"
+                                  }
+                                >
+                                  {cat.percentUsed !== null
+                                    ? `${cat.percentUsed}%`
+                                    : "--"}
+                                </span>
+                              )}
                             </div>
-                            <div className="progress" style={{ height: "6px" }}>
-                              <div
-                                className="progress-bar"
-                                role="progressbar"
-                                style={{
-                                  width: `${Math.min(
-                                    cat.percentUsed || 0,
-                                    100
-                                  )}%`,
-                                }}
-                              ></div>
-                            </div>
-                            <div className="d-flex justify-content-between mt-2 text-muted small">
-                              <span>
-                                Remaining:{" "}
-                                {formatCurrency(cat.remaining, currency)}
-                              </span>
-                              <span>
-                                Spent: {formatCurrency(cat.spent, currency)}
-                              </span>
-                            </div>
+                            {cat.hasBudget ? (
+                              <>
+                                <div
+                                  className="progress"
+                                  style={{ height: "6px" }}
+                                >
+                                  <div
+                                    className="progress-bar"
+                                    role="progressbar"
+                                    style={{
+                                      width: `${Math.min(
+                                        cat.percentUsed || 0,
+                                        100
+                                      )}%`,
+                                    }}
+                                  ></div>
+                                </div>
+                                <div className="d-flex justify-content-between mt-2 text-muted small">
+                                  <span>
+                                    Remaining:{" "}
+                                    {formatCurrency(cat.remaining, currency)}
+                                  </span>
+                                  <span>
+                                    Spent: {formatCurrency(cat.spent, currency)}
+                                  </span>
+                                </div>
+                              </>
+                            ) : (
+                              <p className="text-muted small mt-2 mb-0">
+                                No budget set yet. Values come directly from
+                                your uploaded statements.
+                              </p>
+                            )}
                           </div>
                         </div>
                       ))}

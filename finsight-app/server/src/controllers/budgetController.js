@@ -38,7 +38,14 @@ export const upsertBudget = async (req, res) => {
       return res.status(401).json({ message: "User not authenticated" });
     }
 
-    const { month, totalLimit, currency, notes, categories } = req.body;
+    const {
+      month,
+      totalLimit,
+      currency,
+      notes,
+      categories,
+      manualIncome,
+    } = req.body;
     const normalizedMonth = normalizeMonth(month) || currentMonthKey();
     const userId = req.user.id;
 
@@ -59,6 +66,7 @@ export const upsertBudget = async (req, res) => {
       currency: (currency || "USD").toUpperCase(),
       notes: notes ? String(notes).trim() : "",
       categories: cleanCategories,
+      manualIncome: Math.max(Number(manualIncome) || 0, 0),
     };
 
     console.log("Querying for:", { user: userId, month: normalizedMonth });
@@ -142,6 +150,8 @@ export const getBudgetSummary = async (req, res) => {
     // 3. Merge Match
     const totalSpent = Math.abs(spendTotals?.expenses || 0);
     const totalIncome = spendTotals?.income || 0;
+    const manualIncome = budget?.manualIncome || 0;
+    const effectiveIncome = manualIncome > 0 ? manualIncome : totalIncome;
     const totalLimit =
       budget?.totalLimit ||
       budget?.categories?.reduce((s, c) => s + (c.limit || 0), 0) ||
@@ -176,7 +186,9 @@ export const getBudgetSummary = async (req, res) => {
       summary: {
         totalLimit,
         totalSpent,
-        totalIncome,
+        totalIncome: effectiveIncome,
+        actualIncome: totalIncome,
+        manualIncome,
         remaining: Math.max(totalLimit - totalSpent, 0),
         percentUsed: percentUsedTotal,
       },

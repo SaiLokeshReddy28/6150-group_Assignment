@@ -196,6 +196,10 @@ export const getDashboardStats = async (req, res) => {
 
     const monthlyExpenseValue = Math.abs(monthlyTotals?.monthlyExpenses || 0);
 
+    const manualIncome = currentBudget?.manualIncome || 0;
+    const derivedMonthlyIncome =
+      manualIncome > 0 ? manualIncome : monthlyTotals?.monthlyIncome || 0;
+
     const budgetUsage =
       totalBudgetLimit > 0
         ? {
@@ -214,7 +218,10 @@ export const getDashboardStats = async (req, res) => {
         totalBalance: globalTotals?.totalBalance || 0,
         totalIncome: globalTotals?.totalIncome || 0,
         totalExpenses: Math.abs(globalTotals?.totalExpenses || 0),
-        monthlyIncome: monthlyTotals?.monthlyIncome || 0,
+        monthlyIncome: derivedMonthlyIncome,
+        monthlyIncomeSource: manualIncome > 0 ? "manual" : "actual",
+        manualMonthlyIncome: manualIncome,
+        actualMonthlyIncome: monthlyTotals?.monthlyIncome || 0,
         monthlySpending: monthlyExpenseValue,
         budgetUsage,
       },
