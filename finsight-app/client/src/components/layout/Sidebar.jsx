@@ -30,6 +30,13 @@ const Sidebar = ({ isOpen }) => {
           </Link>
         </li>
 
+        <li className={`menu-item ${isActive("/transactions") ? "active" : ""}`}>
+          <Link to="/transactions" className="menu-link">
+            <i className="fas fa-list"></i>
+            <span>Transactions</span>
+          </Link>
+        </li>
+
         <li className={`menu-item ${isActive("/budget") ? "active" : ""}`}>
           <Link to="/budget" className="menu-link">
             <i className="fas fa-wallet"></i>
@@ -51,12 +58,6 @@ const Sidebar = ({ isOpen }) => {
           </Link>
         </li>
 
-        <li className="menu-item">
-          <button type="button" className="menu-link menu-link-btn">
-            <i className="fas fa-cog"></i>
-            <span>Settings</span>
-          </button>
-        </li>
       </ul>
 
       <div className="sidebar-footer">
