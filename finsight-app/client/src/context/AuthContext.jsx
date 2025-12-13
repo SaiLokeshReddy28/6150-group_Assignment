@@ -1,116 +1,44 @@
 // src/context/AuthContext.jsx
 import React, { createContext, useContext, useEffect, useState } from "react";
+import api from "../api/axiosClient";
 
 const AuthContext = createContext(null);
 
-// Keys used in storage - ONLY STORE ESSENTIAL DATA
+// Keys used in storage - ONLY STORE TOKEN
 const TOKEN_KEY = "finsight_token";
-const USER_ID_KEY = "finsight_user_id";
-const USER_NAME_KEY = "finsight_user_name";
-const USER_EMAIL_KEY = "finsight_user_email";
-const USER_ROLE_KEY = "finsight_user_role";
 
-// OLD KEY - TO BE REMOVED (legacy cleanup)
-const OLD_USER_KEY = "finsight_user";
-
-// Helper: read from storage on first load
-function getStoredAuth() {
-  if (typeof window === "undefined") {
-    return { user: null, token: null, rememberMe: false };
-  }
-
+// Helper: read token from storage
+function getStoredToken() {
+  if (typeof window === "undefined") return { token: null, rememberMe: false };
   try {
-    // 1) Prefer persistent (localStorage)
-    const localToken = localStorage.getItem(TOKEN_KEY);
-    const localUserId = localStorage.getItem(USER_ID_KEY);
-    const localUserName = localStorage.getItem(USER_NAME_KEY);
-    const localUserEmail = localStorage.getItem(USER_EMAIL_KEY);
-    const localUserRole = localStorage.getItem(USER_ROLE_KEY);
-    
-    if (localToken && localUserId) {
-      return {
-        user: {
-          _id: localUserId,
-          name: localUserName,
-          email: localUserEmail,
-          role: localUserRole || "user",
-        },
-        token: localToken,
-        rememberMe: true,
-      };
-    }
-  } catch (err) {
-    console.error("Error reading auth from localStorage:", err);
-  }
+    const local = localStorage.getItem(TOKEN_KEY);
+    if (local) return { token: local, rememberMe: true };
 
-  try {
-    // 2) Fallback to sessionStorage
-    const sessionToken = sessionStorage.getItem(TOKEN_KEY);
-    const sessionUserId = sessionStorage.getItem(USER_ID_KEY);
-    const sessionUserName = sessionStorage.getItem(USER_NAME_KEY);
-    const sessionUserEmail = sessionStorage.getItem(USER_EMAIL_KEY);
-    const sessionUserRole = sessionStorage.getItem(USER_ROLE_KEY);
-    
-    if (sessionToken && sessionUserId) {
-      return {
-        user: {
-          _id: sessionUserId,
-          name: sessionUserName,
-          email: sessionUserEmail,
-          role: sessionUserRole || "user",
-        },
-        token: sessionToken,
-        rememberMe: false,
-      };
-    }
+    const session = sessionStorage.getItem(TOKEN_KEY);
+    if (session) return { token: session, rememberMe: false };
   } catch (err) {
-    console.error("Error reading auth from sessionStorage:", err);
+    console.error("Error reading token:", err);
   }
-
-  return { user: null, token: null, rememberMe: false };
+  return { token: null, rememberMe: false };
 }
 
-// Helper: clear all auth data from both storages
+// Helper: clear storages
 function clearAuthStorage() {
   try {
-    // Remove NEW format keys
     localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(USER_ID_KEY);
-    localStorage.removeItem(USER_NAME_KEY);
-    localStorage.removeItem(USER_EMAIL_KEY);
-    localStorage.removeItem(USER_ROLE_KEY);
-    
     sessionStorage.removeItem(TOKEN_KEY);
-    sessionStorage.removeItem(USER_ID_KEY);
-    sessionStorage.removeItem(USER_NAME_KEY);
-    sessionStorage.removeItem(USER_EMAIL_KEY);
-    sessionStorage.removeItem(USER_ROLE_KEY);
-    
-    // 🧹 REMOVE OLD FORMAT (cleanup legacy data)
-    localStorage.removeItem(OLD_USER_KEY);
-    sessionStorage.removeItem(OLD_USER_KEY);
-  } catch (err) {
-    console.error("Error clearing auth storage:", err);
-  }
-}
 
-// Helper: cleanup old storage format on app load
-function cleanupOldStorage() {
-  try {
-    // If old format exists, remove it
-    const oldData = localStorage.getItem(OLD_USER_KEY);
-    if (oldData) {
-      console.log("🧹 Removing old finsight_user key...");
-      localStorage.removeItem(OLD_USER_KEY);
-    }
-    
-    const oldSessionData = sessionStorage.getItem(OLD_USER_KEY);
-    if (oldSessionData) {
-      console.log("🧹 Removing old finsight_user from session...");
-      sessionStorage.removeItem(OLD_USER_KEY);
-    }
+    // Cleanup old keys (legacy support)
+    const oldKeys = [
+      "finsight_user", "finsight_user_id", "finsight_user_name",
+      "finsight_user_email", "finsight_user_role"
+    ];
+    oldKeys.forEach(key => {
+      localStorage.removeItem(key);
+      sessionStorage.removeItem(key);
+    });
   } catch (err) {
-    console.error("Error cleaning old storage:", err);
+    console.error("Error clearing storage:", err);
   }
 }
 
@@ -120,61 +48,73 @@ export const AuthProvider = ({ children }) => {
   const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // On first load, cleanup old format and hydrate from storage
+  // Initialize Auth State
   useEffect(() => {
-    // 🧹 Clean up old storage format FIRST
-    cleanupOldStorage();
-    
-    const { user: storedUser, token: storedToken, rememberMe: storedRemember } =
-      getStoredAuth();
-    setUser(storedUser);
-    setToken(storedToken);
-    setRememberMe(storedRemember);
-    setLoading(false);
+    const initAuth = async () => {
+      // 1. Get token from storage
+      const { token: storedToken, rememberMe: storedRemember } = getStoredToken();
+
+      if (!storedToken) {
+        // No token found -> definitely logged out
+        setLoading(false);
+        return;
+      }
+
+      // 2. Set token state first (so axios interceptor picks it up)
+      setToken(storedToken);
+      setRememberMe(storedRemember);
+
+      // 3. Fetch User Details from Backend
+      try {
+        // We manually attach header here just in case state update is too slow for immediate effect
+        // though usually axios interceptor reads from storage too. 
+        // Best practice: rely on axios interceptor reading localStorage, OR pass explicit header.
+        const res = await api.get("/auth/me");
+
+        if (res.data && res.data.user) {
+          setUser(res.data.user);
+        } else {
+          throw new Error("Invalid user data");
+        }
+      } catch (err) {
+        console.error("Failed to hydrate user session:", err);
+        // Token invalid or expired -> logout
+        clearAuthStorage();
+        setToken(null);
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initAuth();
   }, []);
 
   const login = (userData, jwtToken, remember) => {
-    // Extract ONLY essential user data (not entire object)
-    const minimalUser = {
+    // 1. Save ONLY token to disk
+    clearAuthStorage();
+    const storage = remember ? localStorage : sessionStorage;
+    storage.setItem(TOKEN_KEY, jwtToken);
+
+    // 2. Set state in memory
+    setToken(jwtToken);
+    setUser({
       _id: userData._id || userData.id,
       name: userData.name,
       email: userData.email,
       role: userData.role || "user",
-    };
-
-    setUser(minimalUser);
-    setToken(jwtToken);
+      ...userData // keep other fields if needed in memory
+    });
     setRememberMe(!!remember);
-
-    try {
-      // Clear both storages first to avoid conflicts (including old format)
-      clearAuthStorage();
-
-      const storage = remember ? localStorage : sessionStorage;
-
-      // Store ONLY essential data separately (not as JSON object)
-      storage.setItem(TOKEN_KEY, jwtToken);
-      storage.setItem(USER_ID_KEY, minimalUser._id);
-      storage.setItem(USER_NAME_KEY, minimalUser.name);
-      storage.setItem(USER_EMAIL_KEY, minimalUser.email);
-      storage.setItem(USER_ROLE_KEY, minimalUser.role);
-      
-      console.log("✅ Auth stored with minimal data format");
-    } catch (err) {
-      console.error("Error saving auth to storage:", err);
-    }
   };
 
   const logout = () => {
-    // Clear state immediately
     setUser(null);
     setToken(null);
     setRememberMe(false);
-
-    // Clear all auth data from storage (including old format)
     clearAuthStorage();
-
-    console.log("✅ User logged out, all storage cleared");
+    // Optional: reload page to clear any in-memory sensitive data in other components
+    // window.location.reload(); 
   };
 
   const isAuthenticated = () => {
