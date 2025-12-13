@@ -4,13 +4,19 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
 const Sidebar = ({ isOpen }) => {
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
   const handleLogout = () => {
+    // Clear auth state and storage
     logout();
-    navigate("/auth?tab=login");
+    
+    // Force redirect to login page
+    navigate("/auth?tab=login", { replace: true });
+    
+    // Optional: Force page reload to clear any cached state
+    // setTimeout(() => window.location.href = "/auth?tab=login", 100);
   };
 
   const isActive = (path) => location.pathname === path;
@@ -61,6 +67,12 @@ const Sidebar = ({ isOpen }) => {
       </ul>
 
       <div className="sidebar-footer">
+        {user && (
+          <div className="user-info" style={{ padding: "0.5rem 1rem", fontSize: "0.875rem", color: "#888" }}>
+            <div>{user.name}</div>
+            <div style={{ fontSize: "0.75rem" }}>{user.email}</div>
+          </div>
+        )}
         <button className="logout-btn" onClick={handleLogout}>
           <i className="fas fa-sign-out-alt"></i>
           <span>Logout</span>
