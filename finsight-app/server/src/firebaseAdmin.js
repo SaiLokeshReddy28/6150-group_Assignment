@@ -1,4 +1,5 @@
 // server/src/firebaseAdmin.js
+import "dotenv/config"; // Ensure .env is loaded before accessing process.env
 import admin from "firebase-admin";
 
 // 1️⃣ Read Base64 key from .env

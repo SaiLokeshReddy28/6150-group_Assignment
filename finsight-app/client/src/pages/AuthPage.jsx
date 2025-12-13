@@ -47,6 +47,8 @@ const AuthPage = () => {
   const [activeTab, setActiveTab] = useState("login"); // "login" | "signup"
   const [loginMode, setLoginMode] = useState("user");  // "user" | "admin"
   const [showResetModal, setShowResetModal] = useState(false);
+  const [adminSignupSuccess, setAdminSignupSuccess] = useState(false);
+
 
   // Login form state
   const [loginForm, setLoginForm] = useState({
@@ -126,36 +128,36 @@ const AuthPage = () => {
   // Google / FB
   // -------------
   const handleGoogleLogin = async () => {
-  try {
-    // Always show Google account chooser
-    googleProvider.setCustomParameters({
-      prompt: "select_account"
-    });
+    try {
+      // Always show Google account chooser
+      googleProvider.setCustomParameters({
+        prompt: "select_account"
+      });
 
-    // Firebase popup
-    const result = await signInWithPopup(auth, googleProvider);
-    const firebaseUser = result.user;
+      // Firebase popup
+      const result = await signInWithPopup(auth, googleProvider);
+      const firebaseUser = result.user;
 
-    // Get Firebase ID token
-    const idToken = await firebaseUser.getIdToken();
+      // Get Firebase ID token
+      const idToken = await firebaseUser.getIdToken();
 
-    // Send token to backend
-    const res = await api.post("/auth/google", { idToken });
+      // Send token to backend
+      const res = await api.post("/auth/google", { idToken });
 
-    // Extract user & JWT
-    const { token, user } = res.data;
+      // Extract user & JWT
+      const { token, user } = res.data;
 
-    // Save using your AuthContext
-    saveAuth(user, token, true);
+      // Save using your AuthContext
+      saveAuth(user, token, true);
 
-    // Redirect
-    navigate("/dashboard");
+      // Redirect
+      navigate("/dashboard");
 
-  } catch (err) {
-    console.error("Google login error:", err);
-    alert("Google login failed");
-  }
-};
+    } catch (err) {
+      console.error("Google login error:", err);
+      alert("Google login failed");
+    }
+  };
 
 
 
@@ -302,60 +304,66 @@ const AuthPage = () => {
   // ==========================
   const handleSignupChange = (e) => {
     const { id, name, type, checked, value } = e.target;
+
+    // 🔥 FIX 1: Special handling for admin request checkbox
+    if (id === "requestAdmin") {
+      setSignupForm((prev) => ({
+        ...prev,
+        requestAdmin: checked,   // true or false
+      }));
+      return; // stop here to avoid generic logic interfering
+    }
+
+    // Determine which field is being updated
     const key =
       name === "signupTitle"
         ? "title"
         : id === "signupName"
-        ? "name"
-        : id === "signupEmail"
-        ? "email"
-        : id === "countryCode"
-        ? "countryCode"
-        : id === "signupPhone"
-        ? "phone"
-        : id === "signupAge"
-        ? "age"
-        : id === "signupGender"
-        ? "gender"
-        : id === "signupPassword"
-        ? "password"
-        : id === "signupConfirmPassword"
-        ? "confirmPassword"
-        : id === "acceptTerms"
-        ? "acceptTerms"
-        : id;
+          ? "name"
+          : id === "signupEmail"
+            ? "email"
+            : id === "countryCode"
+              ? "countryCode"
+              : id === "signupPhone"
+                ? "phone"
+                : id === "signupAge"
+                  ? "age"
+                  : id === "signupGender"
+                    ? "gender"
+                    : id === "signupPassword"
+                      ? "password"
+                      : id === "signupConfirmPassword"
+                        ? "confirmPassword"
+                        : id === "acceptTerms"
+                          ? "acceptTerms"
+                          : id;
 
     let newValue = type === "checkbox" ? checked : value;
 
-    // Normalize phone input: digits only, limit length by country
-    if (id === "signupPhone" && type !== "checkbox") {
+    // Normalize phone digits
+    if (id === "signupPhone") {
       let numeric = value.replace(/\D/g, "");
-      let maxDigits = 15; // default
-      if (
-        signupForm.countryCode === "+1" ||
-        signupForm.countryCode === "+91"
-      ) {
-        maxDigits = 10;
-      }
+      let maxDigits = signupForm.countryCode === "+91" ? 10 : 15;
       newValue = numeric.slice(0, maxDigits);
     }
 
-    // Normalize age: digits only
-    if (id === "signupAge" && type !== "checkbox") {
-      let numericAge = value.replace(/\D/g, "");
-      newValue = numericAge;
+    // Normalize age
+    if (id === "signupAge") {
+      newValue = value.replace(/\D/g, "");
     }
 
+    // Update form state
+    setSignupForm((prev) => ({
+      ...prev,
+      [key]: newValue,
+    }));
+
+    // Clear error for updated field
     setSignupErrors((prev) => {
       const updated = { ...prev };
       delete updated[key];
       return updated;
     });
-
-    setSignupForm((prev) => ({
-      ...prev,
-      [key]: newValue,
-    }));
   };
 
   const validateField = (fieldKey, valueOverride) => {
@@ -472,70 +480,80 @@ const AuthPage = () => {
   };
 
   const handleSignupSubmit = async (e) => {
-  e.preventDefault();
-  setSignupAlert("");
+    e.preventDefault();
+    setSignupAlert("");
 
-  // Basic checks
-  if (!signupForm.phone || !signupForm.age || !signupForm.gender) {
-    setSignupAlert("Please fill in phone, age, and gender.");
-    return;
-  }
+    // Basic checks
+    if (!signupForm.phone || !signupForm.age || !signupForm.gender) {
+      setSignupAlert("Please fill in phone, age, and gender.");
+      return;
+    }
 
-  // Fields to validate
-  const fieldsToValidate = [
-    "title",
-    "name",
-    "email",
-    "phone",
-    "age",
-    "gender",
-    "password",
-    "confirmPassword",
-    "acceptTerms",
-  ];
+    // Fields to validate
+    const fieldsToValidate = [
+      "title",
+      "name",
+      "email",
+      "phone",
+      "age",
+      "gender",
+      "password",
+      "confirmPassword",
+      "acceptTerms",
+    ];
 
-  const errors = {};
-  fieldsToValidate.forEach((field) => {
-    const err = validateField(field);
-    if (err) errors[field] = err;
-  });
+    const errors = {};
+    fieldsToValidate.forEach((field) => {
+      const err = validateField(field);
+      if (err) errors[field] = err;
+    });
 
-  if (Object.keys(errors).length > 0) {
-    setSignupAlert("Please fix the highlighted fields.");
-    return;
-  }
+    if (Object.keys(errors).length > 0) {
+      setSignupAlert("Please fix the highlighted fields.");
+      return;
+    }
 
-  try {
-    // ✅ FINAL FIX — always send requestAdmin EXACTLY as checkbox value
-    const payload = {
-      title: signupForm.title,
-      fullName: signupForm.name,
-      name: signupForm.name,
-      email: signupForm.email,
-      phone: signupForm.phone,
-      countryCode: signupForm.countryCode,
-      age: Number(signupForm.age),
-      gender: signupForm.gender,
-      password: signupForm.password,
-      requestAdmin: signupForm.requestAdmin,   // FIXED ✔✔✔
-    };
+    try {
+      // ✅ FINAL FIX — always send requestAdmin EXACTLY as checkbox value
+      const payload = {
+        title: signupForm.title,
+        name: signupForm.name,
+        email: signupForm.email,
+        phone: signupForm.phone,
+        countryCode: signupForm.countryCode,
+        age: Number(signupForm.age),
+        gender: signupForm.gender,
+        password: signupForm.password,
 
-    const res = await api.post("/auth/register", payload);
-    const { token, user } = res.data;
+        // 🔥 FIX 2: requestAdmin only true when admin mode + checkbox is checked
+        requestAdmin:
+          loginMode === "admin" && signupForm.requestAdmin === true
+            ? true
+            : false,
+      };
 
-    saveAuth(user, token, true);
 
-    // Redirect after signup
-    navigate("/dashboard");
-  } catch (err) {
-    console.error("Signup error:", err?.response?.data || err);
-    const msg = getServerErrorMessage(
-      err,
-      "Something went wrong during signup."
-    );
-    setSignupAlert(msg);
-  }
-};
+      const res = await api.post("/auth/register", payload);
+      const { token, user } = res.data;
+
+      saveAuth(user, token, true);
+      // 🔥 Admin signup success message instead of dashboard redirect
+      if (loginMode === "admin" && signupForm.requestAdmin === true) {
+        setAdminSignupSuccess(true);
+        return;
+      }
+
+      // Redirect after signup
+      navigate("/dashboard");
+    } catch (err) {
+      console.error("Signup error:", err?.response?.data || err);
+      const msg = getServerErrorMessage(
+        err,
+        "Something went wrong during signup."
+      );
+      setSignupAlert(msg);
+    }
+  };
 
   // ==========================
   // RESET PASSWORD HANDLERS
@@ -607,9 +625,8 @@ const AuthPage = () => {
                   >
                     <li className="nav-item" role="presentation">
                       <button
-                        className={`nav-link ${
-                          activeTab === "login" ? "active" : ""
-                        }`}
+                        className={`nav-link ${activeTab === "login" ? "active" : ""
+                          }`}
                         id="login-tab"
                         type="button"
                         role="tab"
@@ -626,9 +643,8 @@ const AuthPage = () => {
                     </li>
                     <li className="nav-item" role="presentation">
                       <button
-                        className={`nav-link ${
-                          activeTab === "signup" ? "active" : ""
-                        }`}
+                        className={`nav-link ${activeTab === "signup" ? "active" : ""
+                          }`}
                         id="signup-tab"
                         type="button"
                         role="tab"
@@ -649,9 +665,8 @@ const AuthPage = () => {
                   <div className="tab-content" id="authTabContent">
                     {/* ================= LOGIN TAB ================= */}
                     <div
-                      className={`tab-pane fade ${
-                        activeTab === "login" ? "show active" : ""
-                      }`}
+                      className={`tab-pane fade ${activeTab === "login" ? "show active" : ""
+                        }`}
                       id="login-content"
                       role="tabpanel"
                       aria-labelledby="login-tab"
@@ -712,9 +727,8 @@ const AuthPage = () => {
                             </span>
                             <input
                               type="email"
-                              className={`form-control ${
-                                loginErrors.email ? "is-invalid" : ""
-                              }`}
+                              className={`form-control ${loginErrors.email ? "is-invalid" : ""
+                                }`}
                               id="loginEmail"
                               placeholder="Enter your email"
                               value={loginForm.email}
@@ -744,9 +758,8 @@ const AuthPage = () => {
                             </span>
                             <input
                               type="password"
-                              className={`form-control ${
-                                loginErrors.password ? "is-invalid" : ""
-                              }`}
+                              className={`form-control ${loginErrors.password ? "is-invalid" : ""
+                                }`}
                               id="loginPassword"
                               placeholder="Enter your password"
                               value={loginForm.password}
@@ -850,514 +863,532 @@ const AuthPage = () => {
                             <i className="fab fa-google me-2"></i> Google
                           </button>
 
-                          
+
                         </div>
                       </form>
                     </div>
 
                     {/* ================= SIGNUP TAB ================= */}
                     <div
-                      className={`tab-pane fade ${
-                        activeTab === "signup" ? "show active" : ""
-                      }`}
+                      className={`tab-pane fade ${activeTab === "signup" ? "show active" : ""
+                        }`}
                       id="signup-content"
                       role="tabpanel"
                       aria-labelledby="signup-tab"
                     >
-                      <form
-                        id="signupForm"
-                        className="auth-form"
-                        noValidate
-                        onSubmit={handleSignupSubmit}
-                      >
-                        {/* Signup Alert */}
-                        {signupAlert && (
-                          <div
-                            className="alert alert-danger"
-                            role="alert"
-                            id="signupAlert"
-                          >
-                            <i className="fas fa-exclamation-circle me-2"></i>
-                            <span id="signupAlertMessage">{signupAlert}</span>
+                      {adminSignupSuccess ? (
+                        /* ✅ ADMIN SIGNUP SUCCESS SCREEN */
+                        <div className="text-center py-4">
+                          <div className="mb-4">
+                            <i className="fas fa-user-shield fa-3x text-success"></i>
                           </div>
-                        )}
 
-                        {/* Title radio */}
-                        <div className="mb-3">
-                          <label className="form-label">Title</label>
-                          <div className="d-flex gap-3 flex-wrap">
-                            {["mr", "ms", "mrs", "dr", "prof"].map((val) => (
-                              <div className="form-check" key={val}>
-                                <input
-                                  className="form-check-input"
-                                  type="radio"
-                                  name="signupTitle"
-                                  id={`title-${val}`}
-                                  value={val}
-                                  checked={signupForm.title === val}
-                                  onChange={handleSignupChange}
-                                  onBlur={() => validateField("title")}
-                                />
-                                <label
-                                  className="form-check-label"
-                                  htmlFor={`title-${val}`}
-                                >
-                                  {val === "mr"
-                                    ? "Mr."
-                                    : val === "ms"
-                                    ? "Ms."
-                                    : val === "mrs"
-                                    ? "Mrs."
-                                    : val === "dr"
-                                    ? "Dr."
-                                    : "Prof."}
-                                </label>
-                              </div>
-                            ))}
-                          </div>
-                          {signupErrors.title && (
-                            <div className="text-danger small mt-1">
-                              {signupErrors.title}
+                          <h4 className="fw-bold mb-3">Admin Signup Successful</h4>
+
+                          <p className="text-muted mb-4">
+                            Your admin signup request has been submitted successfully.
+                            <br />
+                            A <strong>super admin</strong> must approve your request before
+                            you receive admin privileges.
+                          </p>
+
+                          <button
+                            className="btn btn-primary btn-lg"
+                            onClick={() => {
+                              setAdminSignupSuccess(false);
+                              setActiveTab("login");
+                              navigate("/auth?tab=login&mode=admin");
+                            }}
+                          >
+                            <i className="fas fa-arrow-left me-2"></i>
+                            Back to Admin Login
+                          </button>
+                        </div>
+                      ) : (
+                        /* 🔹 ORIGINAL SIGNUP FORM */
+                        <form
+                          id="signupForm"
+                          className="auth-form"
+                          noValidate
+                          onSubmit={handleSignupSubmit}
+                        >
+                          {/* Signup Alert */}
+                          {signupAlert && (
+                            <div
+                              className="alert alert-danger"
+                              role="alert"
+                              id="signupAlert"
+                            >
+                              <i className="fas fa-exclamation-circle me-2"></i>
+                              <span id="signupAlertMessage">{signupAlert}</span>
                             </div>
                           )}
-                        </div>
 
-                        {/* Name */}
-                        <div className="mb-3">
-                          <label
-                            htmlFor="signupName"
-                            className="form-label"
-                          >
-                            Full Name
-                          </label>
-                          <div className="input-group">
-                            <span className="input-group-text">
-                              <i className="fas fa-user" aria-hidden="true"></i>
-                            </span>
-                            <input
-                              type="text"
-                              className={`form-control ${
-                                signupErrors.name ? "is-invalid" : ""
-                              }`}
-                              id="signupName"
-                              placeholder="Enter your full name"
-                              maxLength={50}
-                              value={signupForm.name}
-                              onChange={handleSignupChange}
-                              onBlur={() => validateField("name")}
-                            />
-                            {signupErrors.name && (
-                              <div className="invalid-feedback">
-                                {signupErrors.name}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Email */}
-                        <div className="mb-3">
-                          <label
-                            htmlFor="signupEmail"
-                            className="form-label"
-                          >
-                            Email Address
-                          </label>
-                          <div className="input-group">
-                            <span className="input-group-text">
-                              <i
-                                className="fas fa-envelope"
-                                aria-hidden="true"
-                              ></i>
-                            </span>
-                            <input
-                              type="email"
-                              className={`form-control ${
-                                signupErrors.email ? "is-invalid" : ""
-                              }`}
-                              id="signupEmail"
-                              placeholder="Enter your email"
-                              maxLength={100}
-                              value={signupForm.email}
-                              onChange={handleSignupChange}
-                              onBlur={() => validateField("email")}
-                            />
-                            {signupErrors.email && (
-                              <div className="invalid-feedback">
-                                {signupErrors.email}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Phone + Country */}
-                        <div className="mb-3">
-                          <label
-                            htmlFor="signupPhone"
-                            className="form-label"
-                          >
-                            Phone Number
-                          </label>
-                          <div className="row g-2">
-                            <div className="col-4">
-                              <select
-                                className="form-select"
-                                id="countryCode"
-                                value={signupForm.countryCode}
-                                onChange={handleSignupChange}
-                              >
-                                <option value="+1">🇺🇸 +1 (US)</option>
-                                <option value="+91">🇮🇳 +91 (India)</option>
-                                <option value="+44">🇬🇧 +44 (UK)</option>
-                                <option value="+86">🇨🇳 +86 (China)</option>
-                                <option value="+81">🇯🇵 +81 (Japan)</option>
-                                <option value="+82">🇰🇷 +82 (Korea)</option>
-                                <option value="+61">🇦🇺 +61 (Australia)</option>
-                                <option value="+49">🇩🇪 +49 (Germany)</option>
-                                <option value="+33">🇫🇷 +33 (France)</option>
-                                <option value="+39">🇮🇹 +39 (Italy)</option>
-                                <option value="+34">🇪🇸 +34 (Spain)</option>
-                                <option value="+7">🇷🇺 +7 (Russia)</option>
-                                <option value="+55">🇧🇷 +55 (Brazil)</option>
-                                <option value="+52">🇲🇽 +52 (Mexico)</option>
-                                <option value="+27">🇿🇦 +27 (South Africa)</option>
-                              </select>
+                          {/* Title radio */}
+                          <div className="mb-3">
+                            <label className="form-label">Title</label>
+                            <div className="d-flex gap-3 flex-wrap">
+                              {["mr", "ms", "mrs", "dr", "prof"].map((val) => (
+                                <div className="form-check" key={val}>
+                                  <input
+                                    className="form-check-input"
+                                    type="radio"
+                                    name="signupTitle"
+                                    id={`title-${val}`}
+                                    value={val}
+                                    checked={signupForm.title === val}
+                                    onChange={handleSignupChange}
+                                    onBlur={() => validateField("title")}
+                                  />
+                                  <label
+                                    className="form-check-label"
+                                    htmlFor={`title-${val}`}
+                                  >
+                                    {val === "mr"
+                                      ? "Mr."
+                                      : val === "ms"
+                                        ? "Ms."
+                                        : val === "mrs"
+                                          ? "Mrs."
+                                          : val === "dr"
+                                            ? "Dr."
+                                            : "Prof."}
+                                  </label>
+                                </div>
+                              ))}
                             </div>
-                            <div className="col-8">
-                              <div className="input-group">
-                                <span className="input-group-text">
-                                  <i
-                                    className="fas fa-phone"
-                                    aria-hidden="true"
-                                  ></i>
-                                </span>
-                                <input
-                                  type="tel"
-                                  className={`form-control ${
-                                    signupErrors.phone ? "is-invalid" : ""
+                            {signupErrors.title && (
+                              <div className="text-danger small mt-1">
+                                {signupErrors.title}
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Name */}
+                          <div className="mb-3">
+                            <label
+                              htmlFor="signupName"
+                              className="form-label"
+                            >
+                              Full Name
+                            </label>
+                            <div className="input-group">
+                              <span className="input-group-text">
+                                <i className="fas fa-user" aria-hidden="true"></i>
+                              </span>
+                              <input
+                                type="text"
+                                className={`form-control ${signupErrors.name ? "is-invalid" : ""
                                   }`}
-                                  id="signupPhone"
-                                  placeholder="Enter phone number"
-                                  maxLength={15}
-                                  inputMode="numeric"
-                                  pattern="\d{7,15}"
-                                  value={signupForm.phone}
-                                  onChange={handleSignupChange}
-                                  onBlur={() => validateField("phone")}
-                                />
-                              </div>
+                                id="signupName"
+                                placeholder="Enter your full name"
+                                maxLength={50}
+                                value={signupForm.name}
+                                onChange={handleSignupChange}
+                                onBlur={() => validateField("name")}
+                              />
+                              {signupErrors.name && (
+                                <div className="invalid-feedback">
+                                  {signupErrors.name}
+                                </div>
+                              )}
                             </div>
                           </div>
-                          <small className="text-muted d-block mt-1">
-                            <i className="fas fa-info-circle me-1"></i>
-                            Enter phone number without country code
-                          </small>
-                          {signupErrors.phone && (
-                            <div className="invalid-feedback d-block">
-                              {signupErrors.phone}
+
+                          {/* Email */}
+                          <div className="mb-3">
+                            <label
+                              htmlFor="signupEmail"
+                              className="form-label"
+                            >
+                              Email Address
+                            </label>
+                            <div className="input-group">
+                              <span className="input-group-text">
+                                <i
+                                  className="fas fa-envelope"
+                                  aria-hidden="true"
+                                ></i>
+                              </span>
+                              <input
+                                type="email"
+                                className={`form-control ${signupErrors.email ? "is-invalid" : ""
+                                  }`}
+                                id="signupEmail"
+                                placeholder="Enter your email"
+                                maxLength={100}
+                                value={signupForm.email}
+                                onChange={handleSignupChange}
+                                onBlur={() => validateField("email")}
+                              />
+                              {signupErrors.email && (
+                                <div className="invalid-feedback">
+                                  {signupErrors.email}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Phone + Country */}
+                          <div className="mb-3">
+                            <label
+                              htmlFor="signupPhone"
+                              className="form-label"
+                            >
+                              Phone Number
+                            </label>
+                            <div className="row g-2">
+                              <div className="col-4">
+                                <select
+                                  className="form-select"
+                                  id="countryCode"
+                                  value={signupForm.countryCode}
+                                  onChange={handleSignupChange}
+                                >
+                                  <option value="+1">🇺🇸 +1 (US)</option>
+                                  <option value="+91">🇮🇳 +91 (India)</option>
+                                  <option value="+44">🇬🇧 +44 (UK)</option>
+                                  <option value="+86">🇨🇳 +86 (China)</option>
+                                  <option value="+81">🇯🇵 +81 (Japan)</option>
+                                  <option value="+82">🇰🇷 +82 (Korea)</option>
+                                  <option value="+61">🇦🇺 +61 (Australia)</option>
+                                  <option value="+49">🇩🇪 +49 (Germany)</option>
+                                  <option value="+33">🇫🇷 +33 (France)</option>
+                                  <option value="+39">🇮🇹 +39 (Italy)</option>
+                                  <option value="+34">🇪🇸 +34 (Spain)</option>
+                                  <option value="+7">🇷🇺 +7 (Russia)</option>
+                                  <option value="+55">🇧🇷 +55 (Brazil)</option>
+                                  <option value="+52">🇲🇽 +52 (Mexico)</option>
+                                  <option value="+27">🇿🇦 +27 (South Africa)</option>
+                                </select>
+                              </div>
+                              <div className="col-8">
+                                <div className="input-group">
+                                  <span className="input-group-text">
+                                    <i
+                                      className="fas fa-phone"
+                                      aria-hidden="true"
+                                    ></i>
+                                  </span>
+                                  <input
+                                    type="tel"
+                                    className={`form-control ${signupErrors.phone ? "is-invalid" : ""
+                                      }`}
+                                    id="signupPhone"
+                                    placeholder="Enter phone number"
+                                    maxLength={15}
+                                    inputMode="numeric"
+                                    pattern="\d{7,15}"
+                                    value={signupForm.phone}
+                                    onChange={handleSignupChange}
+                                    onBlur={() => validateField("phone")}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                            <small className="text-muted d-block mt-1">
+                              <i className="fas fa-info-circle me-1"></i>
+                              Enter phone number without country code
+                            </small>
+                            {signupErrors.phone && (
+                              <div className="invalid-feedback d-block">
+                                {signupErrors.phone}
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Age */}
+                          <div className="mb-3">
+                            <label
+                              htmlFor="signupAge"
+                              className="form-label"
+                            >
+                              Age
+                            </label>
+                            <div className="input-group">
+                              <span className="input-group-text">
+                                <i
+                                  className="fas fa-calendar"
+                                  aria-hidden="true"
+                                ></i>
+                              </span>
+                              <input
+                                type="number"
+                                className={`form-control ${signupErrors.age ? "is-invalid" : ""
+                                  }`}
+                                id="signupAge"
+                                placeholder="Your age"
+                                min={18}
+                                max={120}
+                                value={signupForm.age}
+                                onChange={handleSignupChange}
+                                onBlur={() => validateField("age")}
+                              />
+                              {signupErrors.age && (
+                                <div className="invalid-feedback">
+                                  {signupErrors.age}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Gender */}
+                          <div className="mb-3">
+                            <label
+                              htmlFor="signupGender"
+                              className="form-label"
+                            >
+                              Gender
+                            </label>
+                            <div className="input-group">
+                              <span className="input-group-text">
+                                <i
+                                  className="fas fa-venus-mars"
+                                  aria-hidden="true"
+                                ></i>
+                              </span>
+                              <select
+                                className={`form-select ${signupErrors.gender ? "is-invalid" : ""
+                                  }`}
+                                id="signupGender"
+                                value={signupForm.gender}
+                                onChange={handleSignupChange}
+                                onBlur={() => validateField("gender")}
+                              >
+                                <option value="">Select gender...</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                                <option value="other">Other</option>
+                                <option value="prefer-not-to-say">
+                                  Prefer not to say
+                                </option>
+                              </select>
+                              {signupErrors.gender && (
+                                <div className="invalid-feedback">
+                                  {signupErrors.gender}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Password */}
+                          <div className="mb-3">
+                            <label
+                              htmlFor="signupPassword"
+                              className="form-label"
+                            >
+                              Password
+                            </label>
+                            <div className="input-group">
+                              <span className="input-group-text">
+                                <i
+                                  className="fas fa-lock"
+                                  aria-hidden="true"
+                                ></i>
+                              </span>
+                              <input
+                                type="password"
+                                className={`form-control ${signupErrors.password ? "is-invalid" : ""
+                                  }`}
+                                id="signupPassword"
+                                placeholder="Create a password"
+                                minLength={8}
+                                maxLength={128}
+                                value={signupForm.password}
+                                onChange={handleSignupChange}
+                                onBlur={() => validateField("password")}
+                              />
+                              {signupErrors.password && (
+                                <div className="invalid-feedback">
+                                  {signupErrors.password}
+                                </div>
+                              )}
+                            </div>
+                            <div className="mt-2">
+                              <small className="text-muted d-block">
+                                <strong>Password must contain:</strong>
+                              </small>
+                              <small
+                                className={`d-block ${passwordRules.length
+                                    ? "text-success"
+                                    : "text-muted"
+                                  }`}
+                              >
+                                {passwordRules.length ? "✔" : "•"} At least 8
+                                characters
+                              </small>
+                              <small
+                                className={`d-block ${passwordRules.upper
+                                    ? "text-success"
+                                    : "text-muted"
+                                  }`}
+                              >
+                                {passwordRules.upper ? "✔" : "•"} One uppercase
+                                letter (A-Z)
+                              </small>
+                              <small
+                                className={`d-block ${passwordRules.lower
+                                    ? "text-success"
+                                    : "text-muted"
+                                  }`}
+                              >
+                                {passwordRules.lower ? "✔" : "•"} One lowercase
+                                letter (a-z)
+                              </small>
+                              <small
+                                className={`d-block ${passwordRules.digit
+                                    ? "text-success"
+                                    : "text-muted"
+                                  }`}
+                              >
+                                {passwordRules.digit ? "✔" : "•"} One number
+                                (0-9)
+                              </small>
+                              <small
+                                className={`d-block ${passwordRules.special
+                                    ? "text-success"
+                                    : "text-muted"
+                                  }`}
+                              >
+                                {passwordRules.special ? "✔" : "•"} One special
+                                character (!@#$%^&*)
+                              </small>
+                            </div>
+                          </div>
+
+                          {/* Confirm Password */}
+                          <div className="mb-3">
+                            <label
+                              htmlFor="signupConfirmPassword"
+                              className="form-label"
+                            >
+                              Confirm Password
+                            </label>
+                            <div className="input-group">
+                              <span className="input-group-text">
+                                <i
+                                  className="fas fa-lock"
+                                  aria-hidden="true"
+                                ></i>
+                              </span>
+                              <input
+                                type="password"
+                                className={`form-control ${signupErrors.confirmPassword
+                                    ? "is-invalid"
+                                    : ""
+                                  }`}
+                                id="signupConfirmPassword"
+                                placeholder="Confirm your password"
+                                maxLength={128}
+                                value={signupForm.confirmPassword}
+                                onChange={handleSignupChange}
+                                onBlur={() => validateField("confirmPassword")}
+                              />
+                              {signupErrors.confirmPassword && (
+                                <div className="invalid-feedback">
+                                  {signupErrors.confirmPassword}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Request Admin Access (only in admin mode) */}
+                          {loginMode === "admin" && (
+                            <div className="form-check mb-3">
+                              <input
+                                className="form-check-input"
+                                type="checkbox"
+                                id="requestAdmin"
+                                checked={signupForm.requestAdmin}
+                                onChange={(e) =>
+                                  setSignupForm((prev) => ({
+                                    ...prev,
+                                    requestAdmin: e.target.checked,
+                                  }))
+                                }
+                              />
+                              <label
+                                className="form-check-label fw-bold"
+                                htmlFor="requestAdmin"
+                              >
+                                Request Admin Access
+                              </label>
+                              <div className="form-text text-muted">
+                                A super admin must approve this request before you
+                                become an admin.
+                              </div>
                             </div>
                           )}
-                        </div>
 
-                        {/* Age */}
-                        <div className="mb-3">
-                          <label
-                            htmlFor="signupAge"
-                            className="form-label"
-                          >
-                            Age
-                          </label>
-                          <div className="input-group">
-                            <span className="input-group-text">
-                              <i
-                                className="fas fa-calendar"
-                                aria-hidden="true"
-                              ></i>
-                            </span>
-                            <input
-                              type="number"
-                              className={`form-control ${
-                                signupErrors.age ? "is-invalid" : ""
-                              }`}
-                              id="signupAge"
-                              placeholder="Your age"
-                              min={18}
-                              max={120}
-                              value={signupForm.age}
-                              onChange={handleSignupChange}
-                              onBlur={() => validateField("age")}
-                            />
-                            {signupErrors.age && (
-                              <div className="invalid-feedback">
-                                {signupErrors.age}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Gender */}
-                        <div className="mb-3">
-                          <label
-                            htmlFor="signupGender"
-                            className="form-label"
-                          >
-                            Gender
-                          </label>
-                          <div className="input-group">
-                            <span className="input-group-text">
-                              <i
-                                className="fas fa-venus-mars"
-                                aria-hidden="true"
-                              ></i>
-                            </span>
-                            <select
-                              className={`form-select ${
-                                signupErrors.gender ? "is-invalid" : ""
-                              }`}
-                              id="signupGender"
-                              value={signupForm.gender}
-                              onChange={handleSignupChange}
-                              onBlur={() => validateField("gender")}
-                            >
-                              <option value="">Select gender...</option>
-                              <option value="male">Male</option>
-                              <option value="female">Female</option>
-                              <option value="other">Other</option>
-                              <option value="prefer-not-to-say">
-                                Prefer not to say
-                              </option>
-                            </select>
-                            {signupErrors.gender && (
-                              <div className="invalid-feedback">
-                                {signupErrors.gender}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Password */}
-                        <div className="mb-3">
-                          <label
-                            htmlFor="signupPassword"
-                            className="form-label"
-                          >
-                            Password
-                          </label>
-                          <div className="input-group">
-                            <span className="input-group-text">
-                              <i
-                                className="fas fa-lock"
-                                aria-hidden="true"
-                              ></i>
-                            </span>
-                            <input
-                              type="password"
-                              className={`form-control ${
-                                signupErrors.password ? "is-invalid" : ""
-                              }`}
-                              id="signupPassword"
-                              placeholder="Create a password"
-                              minLength={8}
-                              maxLength={128}
-                              value={signupForm.password}
-                              onChange={handleSignupChange}
-                              onBlur={() => validateField("password")}
-                            />
-                            {signupErrors.password && (
-                              <div className="invalid-feedback">
-                                {signupErrors.password}
-                              </div>
-                            )}
-                          </div>
-                          <div className="mt-2">
-                            <small className="text-muted d-block">
-                              <strong>Password must contain:</strong>
-                            </small>
-                            <small
-                              className={`d-block ${
-                                passwordRules.length
-                                  ? "text-success"
-                                  : "text-muted"
-                              }`}
-                            >
-                              {passwordRules.length ? "✔" : "•"} At least 8
-                              characters
-                            </small>
-                            <small
-                              className={`d-block ${
-                                passwordRules.upper
-                                  ? "text-success"
-                                  : "text-muted"
-                              }`}
-                            >
-                              {passwordRules.upper ? "✔" : "•"} One uppercase
-                              letter (A-Z)
-                            </small>
-                            <small
-                              className={`d-block ${
-                                passwordRules.lower
-                                  ? "text-success"
-                                  : "text-muted"
-                              }`}
-                            >
-                              {passwordRules.lower ? "✔" : "•"} One lowercase
-                              letter (a-z)
-                            </small>
-                            <small
-                              className={`d-block ${
-                                passwordRules.digit
-                                  ? "text-success"
-                                  : "text-muted"
-                              }`}
-                            >
-                              {passwordRules.digit ? "✔" : "•"} One number
-                              (0-9)
-                            </small>
-                            <small
-                              className={`d-block ${
-                                passwordRules.special
-                                  ? "text-success"
-                                  : "text-muted"
-                              }`}
-                            >
-                              {passwordRules.special ? "✔" : "•"} One special
-                              character (!@#$%^&*)
-                            </small>
-                          </div>
-                        </div>
-
-                        {/* Confirm Password */}
-                        <div className="mb-3">
-                          <label
-                            htmlFor="signupConfirmPassword"
-                            className="form-label"
-                          >
-                            Confirm Password
-                          </label>
-                          <div className="input-group">
-                            <span className="input-group-text">
-                              <i
-                                className="fas fa-lock"
-                                aria-hidden="true"
-                              ></i>
-                            </span>
-                            <input
-                              type="password"
-                              className={`form-control ${
-                                signupErrors.confirmPassword
-                                  ? "is-invalid"
-                                  : ""
-                              }`}
-                              id="signupConfirmPassword"
-                              placeholder="Confirm your password"
-                              maxLength={128}
-                              value={signupForm.confirmPassword}
-                              onChange={handleSignupChange}
-                              onBlur={() => validateField("confirmPassword")}
-                            />
-                            {signupErrors.confirmPassword && (
-                              <div className="invalid-feedback">
-                                {signupErrors.confirmPassword}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Request Admin Access (only in admin mode) */}
-                        {loginMode === "admin" && (
-                          <div className="form-check mb-3">
+                          {/* Terms */}
+                          <div className="form-check mb-4">
                             <input
                               className="form-check-input"
                               type="checkbox"
-                              id="requestAdmin"
-                              checked={signupForm.requestAdmin}
-                              onChange={(e) =>
-                                setSignupForm((prev) => ({
-                                  ...prev,
-                                  requestAdmin: e.target.checked,
-                                }))
-                              }
+                              id="acceptTerms"
+                              checked={signupForm.acceptTerms}
+                              onChange={handleSignupChange}
+                              onBlur={() => validateField("acceptTerms")}
                             />
                             <label
-                              className="form-check-label fw-bold"
-                              htmlFor="requestAdmin"
+                              className="form-check-label"
+                              htmlFor="acceptTerms"
                             >
-                              Request Admin Access
+                              I agree to the{" "}
+                              <a href="#" className="text-primary">
+                                Terms &amp; Conditions
+                              </a>{" "}
+                              and{" "}
+                              <a href="#" className="text-primary">
+                                Privacy Policy
+                              </a>
                             </label>
-                            <div className="form-text text-muted">
-                              A super admin must approve this request before you
-                              become an admin.
-                            </div>
+                            {signupErrors.acceptTerms && (
+                              <div className="text-danger small mt-1">
+                                {signupErrors.acceptTerms}
+                              </div>
+                            )}
                           </div>
-                        )}
 
-                        {/* Terms */}
-                        <div className="form-check mb-4">
-                          <input
-                            className="form-check-input"
-                            type="checkbox"
-                            id="acceptTerms"
-                            checked={signupForm.acceptTerms}
-                            onChange={handleSignupChange}
-                            onBlur={() => validateField("acceptTerms")}
-                          />
-                          <label
-                            className="form-check-label"
-                            htmlFor="acceptTerms"
-                          >
-                            I agree to the{" "}
-                            <a href="#" className="text-primary">
-                              Terms &amp; Conditions
-                            </a>{" "}
-                            and{" "}
-                            <a href="#" className="text-primary">
-                              Privacy Policy
-                            </a>
-                          </label>
-                          {signupErrors.acceptTerms && (
-                            <div className="text-danger small mt-1">
-                              {signupErrors.acceptTerms}
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Submit */}
-                        <button
-                          type="submit"
-                          className="btn btn-primary w-100 btn-lg mb-3"
-                          id="signupSubmitBtn"
-                          aria-label="Create your account"
-                        >
-                          <i
-                            className="fas fa-user-plus me-2"
-                            aria-hidden="true"
-                          ></i>
-                          Create Account
-                        </button>
-
-                        {/* Divider */}
-                        <div className="auth-divider">
-                          <span>or sign up with</span>
-                        </div>
-
-                        {/* Social signup */}
-                        <div className="d-flex gap-2 mb-3">
+                          {/* Submit */}
                           <button
-                            type="button"
-                            id="googleSignupBtn"
-                            className="btn btn-outline-secondary w-100"
-                            aria-label="Sign up with Google"
-                            onClick={() =>
-                              console.log("Google signup clicked (UI only)")
-                            }
+                            type="submit"
+                            className="btn btn-primary w-100 btn-lg mb-3"
+                            id="signupSubmitBtn"
+                            aria-label="Create your account"
                           >
                             <i
-                              className="fab fa-google me-2"
+                              className="fas fa-user-plus me-2"
                               aria-hidden="true"
-                            ></i>{" "}
-                            Google
+                            ></i>
+                            Create Account
                           </button>
-                        </div>
-                      </form>
+
+                          {/* Divider */}
+                          <div className="auth-divider">
+                            <span>or sign up with</span>
+                          </div>
+
+                          {/* Social signup */}
+                          <div className="d-flex gap-2 mb-3">
+                            <button
+                              type="button"
+                              id="googleSignupBtn"
+                              className="btn btn-outline-secondary w-100"
+                              aria-label="Sign up with Google"
+                              onClick={() =>
+                                console.log("Google signup clicked (UI only)")
+                              }
+                            >
+                              <i
+                                className="fab fa-google me-2"
+                                aria-hidden="true"
+                              ></i>{" "}
+                              Google
+                            </button>
+                          </div>
+                        </form>
+                        )}
                     </div>
                   </div>
                 </div>
