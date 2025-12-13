@@ -182,20 +182,25 @@ export const getUploadTransactions = async (req, res) => {
 
     const { uploadId } = req.params;
 
-    // Ensure the upload belongs to this user
-    const upload = await Upload.findOne({
-      _id: uploadId,
-      user: req.user.id,
-    });
+    // Build query: if admin, find by ID only; if user, find by ID + user
+    const uploadQuery = { _id: uploadId };
+    if (req.user.role !== "admin") {
+      uploadQuery.user = req.user.id;
+    }
+
+    // Ensure the upload belongs to this user (or user is admin)
+    const upload = await Upload.findOne(uploadQuery);
 
     if (!upload) {
       return res.status(404).json({ message: "Upload not found" });
     }
 
-    const transactions = await Transaction.find({
-      user: req.user.id,
-      upload: uploadId,
-    })
+    const txQuery = { upload: uploadId };
+    if (req.user.role !== "admin") {
+      txQuery.user = req.user.id;
+    }
+
+    const transactions = await Transaction.find(txQuery)
       .sort({ date: 1, createdAt: 1 })
       .select("-__v");
 
@@ -220,17 +225,26 @@ export const deleteUpload = async (req, res) => {
 
     const { uploadId } = req.params;
 
-    const upload = await Upload.findOne({
-      _id: uploadId,
-      user: req.user.id,
-    });
+    const query = { _id: uploadId };
+    // If not admin, restrict to own upload
+    if (req.user.role !== "admin") {
+      query.user = req.user.id;
+    }
+
+    const upload = await Upload.findOne(query);
 
     if (!upload) {
       return res.status(404).json({ message: "Upload not found" });
     }
 
     // Delete related transactions first
-    await Transaction.deleteMany({ user: req.user.id, upload: uploadId });
+    // Admin deletes all for that upload; user deletes only their own (redundant check but safe)
+    const txQuery = { upload: uploadId };
+    if (req.user.role !== "admin") {
+      txQuery.user = req.user.id;
+    }
+
+    await Transaction.deleteMany(txQuery);
 
     // Delete the upload record
     await Upload.deleteOne({ _id: uploadId });

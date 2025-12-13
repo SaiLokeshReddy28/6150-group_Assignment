@@ -20,6 +20,7 @@ export const authMiddleware = (req, res, next) => {
       id: decoded.sub,        // <= this is the Mongo _id
       email: decoded.email,
       name: decoded.name,
+      role: decoded.role,     // Add role from token
       // keep original payload as well in case we need later
       _raw: decoded,
     };
