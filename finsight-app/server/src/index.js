@@ -59,34 +59,54 @@ const swaggerOptions = {
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
  
 // ---------- CORS MIDDLEWARE ----------
-const allowedOrigins = [
-  "http://localhost:5173", // Vite dev server
-  "http://localhost:3000", // keep if you ever use CRA
-  "https://finsight-backend-gwci.onrender.com", // ✅ BACKEND ITSELF (for Swagger UI)
-  process.env.CLIENT_URL, // Production frontend (Vercel)
-].filter(Boolean); // Remove undefined values
- 
-app.use(
-  cors({
-    origin(origin, callback) {
-      // Allow tools like curl / Postman with no origin
-      if (!origin) return callback(null, true);
- 
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
-      console.warn("⚠️ Blocked by CORS, origin:", origin);
-      console.log("✅ Allowed origins:", allowedOrigins);
-      return callback(new Error("Not allowed by CORS"));
-    },
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
-  })
+// NOTE: When you deploy to Vercel, you may have multiple domains (prod + previews).
+// Set one of these on Render:
+//   CLIENT_URL=https://<your-prod-vercel-domain>
+//   ALLOWED_ORIGINS=https://a.vercel.app,https://b.vercel.app (optional extra list)
+//   ALLOW_VERCEL_PREVIEWS=true (optional)
+
+const allowedOrigins = new Set(
+  [
+    "http://localhost:5173", // Vite dev server
+    "http://localhost:3000", // CRA (optional)
+    "https://finsight-backend-gwci.onrender.com", // backend itself (Swagger)
+    process.env.CLIENT_URL, // primary production frontend
+    ...(process.env.ALLOWED_ORIGINS
+      ? process.env.ALLOWED_ORIGINS.split(",").map((s) => s.trim())
+      : []),
+  ].filter(Boolean)
 );
- 
+
+const corsOptions = {
+  origin(origin, callback) {
+    // Allow tools like curl / Postman with no origin
+    if (!origin) return callback(null, true);
+
+    // Allow exact matches
+    if (allowedOrigins.has(origin)) return callback(null, true);
+
+    // Optional: allow Vercel preview URLs (recommended during development)
+    if (
+      process.env.ALLOW_VERCEL_PREVIEWS === "true" &&
+      origin.endsWith(".vercel.app")
+    ) {
+      return callback(null, true);
+    }
+
+    console.warn("⚠️ Blocked by CORS, origin:", origin);
+    console.log("✅ Allowed origins:", Array.from(allowedOrigins));
+    return callback(new Error("Not allowed by CORS"));
+  },
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  // If you are ONLY using JWT in the Authorization header (no cookies), you can set this to false.
+  credentials: process.env.CORS_CREDENTIALS === "true",
+};
+
+app.use(cors(corsOptions));
+
 // Preflight for all routes
-app.options("*", cors());
+app.options("*", cors(corsOptions));
  
 // ---------- OTHER MIDDLEWARE ----------
 app.use(express.json({ limit: "5mb" }));

@@ -14,8 +14,16 @@ const baseURL = (
 const api = axios.create({
   baseURL,
   timeout: 60000, // AI parsing + uploads can take time
-  withCredentials: true, // safe even if you don't use cookies yet
+  // Enable cookies ONLY if you explicitly need them.
+  // For JWT-in-Authorization flows, keep this false to simplify CORS.
+  withCredentials: import.meta.env.VITE_WITH_CREDENTIALS === "true",
 });
+
+// Helpful during deployment debugging
+if (import.meta.env.DEV) {
+  // eslint-disable-next-line no-console
+  console.log("[axiosClient] baseURL:", baseURL);
+}
 
 /**
  * Attach JWT token (localStorage / sessionStorage)
@@ -30,6 +38,11 @@ api.interceptors.request.use(
       if (token) {
         config.headers = config.headers || {};
         config.headers.Authorization = `Bearer ${token}`;
+      }
+
+      // Ensure paths remain relative to `${baseURL}/...`
+      if (typeof config.url === "string" && config.url.startsWith("/")) {
+        config.url = config.url.slice(1);
       }
     } catch (err) {
       console.error("Token read error:", err);
