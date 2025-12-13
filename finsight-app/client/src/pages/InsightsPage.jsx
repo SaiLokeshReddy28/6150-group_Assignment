@@ -75,9 +75,16 @@ const InsightsPage = () => {
     if (!budgetSummary) return [];
     const summary = budgetSummary.summary || {};
     const categories = budgetSummary.categories || [];
+    const fallbackCategories = categories.length
+      ? categories
+      : (budgetSummary.uncategorized || []).map((cat) => ({
+          ...cat,
+          percentUsed: null,
+          limit: null,
+        }));
     const messages = [];
 
-    categories.forEach((cat) => {
+    fallbackCategories.slice(0, 4).forEach((cat) => {
       if (cat.percentUsed !== null && cat.percentUsed >= 90) {
         messages.push(
           `You have used ${cat.percentUsed}% of your ${cat.name} budget. Consider slowing down spending.`
@@ -86,10 +93,17 @@ const InsightsPage = () => {
         messages.push(
           `${cat.name} spending is only ${cat.percentUsed}% of the budget. You could reallocate funds elsewhere.`
         );
+      } else if (cat.percentUsed === null) {
+        messages.push(
+          `You have spent ${formatCurrency(
+            cat.spent
+          )} on ${cat.name} this month from your statements. Consider setting a budget.`
+        );
       }
     });
 
     if (
+      categories.length > 0 &&
       summary.totalLimit > 0 &&
       (summary.remaining || 0) < summary.totalLimit * 0.1
     ) {
