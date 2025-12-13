@@ -13,17 +13,17 @@ const options = {
         email: "support@finsight.com",
       },
       license: {
-        name: "MIT",
-        url: "https://opensource.org/licenses/MIT",
+        name: "Academic Project - Course 6105",
       },
     },
     servers: [
       {
-        url: process.env.SERVER_URL || "http://localhost:5001",
-        description:
-          process.env.NODE_ENV === "production"
-            ? "Production server"
-            : "Development server",
+        url: "https://finsight-backend-gwci.onrender.com",
+        description: "Production server",
+      },
+      {
+        url: "http://localhost:5001",
+        description: "Development server",
       },
     ],
     components: {
