@@ -19,7 +19,7 @@ const PORT = process.env.PORT || 5001;
 // ----------------------
 const allowedOrigins = [
   "http://localhost:5173",   // Vite dev server
-  "http://localhost:3000",   // CRA fallback
+  "finsight-6j4qot0jr-lokeshs-projects-4e3808c1.vercel.app",   // CRA fallback
 ];
 
 app.use(
