@@ -1076,7 +1076,7 @@ const AuthPage = () => {
                                       }`}
                                     id="signupPhone"
                                     placeholder="Enter phone number"
-                                    maxLength={15}
+                                    maxLength={10}
                                     inputMode="numeric"
                                     pattern="\d{7,15}"
                                     value={signupForm.phone}

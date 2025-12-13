@@ -9,6 +9,7 @@ import swaggerSpec from "./swagger.js";
 import authRoutes from "./routes/auth.routes.js";
 import uploadRoutes from "./routes/uploadRoutes.js";
 import transactionRoutes from "./routes/transactionRoutes.js";
+import adminRoutes from "./routes/admin.js";
  
 dotenv.config();
  
@@ -103,6 +104,7 @@ app.get("/api-docs.json", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/uploads", uploadRoutes);
 app.use("/api/transactions", transactionRoutes);
+app.use("/api/admin", adminRoutes);
  
 // ---------- HEALTH CHECK ----------
 /**
