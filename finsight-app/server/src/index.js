@@ -5,15 +5,17 @@ import morgan from "morgan";
 import mongoose from "mongoose";
 import swaggerUi from "swagger-ui-express";
 import swaggerJsdoc from "swagger-jsdoc";
- 
+
 import authRoutes from "./routes/auth.routes.js";
 import uploadRoutes from "./routes/uploadRoutes.js";
 import transactionRoutes from "./routes/transactionRoutes.js";
 import budgetRoutes from "./routes/budgetRoutes.js";
+
 import insightsRoutes from "./routes/insightsRoutes.js";
- 
+import adminRoutes from "./routes/admin.js";
+
 dotenv.config();
- 
+
 const app = express();
 const PORT = process.env.PORT || 5001;
 
@@ -57,7 +59,7 @@ const swaggerOptions = {
 };
 
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
- 
+
 // ---------- CORS MIDDLEWARE ----------
 // NOTE: When you deploy to Vercel, you may have multiple domains (prod + previews).
 // Set one of these on Render:
@@ -107,7 +109,7 @@ app.use(cors(corsOptions));
 
 // Preflight for all routes
 app.options("*", cors(corsOptions));
- 
+
 // ---------- OTHER MIDDLEWARE ----------
 app.use(express.json({ limit: "5mb" }));
 app.use(morgan("dev"));
@@ -137,19 +139,21 @@ app.get("/api-docs.json", (req, res) => {
   res.setHeader("Content-Type", "application/json");
   res.send(swaggerSpec);
 });
- 
+
 // ---------- ROUTES ----------
 app.use("/api/auth", authRoutes);
 app.use("/api/uploads", uploadRoutes);
 app.use("/api/transactions", transactionRoutes);
 app.use("/api/budgets", budgetRoutes);
+
 app.use("/api/insights", insightsRoutes);
- 
+app.use("/api/admin", adminRoutes);
+
 // ---------- HEALTH CHECK ----------
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok", message: "Finsight API is running" });
 });
- 
+
 // ---------- DB CONNECT + START ----------
 mongoose
   .connect(process.env.MONGODB_URI)
