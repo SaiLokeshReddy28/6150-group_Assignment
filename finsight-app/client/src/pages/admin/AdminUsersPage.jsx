@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import api from "../../api/axiosClient";
 
 const PAGE_SIZE = 8;
@@ -15,11 +15,7 @@ const AdminUsersPage = () => {
 
   const [currentPage, setCurrentPage] = useState(1);
 
-  useEffect(() => {
-    loadUsers();
-    // eslint-disable-next-line
-  }, []);
-
+  /* ===================== LOAD USERS ===================== */
   const loadUsers = async () => {
     try {
       setLoading(true);
@@ -31,55 +27,64 @@ const AdminUsersPage = () => {
             statusFilter === ""
               ? undefined
               : statusFilter === "active"
-              ? "true"
-              : "false",
+                ? "true"
+                : "false",
         },
       });
+
       setUsers(res.data.users || []);
+      setCurrentPage(1);
     } catch (err) {
       console.error("Admin users error:", err);
+      alert("Failed to load users");
     } finally {
       setLoading(false);
-      setCurrentPage(1);
     }
   };
 
-  const makeAdmin = async (id) => {
+  useEffect(() => {
+    loadUsers();
+    // eslint-disable-next-line
+  }, []);
+
+  /* ===================== VIEW USER ===================== */
+  const handleViewUser = async (id) => {
     try {
-      await api.patch(`/admin/users/${id}/role`, { role: "admin" });
+      const res = await api.get(`/admin/users/${id}`);
+      setSelectedUser(res.data.user);
+      setShowUserModal(true);
+    } catch (err) {
+      alert("Failed to load user details");
+    }
+  };
+
+
+
+  /* ===================== TOGGLE ACTIVE ===================== */
+  const toggleStatus = async (user) => {
+    try {
+      await api.patch(`/admin/users/${user._id}/status`, {
+        isActive: !user.isActive,
+      });
       await loadUsers();
     } catch (err) {
-      console.error("Make admin error:", err);
+      alert("Failed to update status");
     }
   };
 
-  const toggleActive = async (id, isActive) => {
-    try {
-      await api.patch(`/admin/users/${id}/status`, { isActive: !isActive });
-      await loadUsers();
-    } catch (err) {
-      console.error("Toggle status error:", err);
-    }
-  };
+  
+  
 
-  const openUserModal = (user) => {
-    setSelectedUser(user);
-    setShowUserModal(true);
-  };
 
-  const closeUserModal = () => {
-    setShowUserModal(false);
-    setSelectedUser(null);
-  };
-
-  // Client-side pagination slice
+  /* ===================== PAGINATION ===================== */
   const paginatedUsers = useMemo(() => {
     const start = (currentPage - 1) * PAGE_SIZE;
     return users.slice(start, start + PAGE_SIZE);
   }, [users, currentPage]);
 
-  const totalPages = Math.ceil(users.length / PAGE_SIZE) || 1;
+  const totalPages = Math.max(1, Math.ceil(users.length / PAGE_SIZE));
 
+  /* ===================== RENDER ===================== */
   return (
     <div>
       <h2 className="fw-bold mb-4">Manage Users 👥</h2>
@@ -148,7 +153,7 @@ const AdminUsersPage = () => {
                 <th>Role</th>
                 <th>Status</th>
                 <th>Created</th>
-                <th style={{ width: "230px" }}>Actions</th>
+                <th style={{ width: "240px" }}>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -158,46 +163,39 @@ const AdminUsersPage = () => {
                   <td>{u.email}</td>
                   <td>
                     <span
-                      className={`badge ${
-                        u.role === "admin" ? "bg-primary" : "bg-secondary"
-                      }`}
+                      className={`badge ${u.role === "admin" ? "bg-primary" : "bg-secondary"
+                        }`}
                     >
-                      {u.role}
+                      {u.role.toUpperCase()}
                     </span>
                   </td>
                   <td>
                     <span
-                      className={`badge ${
-                        u.isActive ? "bg-success" : "bg-danger"
-                      }`}
+                      className={`badge ${u.isActive ? "bg-success" : "bg-danger"
+                        }`}
                     >
-                      {u.isActive ? "Active" : "Inactive"}
+                      {u.isActive ? "ACTIVE" : "INACTIVE"}
                     </span>
                   </td>
                   <td>{new Date(u.createdAt).toLocaleDateString()}</td>
-                  <td className="d-flex flex-wrap gap-2">
+                  <td className="d-flex gap-2 flex-wrap">
                     <button
                       className="btn btn-sm btn-outline-secondary"
-                      onClick={() => openUserModal(u)}
+                      onClick={() => handleViewUser(u._id)}
                     >
                       View
                     </button>
-
-                    {u.role !== "admin" && (
-                      <button
-                        className="btn btn-sm btn-outline-primary"
-                        onClick={() => makeAdmin(u._id)}
-                      >
-                        Make Admin
-                      </button>
-                    )}
-
                     <button
-                      className="btn btn-sm btn-outline-danger"
-                      onClick={() => toggleActive(u._id, u.isActive)}
+                      className={`btn btn-sm ${u.isActive
+                          ? "btn-outline-danger"
+                          : "btn-outline-success"
+                        }`}
+                      onClick={() => toggleStatus(u)}
                     >
                       {u.isActive ? "Deactivate" : "Activate"}
                     </button>
+                    
+
                   </td>
                 </tr>
               ))}
@@ -246,8 +244,6 @@ const AdminUsersPage = () => {
           className="modal fade show d-block"
           tabIndex="-1"
           style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
-          aria-modal="true"
-          role="dialog"
         >
           <div className="modal-dialog modal-dialog-centered">
             <div className="modal-content">
@@ -256,42 +252,23 @@ const AdminUsersPage = () => {
                   User Details – {selectedUser.name}
                 </h5>
                 <button
-                  type="button"
                   className="btn-close"
-                  onClick={closeUserModal}
-                  aria-label="Close"
+                  onClick={() => setShowUserModal(false)}
                 ></button>
               </div>
               <div className="modal-body">
-                <p>
-                  <strong>Email:</strong> {selectedUser.email}
-                </p>
-                <p>
-                  <strong>Role:</strong> {selectedUser.role}
-                </p>
-                <p>
-                  <strong>Status:</strong>{" "}
-                  {selectedUser.isActive ? "Active" : "Inactive"}
-                </p>
-                <p>
-                  <strong>Age:</strong> {selectedUser.age}
-                </p>
-                <p>
-                  <strong>Phone:</strong> {selectedUser.countryCode}{" "}
-                  {selectedUser.phone}
-                </p>
-                <p>
-                  <strong>Gender:</strong> {selectedUser.gender}
-                </p>
-                <p>
-                  <strong>Joined:</strong>{" "}
-                  {new Date(selectedUser.createdAt).toLocaleString()}
-                </p>
+                <p><strong>Email:</strong> {selectedUser.email}</p>
+                <p><strong>Role:</strong> {selectedUser.role}</p>
+                <p><strong>Status:</strong> {selectedUser.isActive ? "Active" : "Inactive"}</p>
+                <p><strong>Age:</strong> {selectedUser.age}</p>
+                <p><strong>Phone:</strong> {selectedUser.countryCode} {selectedUser.phone}</p>
+                <p><strong>Gender:</strong> {selectedUser.gender}</p>
+                <p><strong>Joined:</strong> {new Date(selectedUser.createdAt).toLocaleString()}</p>
               </div>
               <div className="modal-footer">
                 <button
                   className="btn btn-secondary"
-                  onClick={closeUserModal}
+                  onClick={() => setShowUserModal(false)}
                 >
                   Close
                 </button>

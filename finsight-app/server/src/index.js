@@ -7,6 +7,7 @@ import mongoose from "mongoose";
 import authRoutes from "./routes/auth.routes.js";
 import uploadRoutes from "./routes/uploadRoutes.js";
 import transactionRoutes from "./routes/transactionRoutes.js";
+import adminRoutes from "./routes/admin.js";
  
 dotenv.config();
  
@@ -50,6 +51,7 @@ app.use(morgan("dev"));
 app.use("/api/auth", authRoutes);
 app.use("/api/uploads", uploadRoutes);
 app.use("/api/transactions", transactionRoutes);
+app.use("/api/admin", adminRoutes);
  
 // ---------- HEALTH CHECK ----------
 app.get("/api/health", (req, res) => {

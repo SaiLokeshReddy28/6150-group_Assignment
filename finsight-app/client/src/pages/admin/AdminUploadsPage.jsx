@@ -39,11 +39,13 @@ const AdminUploadsPage = () => {
   };
 
   const deleteUpload = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this upload?")) return;
+
     try {
       await api.delete(`/admin/uploads/${id}`);
-      await loadUploads();
+      loadUploads(); // refresh list
     } catch (err) {
-      console.error("Delete upload error:", err);
+      alert("Failed to delete upload");
     }
   };
 
@@ -134,13 +136,12 @@ const AdminUploadsPage = () => {
                   <td>{u.originalName}</td>
                   <td>
                     <span
-                      className={`badge ${
-                        u.status === "completed"
-                          ? "bg-success"
-                          : u.status === "failed"
+                      className={`badge ${u.status === "completed"
+                        ? "bg-success"
+                        : u.status === "failed"
                           ? "bg-danger"
                           : "bg-warning text-dark"
-                      }`}
+                        }`}
                     >
                       {u.status}
                     </span>
@@ -161,11 +162,12 @@ const AdminUploadsPage = () => {
                       Transactions
                     </button>
                     <button
-                      className="btn btn-sm btn-outline-danger"
+                      className="btn btn-sm btn-danger"
                       onClick={() => deleteUpload(u._id)}
                     >
                       Delete
                     </button>
+
                   </td>
                 </tr>
               ))}
